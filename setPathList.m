@@ -5,10 +5,10 @@
 %AUTHORS: MJ Siniscalchi & AC Kwan, 190701
 %
 %--------------------------------------------------------------------------
-function [ data_dir, code_dir, path_list ] = flex_setPathList
+function [ data_dir, code_dir, path_list ] = setPathList
 
-data_dir = 'C:\Users\Michael\Documents\Data & Analysis\Rule Switching';
-code_dir = 'C:\Users\Michael\Documents\MATLAB\Rule Switching';
+data_dir = 'J:\Data & Analysis\Rule Switching';
+code_dir = 'J:\Documents\MATLAB\GitHub\RuleSwitching';
 
 % add the paths needed for this code
 path_list = {...

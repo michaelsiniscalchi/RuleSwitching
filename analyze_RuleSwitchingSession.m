@@ -2,10 +2,9 @@
 %
 %PURPOSE: To analyze individual sessions from a two-choice auditory rule switching task.
 %
-%AUTHOR: MJ Siniscalchi, 190701
+%AUTHOR: MJ Siniscalchi, 190807
 %
 %TO DO LIST:
-%   -Remove tons of extraneous code from getPresentationCodes.m
 %
 %--------------------------------------------------------------------------
 
