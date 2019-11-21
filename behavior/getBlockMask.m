@@ -1,4 +1,4 @@
-function blockMask = flex_getBlockMask( x, blocks )
+function blockMask = getBlockMask( x, blocks )
 % % getTrialMasks %
 %PURPOSE:   For the x-th block, returns the appropriate mask
 %AUTHORS:   AC Kwan 170517
@@ -13,7 +13,6 @@ function blockMask = flex_getBlockMask( x, blocks )
 %               response==left or cue==upsweep.
 
 nTrials = sum(blocks.nTrials);
-
 blockMask = false(nTrials,1);                   %Create mask for block(x)
 firstTrial = blocks.firstTrial(x);
 n = blocks.nTrials(x);

@@ -1,32 +1,26 @@
-function errorshade(x,h,l,c,t)
+function errorshade( X, CI_low, CI_high, color, transparency )
 % % errorshade(x,h,l,c) %
 %PURPOSE:   Plot shaded area, e.g. for confidence intervals
 %AUTHORS:   AC Kwan 170515
+%           -edited 190912 MJ Siniscalchi: same var used for upper bound
+%                   data as for fill object handle (fixed).
 %
 %INPUT ARGUMENTS
-%   x:  the independent variable
-%   h:  the upper bound for the dependent variable
-%   l:  the lower bound for the dependent variable
-%   c:  the color of the shading, e.g., [0.7 0.7 0.7] for gray
-%   t:  fraction solid/translucent (0 to 1)
+%   X: Independent variable
+%   CI_high: Upper bound for the dependent variable
+%   CI_low: Lower bound for the dependent variable
+%   color: Color of shading, e.g., [0.5 0.5 0.5] for medium gray
+%   transparency:  AlphaTransparency value (0 to 1; 1 ~ opaque)
 
 %%
 if nargin < 5
-    facealpha = 1; %not translucent
-else
-    facealpha = t; %make the shading translucent
+    transparency = 0.5; %No faceAlpha specified
 end
 
-x=x(:)';
-h=h(:)';
-l=l(:)';
+X = X(:)';
+CI_low = CI_low(:)';
+CI_high = CI_high(:)';
 
-%remove the NaN values
-badIdx = isnan(h) | isnan(l);
-x=x(~badIdx);
-h=h(~badIdx);
-l=l(~badIdx);
-
-%plot the shading
-h=fill([x fliplr(x)],[h fliplr(l)],c,'LineStyle','none');
-set(h,'facealpha',facealpha);
+% Fill the shaded area
+f = fill([X fliplr(X)],[CI_low fliplr(CI_high)],color,'LineStyle','none');
+set(f,'FaceAlpha',transparency);

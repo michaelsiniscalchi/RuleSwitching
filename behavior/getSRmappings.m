@@ -12,16 +12,16 @@ function [ SR ] = getSRmappings( blockSeq )
 %
 %--------------------------------------------------------------------------
 nBlocks = numel(blockSeq);
-type = {'Sound' 'ActionL' 'ActionR'};
+type = {'sound' 'actionL' 'actionR'};
 
 SR.mapping = cell(1,nBlocks);
 for i = 1:numel(type)
     switch type{i}
-        case 'Sound'
+        case 'sound'
             tempCell = {'upsweep' 'downsweep'; 'left' 'right'}; %should be fieldnames for getTrialMasks
-        case 'ActionL'
+        case 'actionL'
             tempCell = {'upsweep' 'downsweep'; 'left' 'left'};
-        case 'ActionR'
+        case 'actionR'
             tempCell = {'upsweep' 'downsweep'; 'right' 'right'};
     end
     blockMask = strcmp(blockSeq,type{i});    %Blocks in the sequence matching type{i}

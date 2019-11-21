@@ -12,9 +12,6 @@ function combinedMask = getMask( trials, fieldNames )
 
 temp = [];
 for i = 1:length(fieldNames)
-    temp = [temp trials.(fieldNames{i})]; %trialMasks as columns of array
+    temp = [temp trials.(fieldNames{i})]; %#ok<AGROW> %trialMasks as columns of array
 end
 combinedMask = all(temp,2); %true if all elements are non-zero
-
-end
-

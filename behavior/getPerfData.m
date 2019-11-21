@@ -1,5 +1,5 @@
-function [ blocks ] = getPerfData( blocks, trials )
-% % getMoreBlockData %
+function blocks = getPerfData( trialData, trials, blocks )
+%%% getPerfData()
 %PURPOSE: Retrieve block and trial data specific to the flexibility task,
 %         particularly those known only after running flex_getTrialMasks
 %AUTHOSR: MJ Siniscalchi 161212.
@@ -14,23 +14,20 @@ function [ blocks ] = getPerfData( blocks, trials )
 %                   {firstTrial, nTrials, ...
 %                   hit, err_p, err_o, miss, ...
 %                   contingType, ruleType}. 
-
+%---------------------------------------------------------------------------------------------------
 nTrials = sum(blocks.nTrials);
 
-%% can only estimate certain statistics (e.g., perseverative errors) after getting trialMask
+%% Gross Performance Statistics for each Block
 fields = {'hit' 'pErr' 'oErr' 'miss'};
 for i = 1:numel(fields)
-    trialMask = trials.(fields{i});
-
-    edges = [blocks.firstTrial; nTrials+1]; 
-    counts = histc(find(trialMask),edges); %count number of each outcome in each block
-    counts = counts(1:end-1);              %last value can be dropped; it is for count(x>=edges(end))
-
-    blocks.(fields{i})   = counts; 
+    idx = trials.(fields{i}); %Trial index
+    edges = [blocks.firstTrial; nTrials];
+    counts = histcounts(find(idx),edges); %Count number of each trial type in each block
+    blocks.(fields{i}) = counts; 
 end
 
+%% Median Reaction Time for each Block
+for i = 1:numel(blocks.type)
+    idx = (blocks.firstTrial(i) : blocks.firstTrial(i)+blocks.nTrials(i)-1); %Indices for all trials in i-th block
+    blocks.RT(i) = nanmedian(trialData.reactionTimes(idx));
 end
-
-
-
-
