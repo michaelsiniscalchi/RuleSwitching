@@ -13,8 +13,8 @@ titles = {'Sound','Action left','Action right'};
 
 setup_figprops([]);
 fig = figure('Name',['Lick density summary - ' cellType]);
-fig.Position = [400 400 800 500]; %BLWH
-tiledlayout(numel(cue),numel(rule));
+fig.Position = [400 400 870 600]; %BLWH  [400 396 872 600]
+tiledlayout(numel(cue),numel(rule),'TileSpacing','none','Padding','none');
 ax = gobjects(numel(cue)*numel(rule),1);
 ymax = 12; %Y-axis limit
 
@@ -42,14 +42,17 @@ for row = 1:numel(cue)
         %Titles and axis labels
         if row==1
             title(titles{col}); %Title: rule
+            ax(idx).XTickLabel = [];
+        else
+            xlabel('Time from sound cue (s)');
         end
         if col==1 && row==1
             ylabel({'Upsweep trials'; 'Lick density (Hz)'});
         elseif col==1
              ylabel({'Downsweep trials'; 'Lick density (Hz)'});
+        else
+            ax(idx).YTickLabel = [];
         end
-        if row==2
-            xlabel('Time from sound cue (s)');
-        end
+        
     end
 end

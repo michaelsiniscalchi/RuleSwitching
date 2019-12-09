@@ -11,6 +11,7 @@ function [ dirs, expData ] = expData_RuleSwitching(data_dir)
 %   expData:     Info regarding each experiment
 
 dirs.data = fullfile(data_dir,'Data');
+dirs.notebook = fullfile(data_dir,'Notebook'); 
 dirs.results = fullfile(data_dir,'Results');
 dirs.summary = fullfile(data_dir,'Summary');
 dirs.figures = fullfile(data_dir,'Figures');
@@ -281,17 +282,17 @@ expData(i).logfile = 'M53_RULESWITCHING_1809191042.log';
 expData(i).cellType = 'PYR'; %Cell-type label 
 expData(i).npCorrFactor = 0.3;
 
-% i = i+1;
-% expData(i).sub_dir = '180829 M54 RuleSwitching'; 
-% expData(i).logfile = 'M54_RULESWITCHING_1808291308.log';
-% expData(i).cellType = 'PYR'; %Cell-type label 
-% expData(i).npCorrFactor = 0.3;
-% 
-% i = i+1;
-% expData(i).sub_dir = '180831 M55 RuleSwitching'; 
-% expData(i).logfile = 'M55_RULESWITCHING_1808311318.log';
-% expData(i).cellType = 'PYR'; %Cell-type label 
-% expData(i).npCorrFactor = 0.3;
+i = i+1;
+expData(i).sub_dir = '180829 M54 RuleSwitching'; 
+expData(i).logfile = 'M54_RULESWITCHING_1808291308.log';
+expData(i).cellType = 'PYR'; %Cell-type label 
+expData(i).npCorrFactor = 0.3;
+
+i = i+1;
+expData(i).sub_dir = '180831 M55 RuleSwitching'; 
+expData(i).logfile = 'M55_RULESWITCHING_1808311318.log';
+expData(i).cellType = 'PYR'; %Cell-type label 
+expData(i).npCorrFactor = 0.3;
 
 
 %% Get ROI directories and define paths to imaging data

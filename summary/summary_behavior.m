@@ -5,7 +5,7 @@ type = {'SST','VIP','PV','PYR','all'};
 perfData = struct('sound',[],'action',[]);
 for i = 1:numel(type)
     B.(type{i}) = ...
-        struct('sessionID',[],'nTrials',[],...
+        struct('sessionID',[],'nTrials',[],'trialsPerf',[],...
         'trials2crit',perfData,'oErr',perfData,'pErr',perfData,...
         'lickDensity',struct(),'perfCurve',struct());
 end
@@ -13,15 +13,16 @@ end
 % Aggregate data from each session into pooled and cell-type-specific data structures
 for sessionID = 1:numel(struct_beh)
     
-    % Data by session
+    % Data by session: SessionIdx, nTrials, trialsPerf
     S = struct_beh(sessionID);
-    expIdx.all = sessionID; %SessionIdx
+    expIdx.all = sessionID;
     expIdx.(S.cellType) = sum(strcmp({struct_beh(1:sessionID).cellType},S.cellType)); %Cell type spec sessionIdx
     
     type = fieldnames(expIdx); %Eg, {'all','SST'}
     for j = 1:numel(type)
         B.(type{j}).sessionID(expIdx.(type{j}),:) = sessionID;
         B.(type{j}).nTrials(expIdx.(type{j}),:) = numel(S.trialData.cue);
+        B.(type{j}).trialsPerf(expIdx.(type{j}),:) = sum(~S.trials.miss);
     end
     
     % Lick density by Cue and Rule

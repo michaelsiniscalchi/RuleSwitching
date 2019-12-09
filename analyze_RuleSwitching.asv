@@ -340,26 +340,24 @@ end
 if do_plot.transitions
     
     %Plot binned and aligned results
-    figs = gobjects(numel(expData),1); %Initialize figures
     for i = 1:numel(expData)    
         load(mat_file.results(i),'transitions');
-        save_dir = fullfile(dirs.figures,'Neural transitions','Binned',transitions.params.stat);   %Figures directory
+        save_dir = fullfile(dirs.figures,'Neural transitions','Binned');   %Figures directory
         create_dirs(save_dir); %Create dir for these figures
-        figs(i) = fig_transitions_binned(transitions, params.figs.transitions); 
+        figs(i) = fig_transitions_binned( transitions, params.figs.transitions ); 
     end
     save_multiplePlots(figs,save_dir); %save as FIG and PNG
     clearvars figs;
     
-    %Plot all transitions in session, aligned to rule switches
-    for i = 1:numel(expData)
+    %Plot each transition aligned to rule switch
+    for i = 1:numel(expData)    
         load(mat_file.results(i),'transitions');
-        save_dir = fullfile(dirs.figures,'Neural transitions','Raw',transitions.params.stat);   %Figures directory
+        save_dir = fullfile(dirs.figures,'Neural transitions','Binned');   %Figures directory
         create_dirs(save_dir); %Create dir for these figures
-        figs = fig_transitions_individual( transitions, params.figs.transitions );
-        
-        save_multiplePlots(figs,save_dir); %save as FIG and PNG
-        clearvars figs;
+        figs(i) = fig_transitions_binned( transitions, params.figs.transitions ); 
     end
+    save_multiplePlots(figs,save_dir); %save as FIG and PNG
+    clearvars figs;
     
 end
 

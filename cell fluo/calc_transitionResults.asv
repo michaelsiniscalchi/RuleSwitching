@@ -1,16 +1,16 @@
 function T = calc_transitionResults( img_beh, decode, params )
 
-% Extract Data from Significantly Modulated Cells (or All)
+% Extract Data from Significantly Modulated Cells
 if strcmp(params.cell_subset,'significant')
     [~,~,isSelective(1,:),~,~] = get_selectivityTraces(decode,'rule_SL',params);
     [~,~,isSelective(2,:),~,~] = get_selectivityTraces(decode,'rule_SR',params);
-    cellMask = any(isSelective); %Identify cells modulated by rule in either left- or right-choice trials
-elseif strcmp(params.cell_subset,'all')
-    cellMask = true(numel(img_beh.cellID),1);
+    isSelective = any(isSelective); %Identify cells modulated by rule in either left- or right-choice trials
+else
+    isSelective =
 end
 
-trialDFF = img_beh.trialDFF.cueTimes(cellMask);
-cellID = img_beh.cellID(cellMask);
+trialDFF = img_beh.trialDFF.cueTimes(isSelective);
+cellID = img_beh.cellID(isSelective);
 
 % Units of Measure and Time Index
 nTrans = numel(img_beh.blocks.type)-2; %Exclude first and last block (no transition in either case)

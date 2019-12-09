@@ -10,7 +10,7 @@ calculate.align_signals         = false;  %Interpolate dF/F and align to behavio
 calculate.trial_average_dFF     = false;   %dF/F averaged over specified subsets of trials
 calculate.block_average_dFF     = false; %***WIP: Average separately within each block
 calculate.decode_single_units   = false;   %ROC/Selectivity for choice, outcome and rule
-calculate.transitions           = false;  %Changes in dF/F over each block; 
+calculate.transitions           = true;  %Changes in dF/F over each block; 
 
 calculate.fluorescence = false;
 if any([calculate.cellF, calculate.dFF, calculate.align_signals, calculate.trial_average_dFF,...
@@ -25,17 +25,17 @@ summarize.transitions           = false;
 summarize.stats                 = false; %Needed for all summary plots
 
 %% PLOT RESULTS
-do_plot.FOV_mean_projection             = true;
-do_plot.timeseries                      = true; %Plot all timeseries for each session
+do_plot.FOV_mean_projection             = false;
+do_plot.timeseries                      = false; %Plot all timeseries for each session
 
-do_plot.raw_behavior                    = true;
+do_plot.raw_behavior                    = false;
 do_plot.lick_density                    = false;
 
 do_plot.trial_average_dFF               = false;  %Overlay traces for distinct choices, outcomes, and rules (CO&R)
 do_plot.block_average_dFF               = false;
 do_plot.decode_single_units             = false; 
-do_plot.heatmap_modulation_idx          = true;  %Heatmap of selectivity idxs for COR for each session
-do_plot.transitions                     = false;
+do_plot.heatmap_modulation_idx          = false;  %Heatmap of selectivity idxs for COR for each session
+do_plot.transitions                     = true;
 
 do_plot.summary_behavior                = false; %Summary of descriptive stats, eg, nTrials and {trials2crit, pErr, oErr} for each rule
 do_plot.summary_lick_density            = false;
@@ -43,7 +43,7 @@ do_plot.summary_periswitch_performance  = false;
 do_plot.summary_modulation_heatmap      = false; %Heatmap for each celltype, all sessions, one figure each for CO&R
 do_plot.summary_modulation				= false; %Bar/line plots of grouped selectivity results for comparison
 
-do_plot.validation_check				= true;
+do_plot.validation_check				= false;
 
 %% PATHS TO SAVED DATA
 %By experiment
@@ -65,7 +65,7 @@ params.behavior.timeWindow = [-2 5];
 params.behavior.binWidth = 0.1; %In seconds; for lick density plots
 
 % Cellular fluorescence calculations
-params.fluo.exclBorderWidth      = 5;        %For calc_cellF: n-pixel border of FOV to be excluded from analysis
+params.fluo.exclBorderWidth      = 5; %For calc_cellF: n-pixel border of FOV to be excluded from analysis
 
 % Interpolation and alignment
 params.align.trigTimes  = 'cueTimes';
@@ -99,18 +99,24 @@ params.bootAvg.trialSpec    =...
 	}; %Spec for each trial subset for comparison (conjunction of N fields from 'trials' structure.)
 
 % Single-unit decoding
+params.decode.decode_type     = {'choice_sound','choice_action','prior_choice','outcome','rule_SL','rule_SR'}; %MUST have same number of elements as rows in trialSpec. Eg, = {'choice','outcome','rule_SL','rule_SR'}
+params.decode.trialSpec       = params.bootAvg.trialSpec; %Spec for each trial subset for comparison (conjunction of N fields from 'trials' structure.)
 params.decode.dsFactor        = params.bootAvg.dsFactor; %Downsample from interpolated rate of 1/params.interdt
 params.decode.nReps           = params.bootAvg.nReps; %Number of bootstrap replicates
 params.decode.nShuffle        = 1000; %Number of shuffled replicates
-params.decode.CI              = params.bootAvg.CI; %Confidence interval as decimal; %Confidence interval for plotting
+params.decode.CI              = params.bootAvg.CI; %Confidence interval as percentage
 params.decode.sig_method      = 'shuffle';  %Method for determining chance-level: 'bootstrap' or 'shuffle'
 params.decode.sig_duration    = 1;  %Number of consecutive seconds exceeding chance-level
 
-params.decode.decode_type     = {'choice_sound','choice_action','prior_choice','outcome','rule_SL','rule_SR'}; %MUST have same number of elements as rows in trialSpec. Eg, = {'choice','outcome','rule_SL','rule_SR'}
-params.decode.trialSpec       = params.bootAvg.trialSpec; %Spec for each trial subset for comparison (conjunction of N fields from 'trials' structure.)
-
 % Transition analyses
-params.transitions.window     = [0 5]; %Match window(end) with other analyses
+params.transitions.window           = [-2 5]; %Time to be considered within trial
+params.transitions.nTrialsPreSwitch = 10; %Number of trials from origin and destination rules to average for comparison with transition trial(i)
+params.transitions.cell_subset      = 'all'; %'significant' or 'all'; denotes whether only significantly rule-modulated cells are used
+params.transitions.CI               = params.bootAvg.CI; %Threshold for significant modulation; include only significantly modulated cells
+params.transitions.sig_method       = params.decode.sig_method;  %Method for determining chance-level: 'bootstrap' or 'shuffle'
+params.transitions.sig_duration     = params.decode.sig_duration;  %Number of consecutive seconds exceeding chance-level
+params.transitions.stat             = 'Rho'; %Statistic to use as similarity measure: {'R','Rho','Cs'}
+params.transitions.nBins            = 10; %Number of bins for aggregating evolution of activity vectors
 
 %% SUMMARY STATISTICS
 params.stats.analysis_names = {'behavior','selectivity'};
@@ -118,7 +124,8 @@ params.stats.analysis_names = {'behavior','selectivity'};
 %% FIGURES: COLOR PALETTE FROM CBREWER
 % Color palette from cbrewer()
 c = cbrewer('qual','Set1',9);
-cbrew = struct('red',c(1,:),'blue',c(2,:),'green',c(3,:),'purple',c(4,:),'gray',c(9,:),'pink',c(8,:));
+cbrew = struct('black',[0,0,0],'red',c(1,:),'blue',c(2,:),'green',c(3,:),'purple',...
+    c(4,:),'orange',c(5,:),'gray',c(9,:),'pink',c(8,:));
 
 %% FIGURE: RAW BEHAVIOR
 params.figs.behavior.window = params.behavior.timeWindow; 
@@ -134,7 +141,7 @@ params.figs.perfCurve.outcomes = {'hit','pErr','oErr','miss'};
 params.figs.perfCurve.colors = {cbrew.green,cbrew.pink,cbrew.pink,cbrew.gray}; %Hit,pErr,oErr,Miss
 params.figs.perfCurve.LineStyle = {'-','-',':','-'};
 
-%% FIGURE: PLOT TIMESERIES FOR ALL NEURONS
+%% FIGURE: CELLULAR FLUORESCENCE TIMESERIES FOR ALL NEURONS
 params.figs.timeseries.trialMarkers    = false;
 params.figs.timeseries.trigTimes       = 'cueTimes'; %'cueTimes' or 'responseTimes'
 params.figs.timeseries.ylabel_cellIDs  = true;
@@ -225,16 +232,17 @@ params.figs.mod_heatmap.rule_SR.cmap    = [flipud(cbrewer('seq','Blues',128));cb
 params.figs.mod_heatmap.rule_SR.color   = c(2,:);
 
 %% FIGURE: NEURAL TRANSITIONS
-params.figs.transitions.LineWidth = 1;
-params.figs.transitions.spacing = 10;
-params.figs.transitions.FaceAlpha = 0.2;
+
+params.figs.transitions.Color = {cbrew.black, cbrew.red, cbrew.gray};
 
 %% SUMMARY FIGURE: BEHAVIORAL STATISTICS
+cbrew.red2 = [0.9843,0.6039,0.6000];
+params.figs.summary_behavior.ruleColors = {[cbrew.black;cbrew.gray],[cbrew.red;cbrew.red2]}; %{Sound,Action}
+params.figs.summary_behavior.cellColors = {cbrew.orange,cbrew.green,cbrew.purple,cbrew.blue}; %{SST,VIP,PV,PYR}
+
 %% SUMMARY FIGURE: MODULATION INDEX-----------------------------------------------
 
 % ---Selectivity plots------------------------------------------------------------------------------
-
-params.figs.summary_modulation.fig_type = 'singleUnit';
 
 %Specify array 'f' containing variables and plotting params for each figure:
 f(1).fig_name   = 'Mean_Selectivity_all';
@@ -258,7 +266,7 @@ params.figs.summary_modulation.titles =...
     {'Choice (sound rule)','Choice (action rule)','Prior choice',...
     'Outcome','Rule (left choice)','Rule (right choice)'};
 
-%Colors
+%Colors for Cell Types
 c = cbrewer('qual','Set1',5);
 params.figs.summary_modulation.colors = c([5,3,4,2],:); %Swap order
 

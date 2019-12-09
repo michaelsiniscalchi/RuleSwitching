@@ -37,6 +37,8 @@ for i = 1:numel(event_times)
     idx(i,:) = idx_t0 + rel_idx;
 end
 % Handle idxs for out-of-range timepoints
+%***CHECK: THIS LINE MAY NEED TO BE HERE INSTEAD OF AT 47
+%nanIdx = idx < 1 | idx > numel(t); %Idx for out-of-range timepoints
 idx(idx < 1) = 1; 
 idx(idx > numel(t)) = numel(t);
 

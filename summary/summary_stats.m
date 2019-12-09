@@ -8,9 +8,10 @@ switch type
         cellTypes = fieldnames(input);
         for i = 1:numel(cellTypes)
 
-            %Total number of Trials
+            %Total number of trials & trials performed 
             expID = input.(cellTypes{i}).sessionID;
             S.(cellTypes{i}).nTrials = calcStats(input.(cellTypes{i}).nTrials,expID);
+            S.(cellTypes{i}).trialsPerf = calcStats(input.(cellTypes{i}).trialsPerf,expID);
             
             %Block performance
             vbl = {'trials2crit','pErr','oErr'};

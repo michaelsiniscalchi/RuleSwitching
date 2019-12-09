@@ -1,6 +1,6 @@
 function fig = fig_summary_preference( stats_selectivity, time, params )
 
-setup_figprops('singleUnit');
+setup_figprops('timeseries');
 
 %Four subplots: one for each decode type
 S = stats_selectivity;

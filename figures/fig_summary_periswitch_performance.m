@@ -1,15 +1,20 @@
 function fig = fig_summary_periswitch_performance( behavior, cellType, params )
 
+% Setup Figure for Plotting
 fig = figure('Name',['Periswitch peformance curve - ' cellType]);
-fig.Position = [200 400 1200 400];
-
+fig.Position = [400 50 500 900]; %BLWH
 setup_figprops([]);
+tiledlayout(3,1,'TileSpacing','none','Padding','none');
+ax = gobjects(3,1);
 transparency = 0.2;
+
 switchType = fieldnames(behavior.(cellType).perfCurve);
 X = -20:19;
 
 for i = 1:numel(switchType)
-    ax(i) = subplot(1,3,i);  hold on
+%     ax(i) = subplot(3,1,i);  hold on
+ax(i) = nexttile;
+hold on;
     for j=1:numel(params.outcomes)
         
         data = behavior.(cellType).perfCurve.(switchType{i}).(params.outcomes{j});
@@ -23,9 +28,13 @@ for i = 1:numel(switchType)
     end
     plot([0 0],[0 1],'k:','LineWidth',get(groot,'DefaultAxesLineWidth')); %First trial post-switch
     title([upper(switchType{i}(1)) switchType{i}(2:end)]);
-    xlabel('Trials from rule switch');
+    ylabel('Proportion of trial outcomes');
     axis square;
 end
-ylabel(ax(1),'Proportion of trial outcomes');
-lgd = legend(ax(3),p,'Location','northeast');
+ax(1).XTickLabel = [];
+ax(2).XTickLabel = [];
+xlabel(ax(3),'Trials from rule switch');
+
+%Legend
+lgd = legend(ax(1),p,'Location','northeastoutside');
 lgd.String = params.outcomes;
