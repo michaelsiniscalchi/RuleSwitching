@@ -60,24 +60,43 @@ switch type
                 varNames = fieldnames(input.(decodeTypes{i}).(cellTypes{j})); %varNames = {'selMag','sigMag','pSig','nPref_pos','nPref_neg','nCells'};
                 varNames = varNames(~ismember(varNames,{'cellID','expID'}));
                 for k = 1:numel(varNames)
-                    %***FUTURE EDIT: use "stats = calcStats(data, expID)" as above.
-                    %All data points 
-                    s.data = input.(decodeTypes{i}).(cellTypes{j}).(varNames{k});
-                    %Mean across first dimension (cells or experiments)
-                    s.mean = mean(s.data,1);
-                    %SEM across first dimension (cells or experiments)
-                    s.sem = std(s.data,0,1)./ sqrt(size(s.data,1));
-                    %Unit of measure, N
-                    s.N = size(s.data,1);
-                    %Experiment ID
-                    s.expID = input.(decodeTypes{i}).(cellTypes{j}).expID; %N = nCells
-%                     if s.N < numel(s.expID) %N = nExperiments %**???*** Probably should not be here...
-%                         s.expID = unique(s.expID);
-%                     end
-                    %Incorporate data into output structure
-                    S.(decodeTypes{i}).(cellTypes{j}).(varNames{k}) = s;
+                    % Estimate descriptive stats
+                    expID = input.(decodeTypes{i}).(cellTypes{j}).expID;
+                    S.(decodeTypes{i}).(cellTypes{j}).(varNames{k}) = ...
+                        calcStats(input.(decodeTypes{i}).(cellTypes{j}).(varNames{k}),expID);
                 end
+%                 for k = 1:numel(varNames)
+%                     %All data points 
+%                     s.data = input.(decodeTypes{i}).(cellTypes{j}).(varNames{k});
+%                     %Mean across first dimension (cells or experiments)
+%                     s.mean = mean(s.data,1);
+%                     %SEM across first dimension (cells or experiments)
+%                     s.sem = std(s.data,0,1)./ sqrt(size(s.data,1));
+%                     %Unit of measure, N
+%                     s.N = size(s.data,1);
+%                     %Experiment ID
+%                     s.expID = input.(decodeTypes{i}).(cellTypes{j}).expID; %N = nCells
+%                     %Incorporate data into output structure
+%                     S.(decodeTypes{i}).(cellTypes{j}).(varNames{k}) = s;
+%                 end
             end
+        end
+        
+    case 'transitions'
+        cellTypes   = fieldnames(input); %Cell types, ie 'SST','VIP','PV','PYR', or 'all'
+        transTypes  = fieldnames(input.(cellTypes{1})); %Transition types, eg 'all','sound', or 'sound_actionR'
+        for i = 1:numel(cellTypes)
+            for j = 1:numel(transTypes)
+                % Label with corresponding session idx
+                expID = input.(cellTypes{i}).(transTypes{j}).sessionID;
+                % Copy trialwise data from summary
+                S.(cellTypes{i}).(transTypes{j}).trials = input.(cellTypes{i}).(transTypes{j}).trials;
+                S.(cellTypes{i}).(transTypes{j}).trialIdx = input.(cellTypes{i}).(transTypes{j}).trialIdx;
+                % Estimate descriptive stats for binned data
+                S.(cellTypes{i}).(transTypes{j}).bins = calcStats(input.(cellTypes{i}).(transTypes{j}).bins,expID);
+                S.(cellTypes{i}).(transTypes{j}).binIdx = input.(cellTypes{i}).(transTypes{j}).binIdx; %Copy bin indices
+            end
+        
         end
 end
 stats.(type) = S;

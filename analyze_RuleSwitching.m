@@ -13,7 +13,7 @@ clearvars;
 
 % Set MATLAB path and get experiment-specific parameters
 [dirs, expData] = expData_RuleSwitching(pathlist_RuleSwitching);
-%[dirs, expData] = expData_RuleSwitching_DEVO(pathlist_RuleSwitching);
+% [dirs, expData] = expData_RuleSwitching_DEVO(pathlist_RuleSwitching); %For processing/troubleshooting subsets
 % Set parameters for analysis
 [calculate, summarize, do_plot, mat_file, params] = params_RuleSwitching(dirs,expData);
 % Generate directory structure
@@ -157,20 +157,9 @@ end
 
 % Behavior
 if summarize.behavior
-    %Initialize data structure
-    B(numel(expData)) =...
-        struct('sessionData',[],'trialData',[],'trials',[],'blocks',[],'cellType',[]);
-    
-    %Aggregate results
-    fields = {'sessionData','trialData','trials','blocks'};
-    for i = 1:numel(expData)
-        b = load(mat_file.behavior(i)); %,'sessionData','blocks');
-        for j = 1:numel(fields)
-            B(i).(fields{j}) = b.(fields{j});
-        end
-        B(i).cellType = expData(i).cellType;
-    end
-    behavior = summary_behavior(B, params.behavior); %***WIP: write function!
+    fieldNames = {'sessionData','trialData','trials','blocks','cellType'};
+    B = initSummaryStruct(mat_file.behavior,[],fieldNames,expData); %Initialize data structure
+    behavior = summary_behavior(B, params.behavior); %Aggregate results
     save(mat_file.summary.behavior,'-struct','behavior');
 end
 
@@ -183,7 +172,6 @@ if summarize.selectivity
     %Aggregate results
     for i = 1:numel(expData)
         B = load(mat_file.results(i),'decode','cellID');
-        load(mat_file.img_beh(i),'cellID');
         selectivity = summary_selectivity(...
             selectivity, B.decode, expData(i).cellType, i, B.cellID, params.decode); %summary = summary_selectivity( summary, decode, cell_type, exp_ID, cell_ID, params )
     end
@@ -193,8 +181,11 @@ end
 
 % Transition analysis
 if summarize.transitions
-    S = load(mat_file.summary.selectivity);
-    D = load(mat_file.results(i),'decode');
+    %Initialize data structure ***FUNCTION initSummaryStruct() to use for all summaries...
+    fieldNames = {'sessionID','cellType','cellID','type','similarity','aggregate','params'};
+    T = initSummaryStruct(mat_file.results,'transitions',fieldNames,expData); % S = initSummaryStruct( matFile, resultName, fieldNames, expData );
+    transitions = summary_transitions(T);
+    save(mat_file.summary.transitions,'-struct','transitions');
 end
 
 % Summary Statistics and Results Table
@@ -214,7 +205,6 @@ if summarize.stats
         summary = load(mat_file.summary.(analysis_name{i}));
         stats = summary_stats(stats,summary,analysis_name{i});
     end
-    
     save(mat_file.stats,'-struct','stats');
     
 end
@@ -448,6 +438,18 @@ if do_plot.summary_modulation
     clearvars figs;
 end
 
+if do_plot.summary_transitions
+    %Load data
+    T = load(mat_file.stats,'transitions');
+    save_dir = fullfile(dirs.figures,'Summary - Transition Analysis');   %Figures directory
+    create_dirs(save_dir); %Create dir for these figures
+    %Generate figures
+    figs(1) = fig_summary_transitions_all(T,params.figs.summary_transitions);
+    figs(2) = fig_summary_transition_types(T,params.figs.summary_transitions);
+    %Save
+    save_multiplePlots(figs,save_dir); %save as FIG and PNG
+    clearvars figs;
+end
 %% FIGURES: VALIDATION CHECK
 
 if do_plot.validation_check

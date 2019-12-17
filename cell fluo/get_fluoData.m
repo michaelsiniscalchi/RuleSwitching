@@ -1,11 +1,11 @@
-%%% get_sessionFluoData
+%%% get_sessionFluoData()
 %
-%PURPOSE: Fetch stack and ROIs selected using cellROI.m, 
+% PURPOSE: Fetch stack and ROIs selected using cellROI.m, 
 %           along with optional neuropil masks.
 %
-%AUTHOR: MJ Siniscalchi, 190507
+% AUTHOR: MJ Siniscalchi, 190507
 %
-%INPUT ARGS: 
+% INPUT ARGS: 
 %           char 'roi_path', the path to a directory containing all ROI files,
 %               as well as the MAT file 'roiData.mat'. All files generated
 %               using the GUI, cellROI.m.
@@ -16,7 +16,7 @@
 %           cell 'mat_path', path(s) to matfiles containing 'stack', a
 %               numeric array of imaging data (nX x nY x nFrames).
 %
-%OUTPUTS: double 'stack', the full time-lapse image stack, OR
+% OUTPUTS: double 'stack', the full time-lapse image stack, OR
 %         struct 'stack', containing paths to MAT files 
 %               containing substacks and other info
 %         struct 'cells' containing these fields:           

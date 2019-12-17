@@ -10,14 +10,14 @@ tiledlayout(1,2);
 % Plot Mean Binned Similarity Index For Rule
 rule = {'sound','action'};
 titles = {'Action->Sound','Sound->Action'}; 
-X = T.diffSimilarity.binIdx;
+X = T.similarity.binIdx;
 for i = 1:numel(rule)
     ax(i) = nexttile; %#ok<AGROW>
     for j = 1:size(T.aggregate.(rule{i}),1)
         Y = T.aggregate.(rule{i})(j,:);
         plot(X,Y,'Color',params.Color{3},'Marker','none','LineWidth',1); hold on;
     end
-    Y = mean(T.aggregate.(rule{i}));
+    Y = mean(T.aggregate.(rule{i}),1);
     plot(X,Y,'Color',params.Color{i},'Marker','none','LineWidth',3);
     title(titles{i});
     ylabel([T.params.stat '(dest) - ' T.params.stat '(origin)']);

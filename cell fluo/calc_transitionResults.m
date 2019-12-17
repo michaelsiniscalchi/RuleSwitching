@@ -22,7 +22,7 @@ type                        = cell(nTrans,1);
 trialVectors                = cell(nTrans,1);
 origin(nTrans,1)            = struct('vector',[],'similarity',struct('R',[],'Rho',[],'Cs',[])); %Population vector averaged over nTrials pre-switch; calculate trial-by-trial similarity to this vector
 destination(nTrans,1)       = struct('vector',[],'similarity',struct('R',[],'Rho',[],'Cs',[])); %Same for destination vector
-diffSimilarity(nTrans,1)    = struct('trials',[],'trialIdx',[],'bins','binIdx'); %Similarity(dest) - Similarity(origin)
+similarity(nTrans,1)    = struct('trials',[],'trialIdx',[],'bins','binIdx'); %Similarity(dest) - Similarity(origin)
 
 %% Estimate Similarity of Each Per-Trial Activity Vector to Mean for Prior and Current Rule
 for i = 1:nTrans
@@ -73,24 +73,24 @@ for i = 1:numel(type)
     bins_pre = mean(values(idx));
     
     %Concatenate and index        
-    diffSimilarity(i).bins = [bins_pre, bins_post]; %Binned average difference
-    diffSimilarity(i).binIdx = [-numel(bins_pre):-1, 1:numel(bins_post)]; %Binned average difference
-    diffSimilarity(i).trials = values; %Difference in similarity measures for each trial in i-th block
-    diffSimilarity(i).trialIdx = trialIdx; %Number of trials from rule switch
+    similarity(i).bins = [bins_pre, bins_post]; %Binned average difference
+    similarity(i).binIdx = [-numel(bins_pre):-1, 1:numel(bins_post)]; %Binned average difference
+    similarity(i).trials = values; %Difference in similarity measures for each trial in i-th block
+    similarity(i).trialIdx = trialIdx; %Number of trials from rule switch
 end
 
 % Aggregate rule type specific transitions
 soundIdx            = ismember(type,{'actionL_sound','actionR_sound'});
 actionIdx           = ismember(type,{'sound_actionL','sound_actionR'});
-aggregate.all       = cell2mat({diffSimilarity.bins}');
-aggregate.sound     = cell2mat({diffSimilarity(soundIdx).bins}');
-aggregate.action    = cell2mat({diffSimilarity(actionIdx).bins}');
-aggregate.idx       = diffSimilarity(1).binIdx;
+aggregate.all       = cell2mat({similarity.bins}');
+aggregate.sound     = cell2mat({similarity(soundIdx).bins}');
+aggregate.action    = cell2mat({similarity(actionIdx).bins}');
+aggregate.idx       = similarity(1).binIdx;
 
 %% Store results in structure
 
 sessionID = img_beh.sessionID;
-T = loadStruct(sessionID,cellID,type,origin,destination,trialVectors,diffSimilarity,aggregate,params);
+T = loadStruct(sessionID,cellID,type,origin,destination,trialVectors,similarity,aggregate,params);
 
 %% ------- Internal Functions ----------------------------------------------------------------------
 
@@ -110,26 +110,19 @@ ruleDFF = mean(trialDFF(:,trialIdx),2);
 %---------------------------------------------------------------------------------------------------
 function S = calcSimilarity( ruleVector, trialVectors )
 
-% switch type
-    
-    % Pearson's R
-%     case 'Pearson'
-        R = corrcoef([ruleVector,trialVectors]);
-        S.R = R(2:end,1); %Restrict comparisons to n-th trial vector vs. rule vector
-        
-%     case 'Spearman'
-        %Spearman's Rho
-        Rho = corr([ruleVector,trialVectors],'Type','Spearman');
-        S.Rho = Rho(2:end,1); %Restrict comparisons to n-th trial vector vs. rule vector
-        
-%     case 'Cosine'
-        %Cosine Similarity: Dot product divided by product of vector magnitudes
-        for ii = 1:size(trialVectors,2)
-            S.Cs(ii,:) =  dot(ruleVector,trialVectors(:,ii)) ./...
-                (norm(ruleVector).*norm(trialVectors(:,ii)));
-        end
-        
-% end
+%Pearson's R
+R = corrcoef([ruleVector,trialVectors]);
+S.R = R(2:end,1); %Restrict comparisons to n-th trial vector vs. rule vector
+
+%Spearman's Rho
+Rho = corr([ruleVector,trialVectors],'Type','Spearman');
+S.Rho = Rho(2:end,1); %Restrict comparisons to n-th trial vector vs. rule vector
+
+%Cosine Similarity: Dot product divided by product of vector magnitudes
+for ii = 1:size(trialVectors,2)
+    S.Cs(ii,:) =  dot(ruleVector,trialVectors(:,ii)) ./...
+        (norm(ruleVector).*norm(trialVectors(:,ii)));
+end
 
 %---------------------------------------------------------------------------------------------------
 function S = loadStruct(varargin)

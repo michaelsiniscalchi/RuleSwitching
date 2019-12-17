@@ -10,7 +10,7 @@ calculate.align_signals         = false;  %Interpolate dF/F and align to behavio
 calculate.trial_average_dFF     = false;   %dF/F averaged over specified subsets of trials
 calculate.block_average_dFF     = false; %***WIP: Average separately within each block
 calculate.decode_single_units   = false;   %ROC/Selectivity for choice, outcome and rule
-calculate.transitions           = true;  %Changes in dF/F over each block; 
+calculate.transitions           = false;   %Changes in dF/F over each block; 
 
 calculate.fluorescence = false;
 if any([calculate.cellF, calculate.dFF, calculate.align_signals, calculate.trial_average_dFF,...
@@ -22,7 +22,7 @@ end
 summarize.behavior              = false;
 summarize.selectivity           = false;
 summarize.transitions           = false;
-summarize.stats                 = false; %Needed for all summary plots
+summarize.stats                 = true; %Needed for all summary plots
 
 %% PLOT RESULTS
 do_plot.FOV_mean_projection             = false;
@@ -33,15 +33,16 @@ do_plot.lick_density                    = false;
 
 do_plot.trial_average_dFF               = false;  %Overlay traces for distinct choices, outcomes, and rules (CO&R)
 do_plot.block_average_dFF               = false;
-do_plot.decode_single_units             = false; 
+do_plot.decode_single_units             = false;
 do_plot.heatmap_modulation_idx          = false;  %Heatmap of selectivity idxs for COR for each session
-do_plot.transitions                     = true;
+do_plot.transitions                     = false;
 
 do_plot.summary_behavior                = false; %Summary of descriptive stats, eg, nTrials and {trials2crit, pErr, oErr} for each rule
 do_plot.summary_lick_density            = false;
 do_plot.summary_periswitch_performance  = false;
-do_plot.summary_modulation_heatmap      = false; %Heatmap for each celltype, all sessions, one figure each for CO&R
-do_plot.summary_modulation				= false; %Bar/line plots of grouped selectivity results for comparison
+do_plot.summary_modulation_heatmap      = true; %Heatmap for each celltype, all sessions, one figure each for CO&R
+do_plot.summary_modulation				= true; %Bar/line plots of grouped selectivity results for comparison
+do_plot.summary_transitions             = true;
 
 do_plot.validation_check				= false;
 
@@ -55,6 +56,7 @@ mat_file.results        = @(idx) fullfile(dirs.results,expData(idx).sub_dir,'res
 %Aggregated
 mat_file.summary.behavior       = fullfile(dirs.summary,'behavior.mat');
 mat_file.summary.selectivity    = fullfile(dirs.summary,'selectivity.mat');
+mat_file.summary.transitions    = fullfile(dirs.summary,'transitions.mat');
 mat_file.stats                  = fullfile(dirs.summary,'summary_stats.mat');
 mat_file.validation             = fullfile(dirs.summary,'validation.mat');
 
@@ -119,7 +121,7 @@ params.transitions.stat             = 'Rho'; %Statistic to use as similarity mea
 params.transitions.nBins            = 10; %Number of bins for aggregating evolution of activity vectors
 
 %% SUMMARY STATISTICS
-params.stats.analysis_names = {'behavior','selectivity'};
+params.stats.analysis_names = {'behavior','selectivity','transitions'};
 
 %% FIGURES: COLOR PALETTE FROM CBREWER
 % Color palette from cbrewer()
@@ -277,3 +279,6 @@ c = cbrewer('qual','Paired',10);
 params.figs.summary_preference.colors = {c([8,4,10,2],:),c([7,3,9,1],:)}; %Swap order
 % params.figs.summary_preference.colors = {c([8,7],:),c([4,3],:),c([10,9],:),c([2,1],:)}; %Swap order
 
+%% SUMMARY FIGURE: NEURAL TRANSITION ANALYSIS 
+
+params.figs.summary_transitions = [];

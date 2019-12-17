@@ -24,8 +24,8 @@ for i = 1:numel(img_beh.blocks.type)
         case 'actionL'; c = 'r';
         case 'actionR'; c = 'b';
     end
-    fill([t1;t1;t2;t2],[ymax;ymin;ymin;ymax],...
-        'Color',c,'FaceAlpha',params.FaceAlpha,'EdgeColor','none');
+    fill([t1;t1;t2;t2],[ymax;ymin;ymin;ymax],c,...
+        'FaceAlpha',params.FaceAlpha,'EdgeColor','none');
     hold on;
 end
 
