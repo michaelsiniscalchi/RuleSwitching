@@ -197,7 +197,7 @@ expData(i).npCorrFactor = 0;
 
 %% PV+ Interneurons (N=12?)
 %Z-drift problematic, especially in sessions from M42 & M43. 
-%Add field: expData(i).excludeFrames used for specifying frames encompassing z-drift corrections. 
+%*Possibly, Add field: expData(i).excludeFrames used for specifying frames encompassing z-drift corrections. 
 %Modify calc_dFF to set as NaN, and then separately calculate dF/F for segments bounded by NaN...
 
 i = i+1;
@@ -283,13 +283,31 @@ expData(i).cellType = 'PYR'; %Cell-type label
 expData(i).npCorrFactor = 0.3;
 
 i = i+1;
+expData(i).sub_dir = '180925 M53 RuleSwitching'; 
+expData(i).logfile = 'M53_RULESWITCHING_1809251557.log';
+expData(i).cellType = 'PYR'; %Cell-type label 
+expData(i).npCorrFactor = 0.3;
+
+i = i+1;
 expData(i).sub_dir = '180829 M54 RuleSwitching'; 
 expData(i).logfile = 'M54_RULESWITCHING_1808291308.log';
 expData(i).cellType = 'PYR'; %Cell-type label 
 expData(i).npCorrFactor = 0.3;
 
 i = i+1;
+expData(i).sub_dir = '180905 M54 RuleSwitching'; 
+expData(i).logfile = 'M54_RULESWITCHING_1809051526.log';
+expData(i).cellType = 'PYR'; %Cell-type label 
+expData(i).npCorrFactor = 0.3;
+
+i = i+1;
 expData(i).sub_dir = '180831 M55 RuleSwitching'; 
+expData(i).logfile = 'M55_RULESWITCHING_1808311318.log';
+expData(i).cellType = 'PYR'; %Cell-type label 
+expData(i).npCorrFactor = 0.3;
+
+i = i+1;
+expData(i).sub_dir = '180830 M56 RuleSwitching'; 
 expData(i).logfile = 'M55_RULESWITCHING_1808311318.log';
 expData(i).cellType = 'PYR'; %Cell-type label 
 expData(i).npCorrFactor = 0.3;

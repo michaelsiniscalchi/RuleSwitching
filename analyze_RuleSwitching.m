@@ -12,8 +12,8 @@
 clearvars;
 
 % Set MATLAB path and get experiment-specific parameters
-[dirs, expData] = expData_RuleSwitching(pathlist_RuleSwitching);
-% [dirs, expData] = expData_RuleSwitching_DEVO(pathlist_RuleSwitching); %For processing/troubleshooting subsets
+% [dirs, expData] = expData_RuleSwitching(pathlist_RuleSwitching);
+[dirs, expData] = expData_RuleSwitching_DEVO(pathlist_RuleSwitching); %For processing/troubleshooting subsets
 % Set parameters for analysis
 [calculate, summarize, do_plot, mat_file, params] = params_RuleSwitching(dirs,expData);
 % Generate directory structure
@@ -91,7 +91,8 @@ if calculate.fluorescence
         if calculate.cellF
             %Get cellular and neuropil fluorescence excluding overlapping regions and n-pixel frame
             roi_path = fullfile(dirs.data,expData(i).sub_dir,expData(i).roi_dir);
-            [stack, cells] = get_fluoData(roi_path,[],expData(i).mat_path,stackInfo); %Second arg, reg_path set to [] to indicate matfiles already saved.
+            [stack, cells] = get_fluoData(roi_path,expData(i).reg_path,expData(i).mat_path,stackInfo); %Second arg, reg_path set to [] to indicate matfiles already saved.
+%             [stack, cells] = get_fluoData(roi_path,[],expData(i).mat_path,stackInfo);
             [cells, masks] = calc_cellF(stack, cells, params.fluo.exclBorderWidth);
             save(mat_file.cell_fluo(i),'-struct','cells'); %Save to dff.mat
             save(mat_file.cell_fluo(i),'masks','-append'); %Save to dff.mat
@@ -123,12 +124,7 @@ if calculate.fluorescence
             else, save(mat_file.results(i),'bootAvg','cellID','-append');
             end
         end
-        if calculate.block_average_dFF  %Trial averaged dF/F: individual blocks
-            load(mat_file.img_beh(i),'trialDFF','trials','blocks');
-            bootAvg = calc_blockAvgFluo(trialDFF,trials,blocks,params.blockAvg);
-            save(mat_file.results(i),'blockAvg','-append');
-        end
-        
+               
         % Decode choice, outcome, and rule from single-units
         if calculate.decode_single_units
             load(mat_file.img_beh(i),'trialDFF','trials');
@@ -149,7 +145,6 @@ if calculate.fluorescence
     close(f);
     disp(['Total time needed for cellular fluorescence analyses: ' num2str(toc) 'sec.']);
 end
-
 
 %% SUMMARY
 
@@ -181,8 +176,8 @@ end
 
 % Transition analysis
 if summarize.transitions
-    %Initialize data structure ***FUNCTION initSummaryStruct() to use for all summaries...
-    fieldNames = {'sessionID','cellType','cellID','type','similarity','aggregate','params'};
+    fieldNames = {'sessionID','cellType','cellID','type','similarity','aggregate',...
+        'behChangePt1','behChangePt2','nTrials','params'};
     T = initSummaryStruct(mat_file.results,'transitions',fieldNames,expData); % S = initSummaryStruct( matFile, resultName, fieldNames, expData );
     transitions = summary_transitions(T);
     save(mat_file.summary.transitions,'-struct','transitions');
@@ -266,7 +261,7 @@ end
 %% FIGURES - SINGLE UNIT ANALYSES
 
 % Plot trial-averaged dF/F: Sound(L/R), Action(L/R), Left(S/A), Right(S/A)
-if do_plot.trial_average_dFF || do_plot.block_average_dFF
+if do_plot.trial_average_dFF
     for i = 1:numel(expData)
         %Load data
         load(mat_file.results(i),'bootAvg');
@@ -280,13 +275,7 @@ if do_plot.trial_average_dFF || do_plot.block_average_dFF
             save_multiplePlots(figs,save_dir); %save as FIG and PNG
         end
         clearvars figs
-        %Save figure for each cell plotting all combinations of choice x outcome
-        if do_plot.block_average_dFF
-            figs = plot_blockAvgDFF(blockAvg,cells,params);
-            save_multiplePlots(figs,save_dir); %save as FIG and PNG
-        end
-        clearvars figs
-    end
+     end
 end
 
 % Plot ROC analyses: one figure each for choice, outcome, and rule
@@ -349,8 +338,7 @@ if do_plot.transitions
         
         save_multiplePlots(figs,save_dir); %save as FIG and PNG
         clearvars figs;
-    end
-    
+    end   
 end
 
 %% SUMMARY FIGURES
@@ -440,16 +428,24 @@ end
 
 if do_plot.summary_transitions
     %Load data
-    T = load(mat_file.stats,'transitions');
+    load(mat_file.stats,'transitions');
     save_dir = fullfile(dirs.figures,'Summary - Transition Analysis');   %Figures directory
     create_dirs(save_dir); %Create dir for these figures
+    
     %Generate figures
-    figs(1) = fig_summary_transitions_all(T,params.figs.summary_transitions);
-    figs(2) = fig_summary_transition_types(T,params.figs.summary_transitions);
+    for i = 1:numel(params.figs.summary_transitions)
+        %Binned transitions
+        figs(i) = fig_summary_transitions(transitions,params.figs.summary_transitions(i));
+    end
+    %Scatter: neurobehavioral change points
+    figs(i+1) = fig_summary_changePoints(transitions,params.figs.summary_changePoints);
+    
     %Save
     save_multiplePlots(figs,save_dir); %save as FIG and PNG
     clearvars figs;
 end
+
+
 %% FIGURES: VALIDATION CHECK
 
 if do_plot.validation_check

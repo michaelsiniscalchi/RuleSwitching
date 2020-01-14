@@ -121,10 +121,10 @@ i=1;
 % expData(i).cellType = 'VIP'; %Cell-type label 
 % expData(i).npCorrFactor = 0;
 % i = i+1;
-expData(i).sub_dir = '181025 M58 Ruleswitching'; 
-expData(i).logfile = 'M58_RULESWITCHING_1810251553.log';
-expData(i).cellType = 'VIP'; %Cell-type label 
-expData(i).npCorrFactor = 0;
+% expData(i).sub_dir = '181025 M58 Ruleswitching'; 
+% expData(i).logfile = 'M58_RULESWITCHING_1810251553.log';
+% expData(i).cellType = 'VIP'; %Cell-type label 
+% expData(i).npCorrFactor = 0;
 % i = i+1;
 % expData(i).sub_dir = '181030 M58 Ruleswitching'; 
 % expData(i).logfile = 'M58_RULESWITCHING_1810301204.log';
@@ -151,11 +151,11 @@ expData(i).npCorrFactor = 0;
 % expData(i).logfile = 'M59_RULESWITCHING_1810241348.log';
 % expData(i).cellType = 'VIP'; %Cell-type label 
 % expData(i).npCorrFactor = 0;
-i = i+1;
-expData(i).sub_dir = '181025 M59 Ruleswitching'; 
-expData(i).logfile = 'M59_RULESWITCHING_1810251151.log';
-expData(i).cellType = 'VIP'; %Cell-type label 
-expData(i).npCorrFactor = 0;
+% i = i+1;
+% expData(i).sub_dir = '181025 M59 Ruleswitching'; 
+% expData(i).logfile = 'M59_RULESWITCHING_1810251151.log';
+% expData(i).cellType = 'VIP'; %Cell-type label 
+% expData(i).npCorrFactor = 0;
 % 
 % i = i+1;
 % expData(i).sub_dir = '181016 M60 RuleSwitching'; 
@@ -280,15 +280,33 @@ expData(i).npCorrFactor = 0;
 % expData(i).logfile = 'M53_RULESWITCHING_1809191042.log';
 % expData(i).cellType = 'PYR'; %Cell-type label 
 % expData(i).npCorrFactor = 0.3;
-
-%i = i+1;
+% 
+% i = i+1;
+expData(i).sub_dir = '180925 M53 RuleSwitching'; 
+expData(i).logfile = 'M53_RULESWITCHING_1809251557.log';
+expData(i).cellType = 'PYR'; %Cell-type label 
+expData(i).npCorrFactor = 0.3;
+% 
+% i = i+1;
 % expData(i).sub_dir = '180829 M54 RuleSwitching'; 
 % expData(i).logfile = 'M54_RULESWITCHING_1808291308.log';
 % expData(i).cellType = 'PYR'; %Cell-type label 
 % expData(i).npCorrFactor = 0.3;
 % 
+i = i+1;
+expData(i).sub_dir = '180905 M54 RuleSwitching'; 
+expData(i).logfile = 'M54_RULESWITCHING_1809051526.log';
+expData(i).cellType = 'PYR'; %Cell-type label 
+expData(i).npCorrFactor = 0.3;
+% 
 % i = i+1;
 % expData(i).sub_dir = '180831 M55 RuleSwitching'; 
+% expData(i).logfile = 'M55_RULESWITCHING_1808311318.log';
+% expData(i).cellType = 'PYR'; %Cell-type label 
+% expData(i).npCorrFactor = 0.3;
+% 
+% i = i+1;
+% expData(i).sub_dir = '180830 M56 RuleSwitching'; 
 % expData(i).logfile = 'M55_RULESWITCHING_1808311318.log';
 % expData(i).cellType = 'PYR'; %Cell-type label 
 % expData(i).npCorrFactor = 0.3;

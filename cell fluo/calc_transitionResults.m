@@ -22,30 +22,35 @@ type                        = cell(nTrans,1);
 trialVectors                = cell(nTrans,1);
 origin(nTrans,1)            = struct('vector',[],'similarity',struct('R',[],'Rho',[],'Cs',[])); %Population vector averaged over nTrials pre-switch; calculate trial-by-trial similarity to this vector
 destination(nTrans,1)       = struct('vector',[],'similarity',struct('R',[],'Rho',[],'Cs',[])); %Same for destination vector
-similarity(nTrans,1)    = struct('trials',[],'trialIdx',[],'bins','binIdx'); %Similarity(dest) - Similarity(origin)
+origin_dest(nTrans,1)       = struct('R',[],'Rho',[],'Cs',[]);                      %Similarity between origin and destination
+similarity(nTrans,1)        = struct('values',[],'binValues',[],'trialIdx',[],'binIdx',[],'changePt1',[],'changePtsN',[]);    %Similarity(dest) - Similarity(origin)
+behChangePt1                = nan(numel(type),1); %Initialize
+behChangePt2                = nan(numel(type),1); %Initialize
 
 %% Estimate Similarity of Each Per-Trial Activity Vector to Mean for Prior and Current Rule
 for i = 1:nTrans
-    
+       
+    % Calculate population activity vector for prior rule
     type{i} = [img_beh.blocks.type{i} '_' img_beh.blocks.type{i+1}]; %Named as 'priorBlock_currentBlock'
-    
-    %Calculate population activity vector for prior rule
     trialIdx = getBlockMask(i,img_beh.blocks); %Logical indices for all trials in prior block
     [trialVectorsPreSwitch, origin(i).vector] = ... %Average dF/F for each cell across specified number of trials prior to last switch (Prior rule)
         timeAvgDFF( trialDFF, trialIdx, timeIdx, nTrialsPreSwitch );
     
     trialVectorsPreSwitch = trialVectorsPreSwitch(:,end-nTrialsPreSwitch+1:end); %Keep only the trial vectors within the averaging frame pre-switch
     
-    %Calculate population activity vector for current rule
+    % Calculate population activity vector for current rule
     trialIdx = getBlockMask(i+1,img_beh.blocks); %Logical indices for all trials in current block
     [trialVectorsPostSwitch, destination(i).vector] = ... %Average dF/F for each cell across specified number of trials prior to next switch (Current rule)
         timeAvgDFF( trialDFF, trialIdx, timeIdx, nTrialsPreSwitch );
     
-    %Correlation with population vector for prior and current rules
+    % Correlation with population vector for prior and current rules
     trialVectors{i} = [trialVectorsPreSwitch, trialVectorsPostSwitch];
     origin(i).similarity = calcSimilarity( origin(i).vector, trialVectors{i});
     destination(i).similarity = calcSimilarity( destination(i).vector, trialVectors{i});
     
+    % Correlation between origin and destination vectors
+    origin_dest(i) = calcSimilarity( origin(i).vector, destination(i).vector);
+   
 end
 
 %% COMPARE SIMILARITY TO ORIGIN AND DESTINATION
@@ -56,8 +61,8 @@ for i = 1:numel(type)
     
     dest = destination(i).similarity.(params.stat);
     orig = origin(i).similarity.(params.stat);
-    values = (dest-orig); %Note that distance rather than similarity was used in NatNeuro study...
-    trialIdx = -params.nTrialsPreSwitch : numel(values)-params.nTrialsPreSwitch-1; %trialIdx==0 is the first trial post-switch
+    values = (dest-orig); %Difference in similarity measures for each trial in i-th block
+    trialIdx = -nTrialsPreSwitch : numel(values)-nTrialsPreSwitch-1; %Number of trials from rule switch; trialIdx==0 is the first trial post-switch
     
     %Average postswitch results within evenly spaced bins 
     switchTrial = find(trialIdx==0);
@@ -68,29 +73,55 @@ for i = 1:numel(type)
     end
      
     %Average within last bin preswitch
-    idx = switchTrial-min(mode(diff(edges)),params.nTrialsPreSwitch); %Length of avg. bin post-switch up to nTrialsPreSwitch
+    idx = switchTrial-min(mode(diff(edges)),nTrialsPreSwitch); %Use length of avg. bin post-switch <= nTrialsPreSwitch
     idx = idx:switchTrial-1; %Trial indices for last bin
-    bins_pre = mean(values(idx));
+    bins_pre = mean(values(idx));  
+    binValues = [bins_pre, bins_post]; %Binned average difference
+    binIdx = [-numel(bins_pre):-1, 1:numel(bins_post)]; %Bin indices; preswitch bin(s) coded negative, postwitch positive
     
-    %Concatenate and index        
-    similarity(i).bins = [bins_pre, bins_post]; %Binned average difference
-    similarity(i).binIdx = [-numel(bins_pre):-1, 1:numel(bins_post)]; %Binned average difference
-    similarity(i).trials = values; %Difference in similarity measures for each trial in i-th block
-    similarity(i).trialIdx = trialIdx; %Number of trials from rule switch
+    %Find Change-Point(s) Post Switch
+    idx = nTrialsPreSwitch+1 : numel(values); %Minimize RSS for step function
+    changePt1 = findchangepts(values(idx)); %Number of trials from rule switch; same as find(ischange(values(idx),'MaxNumChanges',1))
+    changePtsN = find(ischange(values(idx))); 
+        
+    %Populate structure array
+    similarity(i) = loadStruct(values,trialIdx,binValues,binIdx,changePt1,changePtsN);
+
 end
 
 % Aggregate rule type specific transitions
 soundIdx            = ismember(type,{'actionL_sound','actionR_sound'});
 actionIdx           = ismember(type,{'sound_actionL','sound_actionR'});
-aggregate.all       = cell2mat({similarity.bins}');
-aggregate.sound     = cell2mat({similarity(soundIdx).bins}');
-aggregate.action    = cell2mat({similarity(actionIdx).bins}');
+aggregate.all       = cell2mat({similarity.binValues}');
+aggregate.sound     = cell2mat({similarity(soundIdx).binValues}');
+aggregate.action    = cell2mat({similarity(actionIdx).binValues}');
 aggregate.idx       = similarity(1).binIdx;
+
+%% Change points for behavioral transitions
+
+% nTrials in each transition block
+transIdx = 2:numel(img_beh.blocks.firstTrial)-1; %Index transition blocks: 2:end-1
+firstTrial = img_beh.blocks.firstTrial(transIdx);
+nTrials = img_beh.blocks.nTrials(transIdx); 
+outcome = double(img_beh.trials.hit);
+
+for i = 1:numel(type)
+    idx = firstTrial(i) : firstTrial(i)+nTrials(i)-1; %Index only trials in current block
+    %MATLAB function
+    behChangePt1(i) = findchangepts(outcome(idx)); % Does not seem to work as well
+    %Cumulative sum of deviations from mean
+    cumDev = cumsum(outcome(idx)-mean(outcome(idx))); 
+    chgpt = find(cumDev==min(cumDev));
+    if numel(chgpt)==1
+        behChangePt2(i) = chgpt;
+    end
+end
 
 %% Store results in structure
 
 sessionID = img_beh.sessionID;
-T = loadStruct(sessionID,cellID,type,origin,destination,trialVectors,similarity,aggregate,params);
+T = loadStruct(sessionID, type, cellID, origin, destination, origin_dest,...
+    trialVectors, similarity, aggregate, behChangePt1, behChangePt2, nTrials, params);
 
 %% ------- Internal Functions ----------------------------------------------------------------------
 

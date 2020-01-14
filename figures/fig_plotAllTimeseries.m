@@ -3,6 +3,7 @@ function fig = fig_plotAllTimeseries( img_beh, params )
 fig = figure('Name',img_beh.sessionID);
 fig.Visible = 'off';
 fig.Position = [100 100 1200 800];
+color = params.Color; 
 
 nROIs = numel(img_beh.dFF); %Number of cells to plot
 t = (img_beh.t ./ 60); %Unit: seconds->minutes
@@ -21,8 +22,8 @@ for i = 1:numel(img_beh.blocks.type)
     t2 = cueTimes(firstTrial+nTrials); %Time of first trial in (i+1)th block
     switch img_beh.blocks.type{i}
         case 'sound'; c = 'w';
-        case 'actionL'; c = 'r';
-        case 'actionR'; c = 'b';
+        case 'actionL'; c = color.red;
+        case 'actionR'; c = color.blue;
     end
     fill([t1;t1;t2;t2],[ymax;ymin;ymin;ymax],c,...
         'FaceAlpha',params.FaceAlpha,'EdgeColor','none');
@@ -34,7 +35,7 @@ if params.trialMarkers
     c = cell(numel(trigTimes),1);
     c(:) = {'w'};
     c(img_beh.trials.hit) = {'k'};
-    c(img_beh.trials.err) = {'r'};
+    c(img_beh.trials.err) = {color.red};
     for i = 1:numel(trigTimes)
         plot([trigTimes(i),trigTimes(i)],[ymin,ymax],'-','Color',c{i},'LineWidth',0.5)
     end
@@ -49,7 +50,7 @@ end
 %Label y-axis
 if params.ylabel_cellIDs
     ytick = -spc*numel(img_beh.cellID):spc:-spc;
-    yticklabel = img_beh.cellID;
+    yticklabel = img_beh.cellID(end:-1:1);
 else
     lowTick = -10*(mod(spc*nROIs/10,10) - spc*nROIs/10); %Bottom tick spacing value
     ytick = lowTick:spc*10:-spc; %Ticks at these spacing values

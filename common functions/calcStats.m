@@ -11,6 +11,17 @@
 
 function stats = calcStats( data, expID )
 
+% Validation checks
+if size(data,1) ~= length(expID) %Consistency between lengths of 'data' & 'expID'
+    error('Inconsistent number of rows in "data" and "expID".');
+end
+
+% Remove NaN entries
+idx = all(~isnan(data),2); %Find rows containing NaN
+data = data(idx,:);
+expID = expID(idx,:);
+
+% Estimate descriptive statistics
 stats.data      = data;
 stats.median    = median(data,1);
 stats.IQR       = prctile(data,[25,75],1);

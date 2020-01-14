@@ -2,7 +2,8 @@ function transitions = summary_transitions( struct_transitions )
 
 %% Initialize summary data structure
 cellType = {'SST','VIP','PV','PYR','all'};
-temp = struct('sessionID',[],'trials',[],'trialIdx',[],'bins',[],'binIdx',[]);
+temp = struct('sessionID',[],'values',[],'trialIdx',[],'binValues',[],'binIdx',[],...
+    'changePt1',[],'changePtsN',[],'behChangePt1',[],'behChangePt2',[],'nTrials',[]);
 for i = 1:numel(cellType)
     transitions.(cellType{i}) = struct('all',temp,'sound',temp,'action',temp,...
         'sound_actionR',temp,'actionR_sound',temp,'sound_actionL',temp,'actionL_sound',temp);
@@ -36,27 +37,41 @@ for i = 1:numel(struct_transitions) %Session index
             sessionID = ones(sum(typeIdx),1)*expIdx.all; %Label each transition
             
             %Trial-by-trial similarity index
-            trials = {T.similarity(typeIdx).trials}';
+            values = {T.similarity(typeIdx).values}';
             trialIdx = {T.similarity(typeIdx).trialIdx}';
             
             %Binned similarity index
-            bins = cell2mat({T.similarity(typeIdx).bins}');
+            binValues = cell2mat({T.similarity(typeIdx).binValues}');
             binIdx = cell2mat({T.similarity(typeIdx).binIdx}'); %Might be able to do this just once for each type...
                      
+            %Neural change-points
+            changePt1 = [T.similarity(typeIdx).changePt1]'; %Using findchangepts(values(idx));
+            changePtsN = {T.similarity(typeIdx).changePtsN}'; %Using find(ischange(values(idx))), so could output multiple values or empty sets.
+            
+            %Behavioral change-points
+            behChangePt1 = T.behChangePt1(typeIdx); %MATLAB method
+            behChangePt2 = T.behChangePt2(typeIdx); %Minimum cumulative deviation
+            nTrials      = T.nTrials(typeIdx); %Alternative: later, subtract 19 to get transition trial
+            
             %Concatenate with structure
             transitions.(cellType{j}).(transTypes{k}) = ...
                 catStruct(transitions.(cellType{j}).(transTypes{k}),...
-                sessionID,trials,trialIdx,bins,binIdx);
+                sessionID, values, trialIdx, binValues, binIdx,...
+                changePt1, changePtsN, behChangePt1, behChangePt2, nTrials);
             
-            %DEBUGGING ()---------------------------------------------------------------------------
-            if any(isnan(bins(:)))
-                disp([T.sessionID ' [i transType] = ' num2str(i) transTypes{k}]);
-            end
-            %Cell22 from M58 181025 has NaN for all trialDFF; cell003 missing from timeseries plot
-            %Cell16 from M59 181025 has NaN for all trialDFF; cell012 missing from timeseries plot
-            
-            %---------------------------------------------------------------------------------------
         end
     end
     clearvars expIdx;
 end
+
+%% ---INTERNAL FUNCTIONS----------------------------------------------------------------------------
+
+% Note: catStruct.m removes NaN entries. ***FUTURE: fix past work dependent on feature and remove from *.m file
+%   For current purpose (with session indexing) we need to leave them in until further downstream,
+%   ie summary_stats()... 
+
+% function S = catStruct(S,varargin)
+% for ii = 1:numel(varargin)
+%     field_name = inputname(1+ii); %idx + 1 for struct_in
+%     S.(field_name) = [S.(field_name); varargin{ii}]; %Vertical concatenation
+% end

@@ -1,6 +1,7 @@
 function fig = fig_transitions_individual( transitions, params )
 
 T = transitions;
+stat = T.params.stat;
 
 setup_figprops('timeseries');
 nCols = 3;
@@ -13,8 +14,8 @@ for i = 1:numel(ruleName)
     
     blocks = blkIdx.(ruleName{i});
     nRows = ceil(numel(blocks)/nCols);
-    fig(i) = figure('Name',[T.sessionID ' (' ruleName{i} ') ' T.params.stat],...
-        'Position',[0,50,1850,300*nRows],'Visible','off'); %#ok<*AGROW>
+    fig(i) = figure('Name',[T.sessionID ' (' ruleName{i} ') ' stat],...
+        'Position',[0,50,1850,300*nRows],'Visible','on'); %#ok<*AGROW>
     tiledlayout(nRows,nCols);
     
     for j = 1:numel(blocks)
@@ -33,11 +34,16 @@ for i = 1:numel(ruleName)
         % Title and labels
         title(ax(j),['Neural Transition ' num2str(blocks(j))]);
         if mod(j-1,nCols)==0
-            ylabel(ax(j),[T.params.stat '(dest) - ' T.params.stat '(origin)']);
+            ylabel(ax(j),[stat '(dest) - ' stat '(origin)']);
         end
         % Indicate switch trial
         plot(ax(j),[0,0],ylims,':k','LineWidth',1);
         set(ax(j),'PlotBoxAspectRatio',[2,1,1],'Box','off','YLim',ylims);
+        % Indicate initial similarity between origin and destination vectors
+        txtX = max(xlim(ax(j)))-0.3*range(xlim(ax(j)));
+        txtY = min(ylim(ax(j)))+0.1*range(ylim(ax(j)));
+        txt = [stat '(origin,dest) = ' num2str(T.origin_dest(j).(stat),2)];
+        text(ax(j),txtX,txtY,txt,'FontSize',8);
     end
     clearvars ax ylims
 end

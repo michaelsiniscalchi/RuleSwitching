@@ -60,25 +60,16 @@ switch type
                 varNames = fieldnames(input.(decodeTypes{i}).(cellTypes{j})); %varNames = {'selMag','sigMag','pSig','nPref_pos','nPref_neg','nCells'};
                 varNames = varNames(~ismember(varNames,{'cellID','expID'}));
                 for k = 1:numel(varNames)
+                    % Unpack & get session ID
+                    vbl = input.(decodeTypes{i}).(cellTypes{j}).(varNames{k}); 
+                    expID = input.(decodeTypes{i}).(cellTypes{j}).expID; %For pooled cells from many sessions
+                    if numel(expID) > size(vbl,1) %For data aggregated by session 
+                        expID = unique(expID); 
+                    end
                     % Estimate descriptive stats
-                    expID = input.(decodeTypes{i}).(cellTypes{j}).expID;
                     S.(decodeTypes{i}).(cellTypes{j}).(varNames{k}) = ...
                         calcStats(input.(decodeTypes{i}).(cellTypes{j}).(varNames{k}),expID);
                 end
-%                 for k = 1:numel(varNames)
-%                     %All data points 
-%                     s.data = input.(decodeTypes{i}).(cellTypes{j}).(varNames{k});
-%                     %Mean across first dimension (cells or experiments)
-%                     s.mean = mean(s.data,1);
-%                     %SEM across first dimension (cells or experiments)
-%                     s.sem = std(s.data,0,1)./ sqrt(size(s.data,1));
-%                     %Unit of measure, N
-%                     s.N = size(s.data,1);
-%                     %Experiment ID
-%                     s.expID = input.(decodeTypes{i}).(cellTypes{j}).expID; %N = nCells
-%                     %Incorporate data into output structure
-%                     S.(decodeTypes{i}).(cellTypes{j}).(varNames{k}) = s;
-%                 end
             end
         end
         
@@ -89,14 +80,30 @@ switch type
             for j = 1:numel(transTypes)
                 % Label with corresponding session idx
                 expID = input.(cellTypes{i}).(transTypes{j}).sessionID;
+                
                 % Copy trialwise data from summary
-                S.(cellTypes{i}).(transTypes{j}).trials = input.(cellTypes{i}).(transTypes{j}).trials;
-                S.(cellTypes{i}).(transTypes{j}).trialIdx = input.(cellTypes{i}).(transTypes{j}).trialIdx;
+                %S.(cellTypes{i}).(transTypes{j}).values.data = input.(cellTypes{i}).(transTypes{j}).values;
+                %S.(cellTypes{i}).(transTypes{j}).trialIdx = input.(cellTypes{i}).(transTypes{j}).trialIdx;
+                
                 % Estimate descriptive stats for binned data
-                S.(cellTypes{i}).(transTypes{j}).bins = calcStats(input.(cellTypes{i}).(transTypes{j}).bins,expID);
+                S.(cellTypes{i}).(transTypes{j}).binValues = calcStats(input.(cellTypes{i}).(transTypes{j}).binValues,expID);
                 S.(cellTypes{i}).(transTypes{j}).binIdx = input.(cellTypes{i}).(transTypes{j}).binIdx; %Copy bin indices
+
+                % Change points
+                neuralChgPt = input.(cellTypes{i}).(transTypes{j}).changePt1; %Neural; MATLAB ipt = findchangepts(x)
+                behChgPt = input.(cellTypes{i}).(transTypes{j}).behChangePt2; %Behavioral; minimum cumulative deviation
+                                
+                idx = ~isnan(neuralChgPt) & ~isnan(behChgPt); %Remove entries with NaN for either change-point
+                [neuralChgPt,behChgPt,expID] = ...
+                    deal(neuralChgPt(idx),behChgPt(idx),expID(idx));
+
+                S.(cellTypes{i}).(transTypes{j}).neuralChgPt = calcStats(neuralChgPt,expID); % Estimate descriptive stats
+                S.(cellTypes{i}).(transTypes{j}).behChgPt = calcStats(behChgPt,expID);
+                
+                %Copy nTrials from summary
+                S.(cellTypes{i}).(transTypes{j}).nTrials = ...
+                    input.(cellTypes{i}).(transTypes{j}).nTrials(idx);
             end
-        
         end
 end
 stats.(type) = S;

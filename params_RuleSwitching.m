@@ -1,20 +1,19 @@
 function [ calculate, summarize, do_plot, mat_file, params ] = params_RuleSwitching(dirs,expData)
 
 %% CALCULATE OR RE-CALCULATE RESULTS
-calculate.behavior              = false;
-calculate.stack_info            = false;
-calculate.combined_data         = false;  %Combine relevant behavioral and imaging data in one MAT file ; truncate if necessary
-calculate.cellF                 = false;  %Extract cellf and neuropilf from ROIs, excluding overlapping regions and extremes of the FOV
-calculate.dFF                   = false; %Calculate dF/F, with optional neuropil subtraction
-calculate.align_signals         = false;  %Interpolate dF/F and align to behavioral events
-calculate.trial_average_dFF     = false;   %dF/F averaged over specified subsets of trials
-calculate.block_average_dFF     = false; %***WIP: Average separately within each block
-calculate.decode_single_units   = false;   %ROC/Selectivity for choice, outcome and rule
-calculate.transitions           = false;   %Changes in dF/F over each block; 
+calculate.behavior              = true;
+calculate.stack_info            = true;
+calculate.combined_data         = true;  %Combine relevant behavioral and imaging data in one MAT file ; truncate if necessary
+calculate.cellF                 = true; %Extract cellf and neuropilf from ROIs, excluding overlapping regions and extremes of the FOV
+calculate.dFF                   = true; %Calculate dF/F, with optional neuropil subtraction
+calculate.align_signals         = true;  %Interpolate dF/F and align to behavioral events
+calculate.trial_average_dFF     = true;   %dF/F averaged over specified subsets of trials
+calculate.decode_single_units   = true;    %ROC/Selectivity for choice, outcome and rule
+calculate.transitions           = true;    %Changes in dF/F over each block; 
 
 calculate.fluorescence = false;
 if any([calculate.cellF, calculate.dFF, calculate.align_signals, calculate.trial_average_dFF,...
-		calculate.block_average_dFF, calculate.decode_single_units, calculate.transitions])
+		calculate.decode_single_units, calculate.transitions])
 	calculate.fluorescence = true;
 end
 
@@ -22,28 +21,29 @@ end
 summarize.behavior              = false;
 summarize.selectivity           = false;
 summarize.transitions           = false;
-summarize.stats                 = true; %Needed for all summary plots
+summarize.stats                 = false; %Needed for all summary plots
 
 %% PLOT RESULTS
-do_plot.FOV_mean_projection             = false;
-do_plot.timeseries                      = false; %Plot all timeseries for each session
 
-do_plot.raw_behavior                    = false;
-do_plot.lick_density                    = false;
-
-do_plot.trial_average_dFF               = false;  %Overlay traces for distinct choices, outcomes, and rules (CO&R)
-do_plot.block_average_dFF               = false;
-do_plot.decode_single_units             = false;
-do_plot.heatmap_modulation_idx          = false;  %Heatmap of selectivity idxs for COR for each session
-do_plot.transitions                     = false;
-
+% Behavior
+do_plot.raw_behavior                    = true;
+do_plot.lick_density                    = true;
+% Imaging
+do_plot.FOV_mean_projection             = true;
+do_plot.timeseries                      = true; %Plot all timeseries for each session
+% Combined
+do_plot.trial_average_dFF               = true;  %Overlay traces for distinct choices, outcomes, and rules (CO&R)
+do_plot.decode_single_units             = true;
+do_plot.heatmap_modulation_idx          = true;  %Heatmap of selectivity idxs for COR for each session
+do_plot.transitions                     = true; 
+% Summary
 do_plot.summary_behavior                = false; %Summary of descriptive stats, eg, nTrials and {trials2crit, pErr, oErr} for each rule
 do_plot.summary_lick_density            = false;
 do_plot.summary_periswitch_performance  = false;
-do_plot.summary_modulation_heatmap      = true; %Heatmap for each celltype, all sessions, one figure each for CO&R
-do_plot.summary_modulation				= true; %Bar/line plots of grouped selectivity results for comparison
-do_plot.summary_transitions             = true;
-
+do_plot.summary_modulation_heatmap      = false; %Heatmap for each celltype, all sessions, one figure each for CO&R
+do_plot.summary_modulation				= false; %Bar/line plots of grouped selectivity results for comparison
+do_plot.summary_transitions             = false;
+% Validation
 do_plot.validation_check				= false;
 
 %% PATHS TO SAVED DATA
@@ -125,9 +125,21 @@ params.stats.analysis_names = {'behavior','selectivity','transitions'};
 
 %% FIGURES: COLOR PALETTE FROM CBREWER
 % Color palette from cbrewer()
+c = cbrewer('qual','Paired',10);
+colors = {'red',c(6,:),'red2',c(5,:),'blue',c(2,:),'blue2',c(1,:),'green',c(4,:),'green2',c(3,:),...
+    'purple',c(10,:),'purple2',c(9,:),'orange',c(8,:),'orange2',c(7,:)};
+% Add additional colors from Set1 and RGB
 c = cbrewer('qual','Set1',9);
-cbrew = struct('black',[0,0,0],'red',c(1,:),'blue',c(2,:),'green',c(3,:),'purple',...
-    c(4,:),'orange',c(5,:),'gray',c(9,:),'pink',c(8,:));
+colors = [colors {'pink',c(8,:),'black',[0,0,0],'gray',c(9,:)}];
+cbrew = struct(colors{:}); %Merge palettes
+clearvars colors
+
+%Define color codes for cell types
+cellColors = {'SST',cbrew.orange,'SST2',cbrew.orange2,'VIP',cbrew.green,'VIP2',cbrew.green2,...
+    'PV',cbrew.purple,'PV2',cbrew.purple2,'PYR',cbrew.blue,'PYR2',cbrew.blue2}; 
+ruleColors = {'sound',cbrew.black,'sound2',cbrew.gray,'action',cbrew.red,'action2',cbrew.red2}; %{Sound,Action}
+dataColors = {'data',cbrew.gray};
+colors = struct(cellColors{:},ruleColors{:},dataColors{:});
 
 %% FIGURE: RAW BEHAVIOR
 params.figs.behavior.window = params.behavior.timeWindow; 
@@ -144,13 +156,13 @@ params.figs.perfCurve.colors = {cbrew.green,cbrew.pink,cbrew.pink,cbrew.gray}; %
 params.figs.perfCurve.LineStyle = {'-','-',':','-'};
 
 %% FIGURE: CELLULAR FLUORESCENCE TIMESERIES FOR ALL NEURONS
-params.figs.timeseries.trialMarkers    = false;
-params.figs.timeseries.trigTimes       = 'cueTimes'; %'cueTimes' or 'responseTimes'
-params.figs.timeseries.ylabel_cellIDs  = true;
-params.figs.timeseries.spacing         = 10; %Spacing between traces in SD 
-params.figs.timeseries.FaceAlpha       = 0.2; %Transparency for rule patches
-params.figs.timeseries.LineWidth       = 0.5; %LineWidth for dF/F
-params.figs.timeseries.Color           = {cbrew.red, cbrew.blue}; 
+params.figs.timeseries.trialMarkers     = false;
+params.figs.timeseries.trigTimes        = 'cueTimes'; %'cueTimes' or 'responseTimes'
+params.figs.timeseries.ylabel_cellIDs   = true;
+params.figs.timeseries.spacing          = 10; %Spacing between traces in SD 
+params.figs.timeseries.FaceAlpha        = 0.2; %Transparency for rule patches
+params.figs.timeseries.LineWidth        = 0.5; %LineWidth for dF/F
+params.figs.timeseries.Color            = struct('red',cbrew.red, 'blue', cbrew.blue); 
 
 %% FIGURE: TRIAL-AVERAGED CELLULAR FLUORESCENCE
 
@@ -208,6 +220,7 @@ p(5).color      = cbrew.red;
 p(6).title      = 'Rule (right choice)';
 p(6).color      = cbrew.blue;
 params.figs.decode_single_units.panels = p;
+clearvars p;
 
 % Heatmaps
 params.figs.mod_heatmap.fig_type        = 'heatmap';
@@ -238,8 +251,9 @@ params.figs.mod_heatmap.rule_SR.color   = c(2,:);
 params.figs.transitions.Color = {cbrew.black, cbrew.red, cbrew.gray};
 
 %% SUMMARY FIGURE: BEHAVIORAL STATISTICS
-cbrew.red2 = [0.9843,0.6039,0.6000];
-params.figs.summary_behavior.ruleColors = {[cbrew.black;cbrew.gray],[cbrew.red;cbrew.red2]}; %{Sound,Action}
+
+%***RECODE COLOR SPECS based on color scheme in struct 'colors'***
+params.figs.summary_behavior.ruleColors = {[colors.sound;colors.sound2],[colors.action;colors.action2]}; %{Sound,Action}
 params.figs.summary_behavior.cellColors = {cbrew.orange,cbrew.green,cbrew.purple,cbrew.blue}; %{SST,VIP,PV,PYR}
 
 %% SUMMARY FIGURE: MODULATION INDEX-----------------------------------------------
@@ -281,4 +295,24 @@ params.figs.summary_preference.colors = {c([8,4,10,2],:),c([7,3,9,1],:)}; %Swap 
 
 %% SUMMARY FIGURE: NEURAL TRANSITION ANALYSIS 
 
-params.figs.summary_transitions = [];
+p(1).cellTypes      = {'SST','VIP','PV','PYR'};
+p(1).transTypes     = {'actionR_sound','sound_actionL','actionL_sound','sound_actionR'}; %Order should be S-A-S-A for color order
+
+p(2).cellTypes      = {'SST','VIP','PV','PYR'};
+p(2).transTypes     = {'sound','action'}; 
+
+p(3).cellTypes      = {'all'};
+p(3).transTypes     = {'sound','action'};  
+
+for i=1:numel(p)
+p(i).stat = params.transitions.stat;
+end
+
+params.figs.summary_transitions = p;
+clearvars p;
+
+% Neurobehavioral switch
+p.color = colors;
+p.useChangePt = true; %Use behavioral changepouint analysis; use nTrials-20 if false
+params.figs.summary_changePoints = p;
+clearvars p;
