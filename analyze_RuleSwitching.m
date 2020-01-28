@@ -12,8 +12,8 @@
 clearvars;
 
 % Set MATLAB path and get experiment-specific parameters
-% [dirs, expData] = expData_RuleSwitching(pathlist_RuleSwitching);
-[dirs, expData] = expData_RuleSwitching_DEVO(pathlist_RuleSwitching); %For processing/troubleshooting subsets
+[dirs, expData] = expData_RuleSwitching(pathlist_RuleSwitching);
+% [dirs, expData] = expData_RuleSwitching_DEVO(pathlist_RuleSwitching); %For processing/troubleshooting subsets
 % Set parameters for analysis
 [calculate, summarize, do_plot, mat_file, params] = params_RuleSwitching(dirs,expData);
 % Generate directory structure
@@ -234,27 +234,32 @@ end
 if do_plot.FOV_mean_projection
     save_dir = fullfile(dirs.figures,'FOV mean projections');   %Figures directory: cellular fluorescence
     create_dirs(save_dir); %Create dir for these figures
+    figs = gobjects(numel(expData),1); %Initialize figures
     for i = 1:numel(expData)
-        fig = fig_meanProj(expData(i).mat_path);
-        savefig(fig,fullfile(save_dir,expData(i).sub_dir)); %Save as FIG
-        saveas(fig,fullfile(save_dir,[expData(i).sub_dir '.png'])); %Save as PNG
-        close(fig);
+        figs(i) = fig_meanProj(expData(i).mat_path);
+        figs(i).Name = expData(i).sub_dir;
     end
+    save_multiplePlots(figs,save_dir);
 end
 
 % Plot all timeseries from each experiment
 if do_plot.timeseries
-    save_dir = fullfile(dirs.figures,'Cellular fluorescence');   %Figures directory: cellular fluorescence
-    create_dirs(save_dir); %Create dir for these figures
-    figs = gobjects(numel(expData),1); %Initialize figures
-    for i = 1:numel(expData)
-        %Load data
-        imgBeh = load(mat_file.img_beh(i),'sessionID','dFF','t','trials','trialData','blocks','cellID');
-        %Generate fig
-        figs(i) = fig_plotAllTimeseries(imgBeh,params.figs.timeseries);
+    %Restrict to specific sessions, if desired
+    expIdx = 1:numel(expData);
+    if ~isempty(params.figs.timeseries.expIDs)
+        expIdx = find(ismember({expData.sub_dir}, params.figs.timeseries.expIDs));
     end
-    %Save batch as FIG and PNG
-    save_multiplePlots(figs,save_dir);
+    %Initialize graphics array and create directories 
+    save_dir = fullfile(dirs.figures,'Cellular fluorescence');   %Figures directory: cellular fluorescence
+    create_dirs(save_dir); %Create dir for these figures 
+    figs = gobjects(numel(expIdx),1); %Initialize figures
+    %Generate figures
+    for i = 1:numel(expIdx)
+        imgBeh = load(mat_file.img_beh(expIdx(i)),'sessionID','dFF','t','trials','trialData','blocks','cellID'); %Load data
+        figs(i) = fig_plotAllTimeseries(imgBeh,params.figs.timeseries);         %Generate fig
+    end
+    %Save batch as FIG, PNG, and SVG
+    save_multiplePlots(figs,save_dir,'svg');
     clearvars figs;
 end
 
@@ -457,4 +462,13 @@ if do_plot.validation_check
     figs = fig_validation_ITI(errData.diff_ITIs, errData.sessionID);
     save_multiplePlots(figs,save_dir); %save as FIG and PNG
     clearvars figs;
+    
+    %Validate alignment of fluorescence timeseries]
+    for i=1:numel(expData)
+    figs = fig_validation_alignment(errData.diff_ITIs, errData.sessionID);
+    save_multiplePlots(figs,save_dir); %save as FIG and PNG
+    clearvars figs;
+    end
+    
+    
 end

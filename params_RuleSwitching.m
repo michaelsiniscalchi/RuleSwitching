@@ -1,15 +1,15 @@
 function [ calculate, summarize, do_plot, mat_file, params ] = params_RuleSwitching(dirs,expData)
 
 %% CALCULATE OR RE-CALCULATE RESULTS
-calculate.behavior              = true;
-calculate.stack_info            = true;
-calculate.combined_data         = true;  %Combine relevant behavioral and imaging data in one MAT file ; truncate if necessary
-calculate.cellF                 = true; %Extract cellf and neuropilf from ROIs, excluding overlapping regions and extremes of the FOV
-calculate.dFF                   = true; %Calculate dF/F, with optional neuropil subtraction
-calculate.align_signals         = true;  %Interpolate dF/F and align to behavioral events
-calculate.trial_average_dFF     = true;   %dF/F averaged over specified subsets of trials
-calculate.decode_single_units   = true;    %ROC/Selectivity for choice, outcome and rule
-calculate.transitions           = true;    %Changes in dF/F over each block; 
+calculate.behavior              = false;
+calculate.stack_info            = false;
+calculate.combined_data         = false; %Combine relevant behavioral and imaging data in one MAT file ; truncate if necessary
+calculate.cellF                 = false; %Extract cellf and neuropilf from ROIs, excluding overlapping regions and extremes of the FOV
+calculate.dFF                   = false; %Calculate dF/F, with optional neuropil subtraction
+calculate.align_signals         = false; %Interpolate dF/F and align to behavioral events
+calculate.trial_average_dFF     = false; %dF/F averaged over specified subsets of trials
+calculate.decode_single_units   = false; %ROC/Selectivity for choice, outcome and rule
+calculate.transitions           = false; %Changes in dF/F over each block; 
 
 calculate.fluorescence = false;
 if any([calculate.cellF, calculate.dFF, calculate.align_signals, calculate.trial_average_dFF,...
@@ -26,16 +26,16 @@ summarize.stats                 = false; %Needed for all summary plots
 %% PLOT RESULTS
 
 % Behavior
-do_plot.raw_behavior                    = true;
-do_plot.lick_density                    = true;
+do_plot.raw_behavior                    = false;
+do_plot.lick_density                    = false;
 % Imaging
-do_plot.FOV_mean_projection             = true;
+do_plot.FOV_mean_projection             = false;
 do_plot.timeseries                      = true; %Plot all timeseries for each session
 % Combined
-do_plot.trial_average_dFF               = true;  %Overlay traces for distinct choices, outcomes, and rules (CO&R)
-do_plot.decode_single_units             = true;
-do_plot.heatmap_modulation_idx          = true;  %Heatmap of selectivity idxs for COR for each session
-do_plot.transitions                     = true; 
+do_plot.trial_average_dFF               = false;  %Overlay traces for distinct choices, outcomes, and rules (CO&R)
+do_plot.decode_single_units             = false;
+do_plot.heatmap_modulation_idx          = false;  %Heatmap of selectivity idxs for COR for each session
+do_plot.transitions                     = false; 
 % Summary
 do_plot.summary_behavior                = false; %Summary of descriptive stats, eg, nTrials and {trials2crit, pErr, oErr} for each rule
 do_plot.summary_lick_density            = false;
@@ -44,7 +44,7 @@ do_plot.summary_modulation_heatmap      = false; %Heatmap for each celltype, all
 do_plot.summary_modulation				= false; %Bar/line plots of grouped selectivity results for comparison
 do_plot.summary_transitions             = false;
 % Validation
-do_plot.validation_check				= false;
+do_plot.validation_check				= true;
 
 %% PATHS TO SAVED DATA
 %By experiment
@@ -156,6 +156,15 @@ params.figs.perfCurve.colors = {cbrew.green,cbrew.pink,cbrew.pink,cbrew.gray}; %
 params.figs.perfCurve.LineStyle = {'-','-',':','-'};
 
 %% FIGURE: CELLULAR FLUORESCENCE TIMESERIES FOR ALL NEURONS
+% params.figs.timeseries.expIDs           = [];
+% params.figs.timeseries.cellIDs          = [];
+params.figs.timeseries.expIDs           = {...
+    '180831 M55 RuleSwitching';...
+    '181003 M52 RuleSwitching'};
+params.figs.timeseries.cellIDs          = {...
+    {'140','141','142','143','144'};
+    {'001','002','003','004','005','006','007','008','009','010'}};
+
 params.figs.timeseries.trialMarkers     = false;
 params.figs.timeseries.trigTimes        = 'cueTimes'; %'cueTimes' or 'responseTimes'
 params.figs.timeseries.ylabel_cellIDs   = true;

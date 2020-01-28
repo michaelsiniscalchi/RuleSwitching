@@ -12,8 +12,8 @@ for j = 1:numel(figs)
     savename = fullfile(save_path,figs(j).Name);
     print(figs(j),savename,'-dpng');    %Save PNG
     
-    % Save EPS
-    if options.eps
+    % Save SVG
+    if options.svg
         print(figs(j),savename,'-dsvg');    %Save EPS for work in Illustrator
     end
     
@@ -23,7 +23,7 @@ end
 close all;
 
 function options = parseOptions( opt_names )
-options.eps = false;
+options = struct('svg',false);
 for i = 1:numel(opt_names)
     options.(opt_names{i}) = true;
 end

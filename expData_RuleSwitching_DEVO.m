@@ -274,42 +274,80 @@ i=1;
 % expData(i).logfile = 'M52_RULESWITCHING_1810051423.log';
 % expData(i).cellType = 'PYR'; %Cell-type label 
 % expData(i).npCorrFactor = 0.3;
-% 
+% i = i+1;
+% expData(i).sub_dir = '181009 M52 RuleSwitching'; % Processed through transition results 200116; Need Figures!!
+% expData(i).logfile = 'M52_RULESWITCHING_1810091211.log';
+% expData(i).cellType = 'PYR'; %Cell-type label 
+% expData(i).npCorrFactor = 0.3;
+
 % i = i+1;
 % expData(i).sub_dir = '180919 M53 RuleSwitching'; 
 % expData(i).logfile = 'M53_RULESWITCHING_1809191042.log';
 % expData(i).cellType = 'PYR'; %Cell-type label 
 % expData(i).npCorrFactor = 0.3;
-% 
 % i = i+1;
-expData(i).sub_dir = '180925 M53 RuleSwitching'; 
-expData(i).logfile = 'M53_RULESWITCHING_1809251557.log';
-expData(i).cellType = 'PYR'; %Cell-type label 
-expData(i).npCorrFactor = 0.3;
+% expData(i).sub_dir = '180925 M53 RuleSwitching'; % Processed through transition results 200116; Need Figures!!
+% expData(i).logfile = 'M53_RULESWITCHING_1809251557.log';
+% expData(i).cellType = 'PYR'; %Cell-type label 
+% expData(i).npCorrFactor = 0.3;
+% i = i+1;
+% expData(i).sub_dir = '180928 M53 RuleSwitching'; % Processed through transition results 200116; Need Figures!!
+% expData(i).logfile = 'M53_RULESWITCHING_1809281027.log';
+% expData(i).cellType = 'PYR'; %Cell-type label 
+% expData(i).npCorrFactor = 0.3;
 % 
 % i = i+1;
 % expData(i).sub_dir = '180829 M54 RuleSwitching'; 
 % expData(i).logfile = 'M54_RULESWITCHING_1808291308.log';
 % expData(i).cellType = 'PYR'; %Cell-type label 
 % expData(i).npCorrFactor = 0.3;
-% 
-i = i+1;
-expData(i).sub_dir = '180905 M54 RuleSwitching'; 
-expData(i).logfile = 'M54_RULESWITCHING_1809051526.log';
-expData(i).cellType = 'PYR'; %Cell-type label 
-expData(i).npCorrFactor = 0.3;
-% 
+% i = i+1;
+% expData(i).sub_dir = '180905 M54 RuleSwitching'; % Processed through transition results 200116; Need Figures!!
+% expData(i).logfile = 'M54_RULESWITCHING_1809051526.log';
+% expData(i).cellType = 'PYR'; %Cell-type label 
+% expData(i).npCorrFactor = 0.3;
+% i = i+1;
+% expData(i).sub_dir = '180912 M54 RuleSwitching'; % Processed through transition results 200116; Need Figures!! 
+% expData(i).logfile = 'M54_RULESWITCHING_1809121331.log';
+% expData(i).cellType = 'PYR'; %Cell-type label 
+% expData(i).npCorrFactor = 0.3;
+
 % i = i+1;
 % expData(i).sub_dir = '180831 M55 RuleSwitching'; 
 % expData(i).logfile = 'M55_RULESWITCHING_1808311318.log';
 % expData(i).cellType = 'PYR'; %Cell-type label 
 % expData(i).npCorrFactor = 0.3;
-% 
+% i = i+1;
+expData(i).sub_dir = '180905 M55 RuleSwitching'; 
+expData(i).logfile = 'M55_RULESWITCHING_1809051333.log';
+expData(i).cellType = 'PYR'; %Cell-type label 
+expData(i).npCorrFactor = 0.3;
+i = i+1;
+expData(i).sub_dir = '180918 M55 RuleSwitching'; 
+expData(i).logfile = 'M55_RULESWITCHING_1809181521.log';
+expData(i).cellType = 'PYR'; %Cell-type label 
+expData(i).npCorrFactor = 0.3;
+i = i+1;
+expData(i).sub_dir = '180920 M55 RuleSwitching'; 
+expData(i).logfile = 'M55_RULESWITCHING_1809201612.log';
+expData(i).cellType = 'PYR'; %Cell-type label 
+expData(i).npCorrFactor = 0.3;
+
 % i = i+1;
 % expData(i).sub_dir = '180830 M56 RuleSwitching'; 
 % expData(i).logfile = 'M55_RULESWITCHING_1808311318.log';
 % expData(i).cellType = 'PYR'; %Cell-type label 
 % expData(i).npCorrFactor = 0.3;
+i = i+1;
+expData(i).sub_dir = '180906 M56 RuleSwitching'; 
+expData(i).logfile = 'M56_RULESWITCHING_1809061310.log';
+expData(i).cellType = 'PYR'; %Cell-type label 
+expData(i).npCorrFactor = 0.3;
+i = i+1;
+expData(i).sub_dir = '180921 M56 RuleSwitching'; 
+expData(i).logfile = 'M56_RULESWITCHING_1809211356.log';
+expData(i).cellType = 'PYR'; %Cell-type label 
+expData(i).npCorrFactor = 0.3;
 
 
 %% Get ROI directories and define paths to imaging data

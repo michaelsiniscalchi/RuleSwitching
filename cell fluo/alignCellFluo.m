@@ -33,18 +33,16 @@ rel_idx = round(params.window(1)/dt) : round(params.window(end)/dt); %In number 
 event_times = trialData.(params.trigTimes);
 idx = NaN(numel(event_times),numel(rel_idx));
 for i = 1:numel(event_times)
-    idx_t0 = find(t >= event_times(i)-dt/2 & t <= event_times(i)+dt/2,1,'first'); %If >1
+    idx_t0 = find(t >= event_times(i)-dt/1.999 & t <= event_times(i)+dt/1.999,1,'first'); %Occasional small errors in interp1() output, with exactly centered event_times(i) yield null set or two results with threshold set to dt/2
     idx(i,:) = idx_t0 + rel_idx;
 end
 % Handle idxs for out-of-range timepoints
-%***CHECK: THIS LINE MAY NEED TO BE HERE INSTEAD OF AT 47
-%nanIdx = idx < 1 | idx > numel(t); %Idx for out-of-range timepoints
+nanIdx = idx < 1 | idx > numel(t); %Idx for out-of-range timepoints
 idx(idx < 1) = 1; 
 idx(idx > numel(t)) = numel(t);
 
 % Align interpolated signals
 aligned.(params.trigTimes) = cell([numel(cells.dFF),1]); %Initialize
-nanIdx = idx < 1 | idx > numel(t); %Idx for out-of-range timepoints
 for i = 1:numel(cells.dFF)
     cell_dFF = dFF(:,i);
     aligned.(params.trigTimes){i} = cell_dFF(idx);  %Populate matrix of dimensions nTriggers x nTimepoints

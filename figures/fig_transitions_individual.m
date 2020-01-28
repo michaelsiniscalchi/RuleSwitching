@@ -21,7 +21,7 @@ for i = 1:numel(ruleName)
     for j = 1:numel(blocks)
         ax(j) = nexttile; 
         X = T.similarity(blocks(j)).trialIdx;
-        Y = T.similarity(blocks(j)).trials;
+        Y = T.similarity(blocks(j)).values;
         plot(X,Y,'Color',params.Color{i},'Marker','o','LineStyle','none'); hold on;
         ylims(j,:) = ylim; 
     end
