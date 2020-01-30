@@ -5,7 +5,7 @@ calculate.behavior              = false;
 calculate.stack_info            = false;
 calculate.combined_data         = false; %Combine relevant behavioral and imaging data in one MAT file ; truncate if necessary
 calculate.cellF                 = false;  %Extract cellf and neuropilf from ROIs, excluding overlapping regions and extremes of the FOV
-calculate.dFF                   = true; %Calculate dF/F, with optional neuropil subtraction
+calculate.dFF                   = false; %Calculate dF/F, with optional neuropil subtraction
 calculate.align_signals         = false; %Interpolate dF/F and align to behavioral events
 calculate.trial_average_dFF     = false; %dF/F averaged over specified subsets of trials
 calculate.decode_single_units   = false; %ROC/Selectivity for choice, outcome and rule
@@ -29,7 +29,7 @@ summarize.stats                 = false; %Needed for all summary plots
 do_plot.raw_behavior                    = false;
 do_plot.lick_density                    = false;
 % Imaging
-do_plot.FOV_mean_projection             = false;
+do_plot.FOV_mean_projection             = true;
 do_plot.timeseries                      = false; %Plot all timeseries for each session
 % Combined
 do_plot.trial_average_dFF               = false;  %Overlay traces for distinct choices, outcomes, and rules (CO&R)
@@ -156,7 +156,8 @@ params.figs.fovProj.expIDs = {...
     '181003 M52 RuleSwitching'};
 % For plotting only selected cells
 params.figs.fovProj.cellIDs{numel(expData)} = []; %Initialize
-params.figs.fovProj.cellIDs(restrictExpIdx({expData.sub_dir},params.figs.fovProj.expIDs)) = {... % One cell per session, containing cellIDs
+params.figs.fovProj.cellIDs{restrictExpIdx({expData.sub_dir},params.figs.fovProj.expIDs)} = ... % One cell per session, containing 
+{...
 {'140','141','142','143','144'};
 {'001','002','003','004','005','006','007','008','009','010'}};
 

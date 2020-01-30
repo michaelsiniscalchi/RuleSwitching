@@ -1,0 +1,18 @@
+function figData = calc_meanProj( expData, expIdx )
+
+for i = 1:numel(expIdx)
+
+% Get path to required data
+mat_path = expData(expIdx(i)).mat_path; 
+
+% Aggregate all frames from imaging data stored in MAT files
+frames = cell([numel(mat_path),1]);
+for j = 1:numel(mat_path)
+    disp(['Loading ' mat_path{j} '...']);
+    S = load(mat_path{j});
+    frames{j} = shiftdim(S.stack,2);
+end
+%Concatenate trials
+M = cell2mat(frames);
+figData.meanProj{expIdx(i)} = squeeze(mean(M,1));
+end

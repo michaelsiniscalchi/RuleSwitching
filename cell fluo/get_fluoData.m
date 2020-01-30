@@ -45,7 +45,7 @@ mat_path = mat_path(1:numel(stack_info.trigDelay)); %Truncate if necessary; 'tri
 %Get numeric array and path to MAT file(s)
 if isempty(reg_path)    %If matfiles already saved, and 'registered' dir empty/deleted or programmatically assigned '[]'
     stack.path = mat_path;
-    warning(['No matfiles were saved for ' fileparts(fileparts(mat_path{1})) '.']);
+    warning(['Using saved MAT files. No new MAT files generated for ' fileparts(fileparts(mat_path{1})) '.']);
 else %Data in batch of individual stacks ***FUTURE: use function extractSubstacks.m
     disp(['Converting ' num2str(numel(reg_path)) ' .TIF files to .MAT...']);
     %Create directory for registered MAT files
@@ -72,6 +72,7 @@ for j = 1:numel(fileList)
 end
 
 if ~isempty(fileIDs)
+    warning('on'); warning('backtrace','off');
     warning('No neuropil masks found in the following files:');
     disp(fileIDs');
 end

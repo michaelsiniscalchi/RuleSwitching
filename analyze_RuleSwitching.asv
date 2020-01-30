@@ -247,7 +247,7 @@ if do_plot.FOV_mean_projection
     % Generate figures: mean projection with optional ROI and/or neuropil masks
     figs = gobjects(numel(expIdx),1); %Initialize figures
     for i = 1:numel(expIdx)
-        figs(i) = fig_meanProj(figData, expIdx(i), params.figs.fovProj); %***WIP***
+        figs(i) = fig_meanProj(figData, expIdx(i), params.figs.fovProj);
         figs(i).Name = expData(expIdx(i)).sub_dir;
     end
     save_multiplePlots(figs,save_dir); %Save figure

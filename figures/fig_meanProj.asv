@@ -9,8 +9,8 @@ img = imagesc(ax,figData.meanProj{expIdx}); hold on;
 p = prctile(img.CData,[params.blackLevel params.whiteLevel],'all'); 
 
 %Overlay ROIs, if specified
-cellIDs = params.cellIDs{expIdx}; %Cell IDs specified in params for each session, or [] for all.
-roi_dir = figData.roi_dir{expIdx}; %Full path to ROI directory
+cellIDs = params.cellIDs{expIdx};
+roi_dir = figData.roi_dir;
 if ~isempty(cellIDs)
     for i = 1:numel(cellIDs)
         flist = dir(fullfile(roi_dir,['*' cellIDs{i} '*']));
@@ -26,7 +26,6 @@ if params.overlay_ROIs
     roiObjs = plot_ROIs(ax,cellMasks,'r');
 end
 
-% ***WIP, good up to here...
 if params.overlay_npMasks
     for i = 1:numel(roiPath)
         npMasks(:,:,i) = S.subtractmask;
