@@ -5,7 +5,7 @@ calculate.behavior              = false;
 calculate.stack_info            = false;
 calculate.combined_data         = false; %Combine relevant behavioral and imaging data in one MAT file ; truncate if necessary
 calculate.cellF                 = false;  %Extract cellf and neuropilf from ROIs, excluding overlapping regions and extremes of the FOV
-calculate.dFF                   = true; %Calculate dF/F, with optional neuropil subtraction
+calculate.dFF                   = false; %Calculate dF/F, with optional neuropil subtraction
 calculate.align_signals         = false; %Interpolate dF/F and align to behavioral events
 calculate.trial_average_dFF     = false; %dF/F averaged over specified subsets of trials
 calculate.decode_single_units   = false; %ROC/Selectivity for choice, outcome and rule
@@ -21,14 +21,15 @@ end
 summarize.behavior              = false;
 summarize.selectivity           = false;
 summarize.transitions           = false;
-summarize.stats                 = false; %Needed for all summary plots
+summarize.stats                 = true; %Descriptive stats; needed for all summary plots
+summarize.comparisons           = true; %Formal comparisons
 
 %% PLOT RESULTS
 
 % Behavior
 do_plot.raw_behavior                    = false;
 do_plot.lick_density                    = false;
-% Imaging
+% Imaging %***REDO Overnight***
 do_plot.FOV_mean_projection             = false;
 do_plot.timeseries                      = false; %Plot all timeseries for each session
 % Combined
@@ -280,7 +281,7 @@ params.figs.transitions.Color = {cbrew.black, cbrew.red, cbrew.gray};
 
 %% SUMMARY FIGURE: BEHAVIORAL STATISTICS
 
-%***RECODE COLOR SPECS based on color scheme in struct 'colors'***
+%***TODO: RECODE COLOR SPECS based on color scheme in struct 'colors'***
 params.figs.summary_behavior.ruleColors = {[colors.sound;colors.sound2],[colors.action;colors.action2]}; %{Sound,Action}
 params.figs.summary_behavior.cellColors = {cbrew.orange,cbrew.green,cbrew.purple,cbrew.blue}; %{SST,VIP,PV,PYR}
 

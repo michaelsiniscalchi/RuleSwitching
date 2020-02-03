@@ -10,15 +10,20 @@
 %               use the script get_neuropilMasks_script to generate them post-hoc 
 %               (much faster than doing it through the GUI...).
 %
-% TODO:     * Apply cbrewer colorscheme to plotAllTimeseries()
-%           * Check treatment of NaNs in alignCellFluo()
+% TODO:     
+%
 %---------------------------------------------------------------------------------------------------
 
 clearvars;
 
+% Start logging processes
+diary procLog; 
+diary on;
+disp(datetime);
+
 % Set MATLAB path and get experiment-specific parameters
 [dirs, expData] = expData_RuleSwitching(pathlist_RuleSwitching);
-% [dirs, expData] = expData_RuleSwitching_DEVO(pathlist_RuleSwitching); %For processing/troubleshooting subsets
+[dirs, expData] = expData_RuleSwitching_DEVO(pathlist_RuleSwitching); %For processing/troubleshooting subsets
 % Set parameters for analysis
 [calculate, summarize, do_plot, mat_file, params] = params_RuleSwitching(dirs,expData);
 % Generate directory structure
@@ -148,7 +153,11 @@ if calculate.fluorescence
         %clearvars stackInfo trialData trials blocks roi_path cellF_mat dff_mat
     end
     close(f);
-    disp(['Total time needed for cellular fluorescence analyses: ' num2str(toc) 'sec.']);
+    disp(['Total time needed for cellular fluorescence analyses: ' num2str(toc) 'sec.']); 
+%05 hrs for cellF
+%29 hrs for dF/F for all sessions
+%18 hrs for ROC analysis
+
 end
 
 %% SUMMARY
@@ -208,6 +217,9 @@ if summarize.stats
     save(mat_file.stats,'-struct','stats');
     
 end
+
+% Stop logging processes
+diary off;
 
 %% FIGURES - BEHAVIOR
 % Visualize raw behavioral data
@@ -512,14 +524,13 @@ end
 %% Remaining validation checks:
 %
 %   1) fig_validation_overlayROIs()
-%       Validate background masks by plotting all ROIs and masks for each session.
-%       
+%       Validate background masks by plotting all ROIs and masks for each session.       
 %
 %   2) fig_validation_alignment() 
-%       Check alignment by plotting each aligned trace on the raw traces.
-%       ***DONE; tested on '181003 M52 RuleSwitching' & '180831 M55 RuleSwitching' only
+%       Check alignment by plotting each aligned trace on the raw traces. ***DONE***
+%           tested on '181003 M52 RuleSwitching' & '180831 M55 RuleSwitching' only
 %   
-%   3) Check uniformity of cellf-related processing, specifically for exclusion based on background F0.
+%   3) Check uniformity of cellf-related processing, specifically for exclusion based on background F0. ***DONE***
 %
 %   4) Do screenROIs_batch ASAP, and get help from Mark on screening for possible exclusions...
 

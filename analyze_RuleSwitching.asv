@@ -16,6 +16,11 @@
 
 clearvars;
 
+% Start logging processes
+diary procLog; 
+diary on;
+disp(datetime);
+
 % Set MATLAB path and get experiment-specific parameters
 [dirs, expData] = expData_RuleSwitching(pathlist_RuleSwitching);
 % [dirs, expData] = expData_RuleSwitching_DEVO(pathlist_RuleSwitching); %For processing/troubleshooting subsets
@@ -148,7 +153,9 @@ if calculate.fluorescence
         %clearvars stackInfo trialData trials blocks roi_path cellF_mat dff_mat
     end
     close(f);
-    disp(['Total time needed for cellular fluorescence analyses: ' num2str(toc) 'sec.']);
+    disp(['Total time needed for cellular fluorescence analyses: ' num2str(toc) 'sec.']); 
+%5 hrs for cellF
+%29 hrs for dF/F for all sessions
 end
 
 %% SUMMARY
@@ -209,6 +216,9 @@ if summarize.stats
     
 end
 
+% Stop logging processes
+diary off;
+
 %% FIGURES - BEHAVIOR
 % Visualize raw behavioral data
 %***Condense this section with current system
@@ -247,7 +257,7 @@ if do_plot.FOV_mean_projection
     % Generate figures: mean projection with optional ROI and/or neuropil masks
     figs = gobjects(numel(expIdx),1); %Initialize figures
     for i = 1:numel(expIdx)
-        figs(i) = fig_meanProj(figData, expIdx(i), params.figs.fovProj);
+        figs(i) = fig_meanProj(figData, expIdx(i), params.figs.fovProj); %***WIP***
         figs(i).Name = expData(expIdx(i)).sub_dir;
     end
     save_multiplePlots(figs,save_dir); %Save figure
