@@ -1,0 +1,20 @@
+function h = plot_basicBox( X, data, boxWidth, color )
+
+c = X(j)-0.5*boxWidth; % Box center
+
+l = c-0.5*boxWidth; % Box left
+r = c+0.5*boxWidth; % Box right
+t = prctile(Y{j,1},75); % Box top
+b = prctile(Y{j,1},25); % Box bottom
+
+med = median(Y{j,1}); %
+wl = prctile(Y{j,1},5); %Whisker low
+wh = prctile(Y{j,1},95); %Whisker high
+
+p = patch([l l r r],[b t t b],color,'EdgeColor',color,'LineWidth',lineWidth); hold on;
+ln(1) = plot([c c]',[wl b]','-','Color',color); %Low Whisker
+ln(2) = plot([c c]',[t wh]','-','Color',color); %High Whisker
+ln(3) = plot([l r]',[med med]','-','Color',color); %High Whisker
+
+p.FaceAlpha = 0.5;
+set(ln(:),'LineWidth',lineWidth);

@@ -44,7 +44,7 @@ for i = 1:numel(params.figs)
             end
             
             if size(var.data,2)==1
-                %Setup uniform ylims ahead of call to beeswarm
+%S                
                 if yMin<0 
                     ax(k).YLim = [yMin-0.1*yRng, yMax+0.1*yRng];
                 else
@@ -61,7 +61,7 @@ for i = 1:numel(params.figs)
                 %Line plot with SEM
                 for kk=1:numel(cellType)
                     CI = Mean(kk,:) + [SEM(kk,:); -SEM(kk,:)];
-                    errorshade(time,CI(1,:),CI(2,:),colors{kk}(1,:),0.2);
+                    errorshade(time,CI(1,:),CI(2,:),colors{kk}(2,:),0.3);
                     plot(time,Mean(kk,:),'-','Color',colors{kk}(1,:));
                 end
                 xlabel('Time from sound cue');

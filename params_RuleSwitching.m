@@ -1,4 +1,4 @@
-function [ calculate, summarize, do_plot, mat_file, params ] = params_RuleSwitching(dirs,expData)
+function [ calculate, summarize, figures, mat_file, params ] = params_RuleSwitching(dirs,expData)
 
 %% CALCULATE OR RE-CALCULATE RESULTS
 calculate.behavior              = false;
@@ -27,27 +27,27 @@ summarize.comparisons           = true; %Formal comparisons
 %% PLOT RESULTS
 
 % Behavior
-do_plot.raw_behavior                    = false;
-do_plot.lick_density                    = false;
+figures.raw_behavior                    = false;
+figures.lick_density                    = false;
 % Imaging %***REDO Overnight***
-do_plot.FOV_mean_projection             = false;
-do_plot.timeseries                      = false; %Plot all timeseries for each session
+figures.FOV_mean_projection             = false;
+figures.timeseries                      = false; %Plot all timeseries for each session
 % Combined
-do_plot.trial_average_dFF               = false;  %Overlay traces for distinct choices, outcomes, and rules (CO&R)
-do_plot.decode_single_units             = false;
-do_plot.heatmap_modulation_idx          = false;  %Heatmap of selectivity idxs for COR for each session
-do_plot.transitions                     = false; 
+figures.trial_average_dFF               = false;  %Overlay traces for distinct choices, outcomes, and rules (CO&R)
+figures.decode_single_units             = false;
+figures.heatmap_modulation_idx          = false;  %Heatmap of selectivity idxs for COR for each session
+figures.transitions                     = false; 
 % Summary
-do_plot.summary_behavior                = false; %Summary of descriptive stats, eg, nTrials and {trials2crit, pErr, oErr} for each rule
-do_plot.summary_lick_density            = false;
-do_plot.summary_periswitch_performance  = false;
-do_plot.summary_modulation_heatmap      = false; %Heatmap for each celltype, all sessions, one figure each for CO&R
-do_plot.summary_modulation				= false; %Bar/line plots of grouped selectivity results for comparison
-do_plot.summary_transitions             = false;
+figures.summary_behavior                = false; %Summary of descriptive stats, eg, nTrials and {trials2crit, pErr, oErr} for each rule
+figures.summary_lick_density            = false;
+figures.summary_periswitch_performance  = false;
+figures.summary_modulation_heatmap      = false; %Heatmap for each celltype, all sessions, one figure each for CO&R
+figures.summary_modulation				= true; %Bar/line plots of grouped selectivity results for comparison
+figures.summary_transitions             = false;
 % Validation
-do_plot.validation_ITIs                 = false;
-do_plot.validation_ROIs                 = false;
-do_plot.validation_alignment            = false;
+figures.validation_ITIs                 = false;
+figures.validation_ROIs                 = false;
+figures.validation_alignment            = false;
 
 %% PATHS TO SAVED DATA
 %By experiment
@@ -283,7 +283,7 @@ params.figs.transitions.Color = {cbrew.black, cbrew.red, cbrew.gray};
 
 %***TODO: RECODE COLOR SPECS based on color scheme in struct 'colors'***
 params.figs.summary_behavior.ruleColors = {[colors.sound;colors.sound2],[colors.action;colors.action2]}; %{Sound,Action}
-params.figs.summary_behavior.cellColors = {cbrew.orange,cbrew.green,cbrew.purple,cbrew.blue}; %{SST,VIP,PV,PYR}
+params.figs.summary_behavior.cellColors = {colors.SST,colors.VIP,colors.PV,colors.PYR}; %{SST,VIP,PV,PYR}
 
 %% SUMMARY FIGURE: MODULATION INDEX-----------------------------------------------
 
@@ -311,16 +311,23 @@ params.figs.summary_modulation.titles =...
     {'Choice (sound rule)','Choice (action rule)','Prior choice',...
     'Outcome','Rule (left choice)','Rule (right choice)'};
 
-%Colors for Cell Types
-c = cbrewer('qual','Set1',5);
-params.figs.summary_modulation.colors = c([5,3,4,2],:); %Swap order
+%Appearance
+params.figs.summary_modulation.barWidth = 0.5;
+params.figs.summary_modulation.colors = colors; %Struct contains, eg, colors.SST, colors.SST2, etc.
 
 % ---Preference plot------------------------------------------------------------------------------
+
 params.figs.summary_preference.titles = params.figs.summary_modulation.titles; %Titles (cell array)
-params.figs.summary_preference.variance = 'bars'; %Error bars or data points
+%params.figs.summary_preference.dispersion = 'SEM'; %Bars with error bars
+params.figs.summary_preference.dispersion = 'IQR'; %Boxes with whiskers
+
+%Appearance
+params.figs.summary_preference.lineWidth = 2;
+params.figs.summary_preference.boxWidth = 0.2;
+params.figs.summary_preference.boxColors = colors;
 c = cbrewer('qual','Paired',10);
 params.figs.summary_preference.colors = {c([8,4,10,2],:),c([7,3,9,1],:)}; %Swap order
-% params.figs.summary_preference.colors = {c([8,7],:),c([4,3],:),c([10,9],:),c([2,1],:)}; %Swap order
+
 
 %% SUMMARY FIGURE: NEURAL TRANSITION ANALYSIS 
 

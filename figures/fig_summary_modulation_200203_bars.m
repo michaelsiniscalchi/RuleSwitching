@@ -14,55 +14,35 @@ for i = 1:numel(params.figs)
     figs(i) = figure('Name',params.figs(i).fig_name,'Position',[10 300 1900 600]);
     var_name = params.figs(i).var_name;
     for j = 1:numel(var_name)
-        clearvars pool var Mean SEM Y X
-
-        % Get min and max values for aggregated data to setup axes (needed for swarms)
-        for k = 1:numel(decodeType)
-            for kk=1:numel(cellType)
-                pool{k,kk} = S.(decodeType{k}).(cellType{kk}).(var_name{j}).data;
-            end
-        end
-        pool = cell2mat(pool(:));
-        yMin = min(pool);
-        yMax = max(pool);
-        yRng = range(pool);
+        clearvars var Mean SEM Y X
         
-
-        %
         for k = 1:numel(decodeType)
             %One plot for each decode type
             ax(k) = subplot(numel(var_name),nDecode,k+nDecode*(j-1)); hold on; %#ok<AGROW>
-            %One swarm or line for each cell type
+            %One bar for each cell type
             for kk=1:numel(cellType)
                 var = S.(decodeType{k}).(cellType{kk}).(var_name{j});
                 Mean(kk,:) = var.mean;
+                Med(kk,:) = var.median;
                 SEM(kk,:) = var.sem;
                 Y{kk} = var.data;
                 X{kk} = kk*ones(size(Y{kk}));
-                %Color code by cellType
-                colors{kk} = [params.colors.(cellType{kk}); params.colors.([cellType{kk} '2'])]; % [darker shade; lighter shade], eg, [colors.SST2; colors.SST]
             end
             
             if size(var.data,2)==1
-                %Setup uniform ylims ahead of call to beeswarm
-                if yMin<0 
-                    ax(k).YLim = [yMin-0.1*yRng, yMax+0.1*yRng];
-                else
-                    ax(k).YLim = [0, yMax+0.1*yRng];
+                %Bar chart with overlayed data by session
+                bar(Mean,'FaceColor','none','EdgeColor','flat','LineWidth',2,'CData',params.colors);
+                for kk=1:numel(cellType)
+                    plot(X{kk},Y{kk},'o','Color',[0.5 0.5 0.5],'LineWidth',1);
                 end
-                ax(k).XLim = [0 numel(cellType)+1];
                 ax(k).XTick = 1:numel(cellType); %Bar chart: titles and labels
                 ax(k).XTickLabels = cellType;
-
-                %Data by session as beeswarm with overlayed median and IQR
-                plot_swarms(ax(k),Y,colors,params.barWidth);
-               
             else
                 %Line plot with SEM
                 for kk=1:numel(cellType)
                     CI = Mean(kk,:) + [SEM(kk,:); -SEM(kk,:)];
-                    errorshade(time,CI(1,:),CI(2,:),colors{kk}(1,:),0.2);
-                    plot(time,Mean(kk,:),'-','Color',colors{kk}(1,:));
+                    errorshade(time,CI(1,:),CI(2,:),params.colors(kk,:),0.2);
+                    plot(time,Mean(kk,:),'-','Color',params.colors(kk,:));
                 end
                 xlabel('Time from sound cue');
             end
@@ -87,13 +67,13 @@ for i = 1:numel(params.figs)
         %Set YLims and plot t0 and y = 0
         ylim(ax,[min(ylims(:)) max(ylims(:))]);
         if size(var.data,2)>1 %If line
-            for k = 1:numel(decodeType)
+            for k = 1:numel(cellType)
                 plot(ax(k),[0 0],[min(ylim) max(ylim)],':k','LineWidth',0.5);
             end
             
         end
-        if min(ylim)<0 %draw baseline
-            for k = 1:numel(decodeType)
+        if min(ylim)<0 %If line
+            for k = 1:numel(cellType)
                 plot(ax(k),[min(xlim) max(xlim)],[0 0],'-k','LineWidth',0.5);
             end
         end

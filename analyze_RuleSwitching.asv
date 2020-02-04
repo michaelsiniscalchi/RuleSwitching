@@ -10,27 +10,33 @@
 %               use the script get_neuropilMasks_script to generate them post-hoc 
 %               (much faster than doing it through the GUI...).
 %
-% TODO:     * Apply cbrewer colorscheme to plotAllTimeseries()
-%           * Check treatment of NaNs in alignCellFluo()
+% TODO:
+%       -Complete the experiment table: include #cells, #trials, #blocks
+%       -Include number of excluded cells in summary_stats: for each cell type, {total, %total, %bySession}
+%
 %---------------------------------------------------------------------------------------------------
 
 clearvars;
 
-% Start logging processes
-diary procLog; 
-diary on;
-disp(datetime);
-
 % Set MATLAB path and get experiment-specific parameters
 [dirs, expData] = expData_RuleSwitching(pathlist_RuleSwitching);
-% [dirs, expData] = expData_RuleSwitching_DEVO(pathlist_RuleSwitching); %For processing/troubleshooting subsets
+%[dirs, expData] = expData_RuleSwitching_DEVO(pathlist_RuleSwitching); %For processing/troubleshooting subsets
+
 % Set parameters for analysis
-[calculate, summarize, do_plot, mat_file, params] = params_RuleSwitching(dirs,expData);
+[calculate, summarize, figures, mat_file, params] = params_RuleSwitching(dirs,expData);
+expData = get_imgPaths(expData,calculate); %Append additional paths for imaging data if required by 'calculate'
+
 % Generate directory structure
 create_dirs(dirs.results,dirs.summary,dirs.figures);
-% Tabulate experimental data for easy reference
+
+% Tabulate experimental data for easy reference %***WIP TO FINISH SOON***
 expTable = table((1:numel(expData))',{expData.sub_dir}',{expData.cellType}',... %***FUTURE: function expTable = tabulate_expData(expTable,dirs,expData,'') and record more info
     'VariableNames',{'Index','Experiment_ID','Cell_Type'});
+
+% Begin logging processes
+diary(['procLog' datestr(datetime,'yymmdd')]); 
+diary on;
+disp(datetime);
 
 %% ANALYZE BEHAVIOR
 if calculate.behavior
@@ -154,8 +160,10 @@ if calculate.fluorescence
     end
     close(f);
     disp(['Total time needed for cellular fluorescence analyses: ' num2str(toc) 'sec.']); 
-%5 hrs for cellF
+%05 hrs for cellF
 %29 hrs for dF/F for all sessions
+%18 hrs for ROC analysis
+
 end
 
 %% SUMMARY
@@ -222,7 +230,7 @@ diary off;
 %% FIGURES - BEHAVIOR
 % Visualize raw behavioral data
 %***Condense this section with current system
-if do_plot.raw_behavior
+if figures.raw_behavior
     save_dir = fullfile(dirs.figures,'Raw behavior');
     create_dirs(save_dir); %Create dir for these figures
     for i = 1:numel(expData)
@@ -234,7 +242,7 @@ if do_plot.raw_behavior
     end
 end
 
-if do_plot.lick_density
+if figures.lick_density
     save_dir = fullfile(dirs.figures,'Lick density');
     create_dirs(save_dir); %Create dir for these figures
     for i = 1:numel(expData)
@@ -246,7 +254,7 @@ if do_plot.lick_density
 end
 %% FIGURES - IMAGING
 % Generate Mean Projection Image for each field-of-view
-if do_plot.FOV_mean_projection
+if figures.FOV_mean_projection
     save_dir = fullfile(dirs.figures,'FOV mean projections');   %Figures directory: cellular fluorescence
     create_dirs(save_dir); %Create dir for these figures
     expIdx = restrictExpIdx({expData.sub_dir},params.figs.fovProj.expIDs); %Restrict to specific sessions, if desired
@@ -264,7 +272,7 @@ if do_plot.FOV_mean_projection
 end
 
 % Plot all timeseries from each experiment
-if do_plot.timeseries
+if figures.timeseries
     %Initialize graphics array and create directories 
     expIdx = restrictExpIdx({expData.sub_dir},params.figs.timeseries.expIDs); %Restrict to specific sessions, if desired 
     save_dir = fullfile(dirs.figures,'Cellular fluorescence');   %Figures directory: cellular fluorescence
@@ -283,7 +291,7 @@ end
 %% FIGURES - SINGLE UNIT ANALYSES
 
 % Plot trial-averaged dF/F: Sound(L/R), Action(L/R), Left(S/A), Right(S/A)
-if do_plot.trial_average_dFF
+if figures.trial_average_dFF
     for i = 1:numel(expData)
         %Load data
         load(mat_file.results(i),'bootAvg');
@@ -292,7 +300,7 @@ if do_plot.trial_average_dFF
         create_dirs(save_dir); %Create dir for these figures
         
         %Save figure for each cell plotting all combinations of choice x outcome
-        if do_plot.trial_average_dFF
+        if figures.trial_average_dFF
             figs = plot_trialAvgDFF(bootAvg,cells,params.figs.bootAvg);
             save_multiplePlots(figs,save_dir); %save as FIG and PNG
         end
@@ -301,7 +309,7 @@ if do_plot.trial_average_dFF
 end
 
 % Plot ROC analyses: one figure each for choice, outcome, and rule
-if do_plot.decode_single_units
+if figures.decode_single_units
     for i = 1:numel(expData)
         %Load data
         load(mat_file.results(i),'decode');
@@ -318,7 +326,7 @@ if do_plot.decode_single_units
 end
 
 % Heatmap of selectivity traces: one figure each for choice, outcome, and rule
-if do_plot.heatmap_modulation_idx
+if figures.heatmap_modulation_idx
     for i = 1:numel(expData)
         disp(['Generating modulation heatmaps for session ' num2str(i) '...']);
         %Load data
@@ -338,7 +346,7 @@ if do_plot.heatmap_modulation_idx
 end
 
 %% FIGURES - TRANSITION ANALYSIS
-if do_plot.transitions
+if figures.transitions
     
     %Plot binned and aligned results
     figs = gobjects(numel(expData),1); %Initialize figures
@@ -366,7 +374,7 @@ end
 %% SUMMARY FIGURES
 
 % Behavior: Descriptive Statistics
-if do_plot.summary_behavior
+if figures.summary_behavior
     stats = load(mat_file.stats); %Load data
     save_dir = fullfile(dirs.figures,'Summary - behavioral statistics'); %Figures directory
     create_dirs(save_dir); %Create dir for these figures
@@ -377,12 +385,12 @@ if do_plot.summary_behavior
     end
      figs(numel(cellType)+1) =...
             fig_summary_behavior(stats.behavior,params.figs.summary_behavior);
-    save_multiplePlots(figs,save_dir); %save as FIG and PNG
+    save_multiplePlots(figs,save_dir,'svg'); %save as FIG and PNG
     clearvars figs;
 end
 
 % Lick Density Plots
-if do_plot.summary_lick_density
+if figures.summary_lick_density
     stats = load(mat_file.stats); %Load data
     save_dir = fullfile(dirs.figures,'Summary - lick density'); %Figures directory
     create_dirs(save_dir); %Create dir for these figures
@@ -391,12 +399,12 @@ if do_plot.summary_lick_density
     for i = 1:numel(cellType)
         figs(i) = fig_summary_lick_density(stats.behavior,cellType{i},params.figs.lickDensity);
     end
-    save_multiplePlots(figs,save_dir); %save as FIG and PNG
+    save_multiplePlots(figs,save_dir,'svg'); %save as FIG and PNG
     clearvars figs;
 end
 
 % Periswitch performance curves
-if do_plot.summary_periswitch_performance
+if figures.summary_periswitch_performance
     behavior = load(mat_file.summary.behavior); %Load data
     save_dir = fullfile(dirs.figures,'Summary - periswitch performance curves'); %Figures directory
     create_dirs(save_dir); %Create dir for these figures
@@ -405,12 +413,12 @@ if do_plot.summary_periswitch_performance
     for i=1:numel(cellType)
         figs(i) = fig_summary_periswitch_performance(behavior,cellType{i},params.figs.perfCurve);
     end
-    save_multiplePlots(figs,save_dir,'eps'); %save as FIG and PNG
+    save_multiplePlots(figs,save_dir,'svg'); %save as FIG and PNG
     clearvars figs;
 end
 
 % Heatmap of modulation indices for each cell type: one figure each for choice, outcome, and rule
-if do_plot.summary_modulation_heatmap
+if figures.summary_modulation_heatmap
     %Load data
     decode = load(mat_file.summary.selectivity,params.decode.decode_type{:});
     load(mat_file.summary.selectivity,'t');
@@ -428,12 +436,12 @@ if do_plot.summary_modulation_heatmap
         figs(numel(decodeType)+j) = fig_summary_selectivity(...
             decode, decodeType{j}, t, params.figs.mod_heatmap, 'sig');
     end
-    save_multiplePlots(figs,save_dir); %save as FIG and PNG
+    save_multiplePlots(figs,save_dir,'svg'); %save as FIG and PNG
     clearvars figs;
 end
 
 % Summarize modulation by CO&R for all cell types
-if do_plot.summary_modulation
+if figures.summary_modulation
     %Load data
     B = load(mat_file.stats,'selectivity');
     time = load(mat_file.summary.selectivity,'t'); time = time.t;
@@ -444,11 +452,11 @@ if do_plot.summary_modulation
     pref_fig = fig_summary_preference(B.selectivity,time,params.figs.summary_preference);
     %Save
     figs = [mod_figs; pref_fig];
-    save_multiplePlots(figs,save_dir); %save as FIG and PNG
+    save_multiplePlots(figs,save_dir,'svg'); %save as FIG and PNG
     clearvars figs;
 end
 
-if do_plot.summary_transitions
+if figures.summary_transitions
     %Load data
     load(mat_file.stats,'transitions');
     save_dir = fullfile(dirs.figures,'Summary - Transition Analysis');   %Figures directory
@@ -470,12 +478,12 @@ end
 
 %% FIGURES: VALIDATION CHECK
 
-if do_plot.validation_ITIs || do_plot.validation_ROIs || do_plot.validation_alignment
+if figures.validation_ITIs || figures.validation_ROIs || figures.validation_alignment
     %Setup figure directories
     save_dir = fullfile(dirs.figures,'Validation Checks');   %Figures directory
     create_dirs(save_dir); %Create dir for these figures
     
-    if do_plot.validation_ITIs
+    if figures.validation_ITIs
         % Check correspondence between behavioral and imaging ITIs
         errData = load(mat_file.validation);          %Load data
         save_dir = fullfile(dirs.figures,'Validation Checks','ITIs');   %Figures directory
@@ -485,7 +493,7 @@ if do_plot.validation_ITIs || do_plot.validation_ROIs || do_plot.validation_alig
         clearvars figs;
     end
     
-    if do_plot.validation_ROIs %***WIP***
+    if figures.validation_ROIs %***WIP***
         % Validate alignment of fluorescence timeseries
         save_dir = fullfile(dirs.figures,'Validation Checks','Cell and Background Masks');   %Figures directory
         create_dirs(save_dir); %Create dir for these figures
@@ -496,7 +504,7 @@ if do_plot.validation_ITIs || do_plot.validation_ROIs || do_plot.validation_alig
         end
     end
  
-    if do_plot.validation_alignment 
+    if figures.validation_alignment 
         % Validate alignment of fluorescence timeseries
         expIdx = 1:numel(expData);
         if ~isempty(params.figs.timeseries.expIDs)         %Restrict to specific sessions, if desired
@@ -522,14 +530,13 @@ end
 %% Remaining validation checks:
 %
 %   1) fig_validation_overlayROIs()
-%       Validate background masks by plotting all ROIs and masks for each session.
-%       
+%       Validate background masks by plotting all ROIs and masks for each session.       
 %
 %   2) fig_validation_alignment() 
-%       Check alignment by plotting each aligned trace on the raw traces.
-%       ***DONE; tested on '181003 M52 RuleSwitching' & '180831 M55 RuleSwitching' only
+%       Check alignment by plotting each aligned trace on the raw traces. ***DONE***
+%           tested on '181003 M52 RuleSwitching' & '180831 M55 RuleSwitching' only
 %   
-%   3) Check uniformity of cellf-related processing, specifically for exclusion based on background F0.
+%   3) Check uniformity of cellf-related processing, specifically for exclusion based on background F0. ***DONE***
 %
 %   4) Do screenROIs_batch ASAP, and get help from Mark on screening for possible exclusions...
 

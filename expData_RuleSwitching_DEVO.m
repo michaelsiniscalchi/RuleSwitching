@@ -350,10 +350,12 @@ i=1;
 % expData(i).npCorrFactor = 0.3;
 
 
-%% Get ROI directories and define paths to imaging data
-
-for i = 1:numel(expData)
-    dir_list = dir(fullfile(dirs.data,expData(i).sub_dir,'ROI*'));
-    expData(i).roi_dir = dir_list.name; %Full path to ROI directory
-    expData = get_imgPathnames(dirs,expData,i); %Get pathnames to raw, registered, and matfiles
-end
+%---------------------------------------------------------------------------------------------------
+% ***FOLLOWING MOVED to separate function: '...\image stack processing\get_imgPaths.m'***
+% %% Get ROI directories and define paths to imaging data 
+% 
+% for i = 1:numel(expData)
+%     dir_list = dir(fullfile(dirs.data,expData(i).sub_dir,'ROI*'));
+%     expData(i).roi_dir = dir_list.name; %Full path to ROI directory
+%     expData = get_imgPathnames(dirs,expData,i); %Get pathnames to raw, registered, and matfiles
+% end

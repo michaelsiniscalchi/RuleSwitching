@@ -45,18 +45,14 @@ for i = 1:nDecode
                     'Color',params.colors{k}(j,:),'LineWidth',lineWidth,'CapSize',0);
             end
         end
-
     elseif strcmp(params.dispersion,'IQR')
         X = 1:numel(cellType);
-        offset = 0.5*boxWidth + 0.05;
         for j = X
             %Box plot with 95% whiskers and median as line
             % Left box in group
-            plot_basicBox(X(j)-offset, Y{j,1},...
-                boxWidth, lineWidth, params.boxColors.(cellType{j}));
+            h = plot_basicBox( X(j), Y{j,1}, boxWidth, lineWidth, params.boxColors.(cellType{j}) )        
             % Right box in group
-            plot_basicBox(X(j)+offset, Y{j,2}, ...
-                boxWidth, lineWidth, params.boxColors.([cellType{j},'2']));
+            h = plot_basicBox( X(, Y{j,2}, boxWidth, lineWidth, params.boxColors.(cellType{j}) ) 
         end
     end
     
@@ -65,7 +61,7 @@ for i = 1:nDecode
     
     %Get ylims for later standardization
     axis square;
-    ylims(i,:) = ylim; %Store ylims to create uniform axes for all vars later...
+    ylims(i,:) = ylim;
     
     %Title
     if isfield(params,'titles') && ~isempty(params.titles)
@@ -82,4 +78,3 @@ end
 %Set YLabel & YLims
 ax(1).YLabel.String = 'Proportion pref. +/- class';
 ylim(ax,[min(ylims(:)) max(ylims(:))]);
-xlim(ax,[0.5 numel(cellType)+0.5]); %0.5 unit margins on each side
