@@ -222,11 +222,30 @@ if summarize.stats
     end
     save(mat_file.stats,'-struct','stats');
     
+
+
+end
+
+if summarize.comparisons
+
 end
 
 % Stop logging processes
 diary off;
 
+%% SUMMARY TABLES
+if figures.table_experiments
+    % SessionID, CellType, #Cells, #Trials, #Blocks
+    expTable = table_expData(stats);
+end
+
+if figures.table_descriptive_stats
+    stats = load(mat_file.stats);
+    statsTable = table_descriptiveStats(stats);
+end
+
+if figures.table_comparative_stats    
+end
 %% FIGURES - BEHAVIOR
 % Visualize raw behavioral data
 %***Condense this section with current system
@@ -268,7 +287,7 @@ if figures.FOV_mean_projection
         figs(i) = fig_meanProj(figData, expIdx(i), params.figs.fovProj); %***WIP***
         figs(i).Name = expData(expIdx(i)).sub_dir;
     end
-    save_multiplePlots(figs,save_dir); %Save figure
+    save_multiplePlots(figs,save_dir,'svg'); %Save figure
 end
 
 % Plot all timeseries from each experiment
@@ -302,7 +321,7 @@ if figures.trial_average_dFF
         %Save figure for each cell plotting all combinations of choice x outcome
         if figures.trial_average_dFF
             figs = plot_trialAvgDFF(bootAvg,cells,params.figs.bootAvg);
-            save_multiplePlots(figs,save_dir); %save as FIG and PNG
+            save_multiplePlots(figs,save_dir,'svg'); %save as FIG and PNG
         end
         clearvars figs
      end
@@ -320,7 +339,7 @@ if figures.decode_single_units
         %Figure with ROC analysis and selectivity traces
         sessionID = [expData(i).sub_dir(1:end-14) ' ' expData(i).cellType];
         figs = fig_singleUnit_ROC(decode,cells,params.figs.decode_single_units);
-        save_multiplePlots(figs,save_dir); %save as FIG and PNG
+        save_multiplePlots(figs,save_dir,'svg'); %save as FIG and PNG
         clearvars figs
     end
 end
@@ -341,7 +360,7 @@ if figures.heatmap_modulation_idx
         %Figure with heatmap only for significantly modulated cells
         figs(numel(expData)+i) = fig_modulation_heatmap(decode,sessionID,cellID,params,'sig');
     end
-    save_multiplePlots(figs,save_dir); %save as FIG and PNG
+    save_multiplePlots(figs,save_dir,'svg'); %save as FIG and PNG
     clearvars figs;
 end
 
@@ -356,7 +375,7 @@ if figures.transitions
         create_dirs(save_dir); %Create dir for these figures
         figs(i) = fig_transitions_binned(transitions, params.figs.transitions); 
     end
-    save_multiplePlots(figs,save_dir); %save as FIG and PNG
+    save_multiplePlots(figs,save_dir,'svg'); %save as FIG and PNG
     clearvars figs;
     
     %Plot all transitions in session, aligned to rule switches

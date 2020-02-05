@@ -78,35 +78,3 @@ end
 
 % YLable for first of three block averaged variables
 ylabel(ax(4),'Number per action block');
-
-%---------------------------------------------------------------------------------------------------
-%***MOVED to function '...\figures\plot_swarms.m'
-%
-% function plot_swarms( data, colors, barWidth )
-% 
-% CI(1,:) = prctile(data,25);
-% CI(2,:) = prctile(data,75);
-% 
-% for i = 1:size(data,2)
-%     
-%     %Beeswarm for individual data points
-%     X = (i).*ones(size(data,1),1);
-%     Y = data(:,i);
-%     color = colors{i}(2,:); %Lighter shade
-%     beeswarm(X,Y,'use_current_axes',true,'dot_size',1,'colormap',color,'sort_style','square');
-%     hold on;
-%     
-%     % Horizontal bar for population median
-%     X = i + [-barWidth/2 barWidth/2];
-%     Y = [median(data(:,i)),median(data(:,i))];
-%     color = colors{i}(1,:); %Darker shade
-%     line(X,Y,'Color',color,'LineWidth',2); hold on; %Horz. bar for Median
-%     
-%     % Vertical bar for IQR
-%     X = [i,i];
-%     Y = [CI(1,i),CI(2,i)];
-%     line(X,Y,'Color',color,'LineWidth',1);  %Vertical Bar for IQR
-%     
-% end
-
-

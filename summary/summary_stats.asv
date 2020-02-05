@@ -25,6 +25,8 @@ switch type
                         calcStats(input.(cellTypes{i}).(vbl{j}).(rule{k}),expID);
                 end
             end
+
+            %Hit & Perseverative Error Rates in First andTrials 
   
             %Lick Density
             choice = {'left','right'};

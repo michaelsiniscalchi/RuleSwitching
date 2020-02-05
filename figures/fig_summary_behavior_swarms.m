@@ -5,7 +5,6 @@ D = behavior.(cellType); %Extract cell-type specific data
 %% SETUP PANELS FOR PLOTTING
 bar_width = 0.8;
 titles = {'Trials to Crit.','Persev. Errors','Other Errors'};
-% titles = {'Trials Perf.','Trials to Crit.','Persev. Errors','Other Errors'};
 
 setup_figprops([]);
 fig = figure('Name',['Summary behavioral statistics - ' cellType]);
@@ -42,6 +41,9 @@ ax(3).YAxis.Visible = 'off';
 % YLabel & Box
 ylabel(ax(1),'Number of trials per block');
 set(ax,'Box','off','XTick',[1,2],'XTickLabel',{'Sound','Action'}); %Box off for all
+
+%------- INTERNAL FUNCTIONS ------------------------------------------------------------------------
+% *Note: function below superceded by newer 'plot_swarms.m'
 
 function swarmPlot( data, colors, barWidth )
 

@@ -23,9 +23,16 @@ expID = expID(idx,:);
 
 % Estimate descriptive statistics
 stats.data      = data;
-stats.median    = median(data,1);
-stats.IQR       = prctile(data,[25,75],1);
+
 stats.mean      = mean(data,1);
 stats.sem       = std(data)/sqrt(size(data,1)); 
+
+stats.median    = median(data,1);
+if size(data,2)==1
+    stats.IQR(1,:)  = prctile(data,[25,75],1); %Row vector for display in table
+else
+    stats.IQR  = prctile(data,[25,75],1); %For aligned time series or groups
+end
+
 stats.N         = size(data,1);
 stats.expID     = expID;

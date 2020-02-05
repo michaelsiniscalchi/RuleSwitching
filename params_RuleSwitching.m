@@ -18,7 +18,7 @@ if any([calculate.cellF, calculate.dFF, calculate.align_signals, calculate.trial
 end
 
 %% SUMMARIZE RESULTS
-summarize.behavior              = false;
+summarize.behavior              = true;
 summarize.selectivity           = false;
 summarize.transitions           = false;
 summarize.stats                 = true; %Descriptive stats; needed for all summary plots
@@ -42,8 +42,12 @@ figures.summary_behavior                = false; %Summary of descriptive stats, 
 figures.summary_lick_density            = false;
 figures.summary_periswitch_performance  = false;
 figures.summary_modulation_heatmap      = false; %Heatmap for each celltype, all sessions, one figure each for CO&R
-figures.summary_modulation				= true; %Bar/line plots of grouped selectivity results for comparison
+figures.summary_modulation				= false; %Bar/line plots of grouped selectivity results for comparison
 figures.summary_transitions             = false;
+figures.table_experiments               = false;
+figures.table_descriptive_stats         = true;
+figures.table_comparative_stats         = true;
+
 % Validation
 figures.validation_ITIs                 = false;
 figures.validation_ROIs                 = false;
