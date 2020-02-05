@@ -7,8 +7,15 @@
 %--------------------------------------------------------------------------
 function data_dir = pathlist_RuleSwitching
 
-data_dir = 'J:\Data & Analysis\Rule Switching';
-code_dir = 'J:\Documents\MATLAB\GitHub';
+% Get name of computer to specify paths
+switch getenv('COMPUTERNAME')
+    case 'STELLATE' %KwanLab desktop, 'STELLATE'
+        data_dir = 'J:\Data & Analysis\Rule Switching';
+        code_dir = 'J:\Documents\MATLAB\GitHub';
+    case 'WINDOWS-CVO3377' %HP Laptop
+        data_dir = 'C:\Users\Michael\Documents\Data & Analysis\Rule Switching';
+        code_dir = 'C:\Users\Michael\Documents\MATLAB\GitHub';
+end
 
 % add the paths needed for this code
 path_list = {...
