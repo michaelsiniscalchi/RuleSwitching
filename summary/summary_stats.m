@@ -52,7 +52,21 @@ switch type
   
         end
   
+    case 'imaging'
+        cellTypes = fieldnames(input);
+        for i = 1:numel(cellTypes)
+            %'totalCells',[],'inclCells',[],'exclCells',[],'exclBkgd',[],'nBlocks',[]);
+            % Number of blocks imaged & number of cells total/included/excluded
+            expID = input.(cellTypes{i}).sessionID; 
+            S.(cellTypes{i}).nBlocksImg = calcStats(input.(cellTypes{i}).nBlocksImg,expID);
+            S.(cellTypes{i}).totalCells = calcStats(input.(cellTypes{i}).totalCells,expID);
+            S.(cellTypes{i}).inclCells = calcStats(input.(cellTypes{i}).inclCells,expID);
+            S.(cellTypes{i}).exclCells = calcStats(input.(cellTypes{i}).exclCells,expID);
+            S.(cellTypes{i}).exclMasks = calcStats(input.(cellTypes{i}).exclMasks,expID);  
+        end
+        
     case 'selectivity'
+        
         %Get Mean, SEM, N, and Exp. ID for each terminal node in struct selectivity
         decodeTypes = fieldnames(input);
         decodeTypes = decodeTypes(~strcmp(decodeTypes,'t'));
@@ -77,17 +91,14 @@ switch type
         end
         
     case 'transitions'
+        
         cellTypes   = fieldnames(input); %Cell types, ie 'SST','VIP','PV','PYR', or 'all'
         transTypes  = fieldnames(input.(cellTypes{1})); %Transition types, eg 'all','sound', or 'sound_actionR'
         for i = 1:numel(cellTypes)
             for j = 1:numel(transTypes)
                 % Label with corresponding session idx
                 expID = input.(cellTypes{i}).(transTypes{j}).sessionID;
-                
-                % Copy trialwise data from summary
-                %S.(cellTypes{i}).(transTypes{j}).values.data = input.(cellTypes{i}).(transTypes{j}).values;
-                %S.(cellTypes{i}).(transTypes{j}).trialIdx = input.(cellTypes{i}).(transTypes{j}).trialIdx;
-                
+                                
                 % Estimate descriptive stats for binned data
                 S.(cellTypes{i}).(transTypes{j}).binValues = calcStats(input.(cellTypes{i}).(transTypes{j}).binValues,expID);
                 S.(cellTypes{i}).(transTypes{j}).binIdx = input.(cellTypes{i}).(transTypes{j}).binIdx; %Copy bin indices

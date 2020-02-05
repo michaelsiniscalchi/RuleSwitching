@@ -19,6 +19,7 @@ end
 
 %% SUMMARIZE RESULTS
 summarize.behavior              = false;
+summarize.imaging               = true; 
 summarize.selectivity           = false;
 summarize.transitions           = false;
 summarize.stats                 = true; %Descriptive stats; needed for all summary plots
@@ -42,8 +43,12 @@ figures.summary_behavior                = false; %Summary of descriptive stats, 
 figures.summary_lick_density            = false;
 figures.summary_periswitch_performance  = false;
 figures.summary_modulation_heatmap      = false; %Heatmap for each celltype, all sessions, one figure each for CO&R
-figures.summary_modulation				= true; %Bar/line plots of grouped selectivity results for comparison
+figures.summary_modulation				= false; %Bar/line plots of grouped selectivity results for comparison
 figures.summary_transitions             = false;
+figures.table_experiments               = true;
+figures.table_descriptive_stats         = true;
+figures.table_comparative_stats         = true;
+
 % Validation
 figures.validation_ITIs                 = false;
 figures.validation_ROIs                 = false;
@@ -58,6 +63,7 @@ mat_file.img_beh        = @(idx) fullfile(dirs.results,expData(idx).sub_dir,'img
 mat_file.results        = @(idx) fullfile(dirs.results,expData(idx).sub_dir,'results.mat');
 %Aggregated
 mat_file.summary.behavior       = fullfile(dirs.summary,'behavior.mat');
+mat_file.summary.imaging
 mat_file.summary.selectivity    = fullfile(dirs.summary,'selectivity.mat');
 mat_file.summary.transitions    = fullfile(dirs.summary,'transitions.mat');
 mat_file.stats                  = fullfile(dirs.summary,'summary_stats.mat');
@@ -126,7 +132,7 @@ params.transitions.stat             = 'Rho'; %Statistic to use as similarity mea
 params.transitions.nBins            = 10; %Number of bins for aggregating evolution of activity vectors
 
 %% SUMMARY STATISTICS
-params.stats.analysis_names = {'behavior','selectivity','transitions'};
+params.stats.analysis_names = {'behavior','imaging','selectivity','transitions'};
 
 %% FIGURES: COLOR PALETTE FROM CBREWER
 % Color palette from cbrewer()
@@ -316,12 +322,18 @@ params.figs.summary_modulation.barWidth = 0.5;
 params.figs.summary_modulation.colors = colors; %Struct contains, eg, colors.SST, colors.SST2, etc.
 
 % ---Preference plot------------------------------------------------------------------------------
+
 params.figs.summary_preference.titles = params.figs.summary_modulation.titles; %Titles (cell array)
-params.figs.summary_preference.dispersion = 'SEM'; %Bars with error bars
-params.figs.summary_preference.dispersion = 'SEM'; %Bars with error bars
+%params.figs.summary_preference.dispersion = 'SEM'; %Bars with error bars
+params.figs.summary_preference.dispersion = 'IQR'; %Boxes with whiskers
+
+%Appearance
+params.figs.summary_preference.lineWidth = 2;
+params.figs.summary_preference.boxWidth = 0.2;
+params.figs.summary_preference.boxColors = colors;
 c = cbrewer('qual','Paired',10);
 params.figs.summary_preference.colors = {c([8,4,10,2],:),c([7,3,9,1],:)}; %Swap order
-% params.figs.summary_preference.colors = {c([8,7],:),c([4,3],:),c([10,9],:),c([2,1],:)}; %Swap order
+
 
 %% SUMMARY FIGURE: NEURAL TRANSITION ANALYSIS 
 

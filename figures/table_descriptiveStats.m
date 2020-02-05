@@ -1,4 +1,4 @@
-function statsTable = table_descriptiveStats( stats )
+function T = table_descriptiveStats( stats )
 
 %statsTable = struct('behavior',table(),'imaging',[],'cellFluo',[]);
 
@@ -6,10 +6,12 @@ function statsTable = table_descriptiveStats( stats )
 
 %% Descriptive Stats: Behavior
 B = stats.behavior;
-i=1;
+
 % Collapsed across all Rules/Cell Types
-% Number of trials per session
-row(i) = stats
+
+% Number of trials completed per session
+S = addRow( S, '', stats );
+
 % Number of blocks completed per session
 
 % Licks/s in 2 s pre- vs post-cue
@@ -23,3 +25,9 @@ row(i) = stats
 % -Hit & perseverative error rates in two trials surrounding rule switch (estimate from 'perfcurve')
 
 
+%% ------- INTERNAL FUNCTIONS ----------------------------------------------------------------------
+
+function S = addRow( S, VarName, stats )
+
+%varargin for cellTypes and/or ruleTypes 
+%Flag for 

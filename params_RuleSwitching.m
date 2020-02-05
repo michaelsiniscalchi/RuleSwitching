@@ -18,7 +18,8 @@ if any([calculate.cellF, calculate.dFF, calculate.align_signals, calculate.trial
 end
 
 %% SUMMARIZE RESULTS
-summarize.behavior              = true;
+summarize.behavior              = false;
+summarize.imaging               = true; 
 summarize.selectivity           = false;
 summarize.transitions           = false;
 summarize.stats                 = true; %Descriptive stats; needed for all summary plots
@@ -44,7 +45,7 @@ figures.summary_periswitch_performance  = false;
 figures.summary_modulation_heatmap      = false; %Heatmap for each celltype, all sessions, one figure each for CO&R
 figures.summary_modulation				= false; %Bar/line plots of grouped selectivity results for comparison
 figures.summary_transitions             = false;
-figures.table_experiments               = false;
+figures.table_experiments               = true;
 figures.table_descriptive_stats         = true;
 figures.table_comparative_stats         = true;
 
@@ -62,6 +63,7 @@ mat_file.img_beh        = @(idx) fullfile(dirs.results,expData(idx).sub_dir,'img
 mat_file.results        = @(idx) fullfile(dirs.results,expData(idx).sub_dir,'results.mat');
 %Aggregated
 mat_file.summary.behavior       = fullfile(dirs.summary,'behavior.mat');
+mat_file.summary.imaging        = fullfile(dirs.summary,'imaging.mat');
 mat_file.summary.selectivity    = fullfile(dirs.summary,'selectivity.mat');
 mat_file.summary.transitions    = fullfile(dirs.summary,'transitions.mat');
 mat_file.stats                  = fullfile(dirs.summary,'summary_stats.mat');
@@ -130,7 +132,7 @@ params.transitions.stat             = 'Rho'; %Statistic to use as similarity mea
 params.transitions.nBins            = 10; %Number of bins for aggregating evolution of activity vectors
 
 %% SUMMARY STATISTICS
-params.stats.analysis_names = {'behavior','selectivity','transitions'};
+params.stats.analysis_names = {'behavior','imaging','selectivity','transitions'};
 
 %% FIGURES: COLOR PALETTE FROM CBREWER
 % Color palette from cbrewer()

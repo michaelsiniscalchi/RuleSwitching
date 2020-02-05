@@ -34,7 +34,7 @@ expTable = table((1:numel(expData))',{expData.sub_dir}',{expData.cellType}',... 
     'VariableNames',{'Index','Experiment_ID','Cell_Type'});
 
 % Begin logging processes
-diary(['procLog' datestr(datetime,'yymmdd')]); 
+diary(fullfile(dirs.results,['procLog' datestr(datetime,'yymmdd')])); 
 diary on;
 disp(datetime);
 
@@ -178,6 +178,14 @@ if summarize.behavior
     save(mat_file.summary.behavior,'-struct','behavior');
 end
 
+% Imaging
+if summarize.imaging
+    fieldNames = {'sessionID','cellID','exclude','blocks'};
+    S = initSummaryStruct(mat_file.img_beh,[],fieldNames,expData); %Initialize data structure
+    imaging = summary_imaging(S, params.fluo); %Aggregate results
+    save(mat_file.summary.imaging,'-struct','imaging');
+end
+
 % Selectivity
 if summarize.selectivity
     %Initialize structure
@@ -186,11 +194,11 @@ if summarize.selectivity
     end
     %Aggregate results
     for i = 1:numel(expData)
-        B = load(mat_file.results(i),'decode','cellID');
+        S = load(mat_file.results(i),'decode','cellID');
         selectivity = summary_selectivity(...
-            selectivity, B.decode, expData(i).cellType, i, B.cellID, params.decode); %summary = summary_selectivity( summary, decode, cell_type, exp_ID, cell_ID, params )
+            selectivity, S.decode, expData(i).cellType, i, S.cellID, params.decode); %summary = summary_selectivity( summary, decode, cell_type, exp_ID, cell_ID, params )
     end
-    selectivity.t = B.decode.t; %Copy time vector from 'decode'
+    selectivity.t = S.decode.t; %Copy time vector from 'decode'
     save(mat_file.summary.selectivity,'-struct','selectivity');
 end
 
@@ -221,9 +229,6 @@ if summarize.stats
         stats = summary_stats(stats,summary,analysis_name{i});
     end
     save(mat_file.stats,'-struct','stats');
-    
-
-
 end
 
 if summarize.comparisons
@@ -236,15 +241,21 @@ diary off;
 %% SUMMARY TABLES
 if figures.table_experiments
     % SessionID, CellType, #Cells, #Trials, #Blocks
-    expTable = table_expData(stats);
+    stats = load(mat_file.stats,'behavior','imaging','tabular');
+    tables.summary = table_expData(expData,stats);
+    save(mat_file.stats,'tabular','-append');
 end
 
 if figures.table_descriptive_stats
     stats = load(mat_file.stats);
-    statsTable = table_descriptiveStats(stats);
+    tables.stats = table_descriptiveStats(stats);
+    save(mat_file.stats,'tabular','-append');
 end
 
 if figures.table_comparative_stats    
+    stats = load(mat_file.stats);
+    tables.comparisons = table_comparisons(stats);
+    save(mat_file.stats,'tabular','-append');
 end
 %% FIGURES - BEHAVIOR
 % Visualize raw behavioral data
