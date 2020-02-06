@@ -18,7 +18,7 @@ if any([calculate.cellF, calculate.dFF, calculate.align_signals, calculate.trial
 end
 
 %% SUMMARIZE RESULTS
-summarize.behavior              = false;
+summarize.behavior              = true;
 summarize.imaging               = true; 
 summarize.selectivity           = false;
 summarize.transitions           = false;

@@ -247,7 +247,7 @@ if figures.table_experiments
 end
 
 if figures.table_descriptive_stats
-    stats = load(mat_file.stats);
+    stats = load(mat_file.stats,'behavior','imaging','selectivity');
     tables.stats = table_descriptiveStats(stats);
     save(mat_file.stats,'tables','-append');
 end
