@@ -9,8 +9,8 @@ function [ T, data_struct ] = table_descriptiveStats( stats )
 %recursive fieldnames from MATLAB Central: names = fieldnamesr(stats,'struct');
 
 %% DEFINE AND INITIALIZE COMMON VARIABLES
-S = struct('varName',[],'cellType',[],'ruleType',[],...
-    'data',[],'mean',[],'sem',[],'median',[],'IQR',[],'sum',[],'N',[],'expID',[]);
+S = struct('VarName',[],'cellType',[],'ruleType',[],...
+    'mean',[],'sem',[],'median',[],'IQR',[],'sum',[],'N',[]);
 
 cellTypes = ["SST";"VIP";"PV";"PYR";"all"];
 ruleTypes = ["sound";"action";"all"];
@@ -26,9 +26,9 @@ B = stats.behavior;
 % S = addRow( S, 'trialsCompleted', cellType, ruleType, stats ); %eg, addRow( S, 'trials2crit', 'each', 'each', stats )
 % S = addRow( S, stats.behavior.SST.trialsCompleted);
 % A couple test cases:
-S = addRow( S, stats.behavior, {cellTypes,"trialsCompleted"});
+% S = addRow( S, stats.behavior, {cellTypes,"trialsCompleted"});
 S = addRow( S, stats.behavior, {cellTypes,"trials2crit",ruleTypes});
-disp()
+
 % Number of blocks completed per session
 
 % Licks/s in 2 s pre- vs post-cue
@@ -44,7 +44,7 @@ disp()
 
 %% ------- INTERNAL FUNCTIONS ----------------------------------------------------------------------
 
-function data_struct = addRow( data_struct, stats, var_spec )
+function S = addRow( S, stats, var_spec )
 
 % INPUT ARGUMENTS
 %   'S',        The structure array to be modified, later to be output as table using 'struct2table.m'
@@ -74,7 +74,7 @@ end
 % data_struct = struct('varName',varName,'cellType',cellType);
 
 % Extract specified data
-len = length(data_struct);
+len = length(S);
 for i = 1:size(fields,1)
     %Evaluate terminal field if present
     s = stats;
@@ -84,17 +84,16 @@ for i = 1:size(fields,1)
         end
     end
     %Append additional fields from 'S'
-    if isfield(s,'data')
-        s.varName = fields(i,end);
+    if isfield(s,fields(i,j))
+        s.varName = var_spec(end);
         s.cellType = fields(i,1);
-        s.ruleType = "all";
         %Get ruletype from terminal field, if present
+        s.ruleType = "all";
         if length(var_spec(end))>1 
-            s.ruleType = fields(i,end);
-            s.varName = fields(i,end-1);
+            ruleType = fields(i,end);
         end
-        data_struct = [data_struct s];
-%         data_struct = [data_struct s];
+        
+        data_struct(i) = s;
     end
 end
-
+S = [S; data_struct];

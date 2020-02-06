@@ -45,7 +45,7 @@ figures.summary_periswitch_performance  = false;
 figures.summary_modulation_heatmap      = false; %Heatmap for each celltype, all sessions, one figure each for CO&R
 figures.summary_modulation				= false; %Bar/line plots of grouped selectivity results for comparison
 figures.summary_transitions             = false;
-figures.table_experiments               = true;
+figures.table_experiments               = false;
 figures.table_descriptive_stats         = true;
 figures.table_comparative_stats         = true;
 
