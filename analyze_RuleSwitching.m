@@ -241,15 +241,15 @@ diary off;
 %% SUMMARY TABLES
 if figures.table_experiments
     % SessionID, CellType, #Cells, #Trials, #Blocks
-    stats = load(mat_file.stats,'behavior','imaging','tabular');
+    stats = load(mat_file.stats,'behavior','imaging','tables');
     tables.summary = table_expData(expData,stats);
-    save(mat_file.stats,'tabular','-append');
+    save(mat_file.stats,'tables','-append');
 end
 
 if figures.table_descriptive_stats
     stats = load(mat_file.stats);
     tables.stats = table_descriptiveStats(stats);
-    save(mat_file.stats,'tabular','-append');
+    save(mat_file.stats,'tables','-append');
 end
 
 if figures.table_comparative_stats    
