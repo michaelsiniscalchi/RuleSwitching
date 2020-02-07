@@ -16,19 +16,17 @@ cellTypes = ["SST";"VIP";"PV";"PYR";"all"];
 ruleTypes = ["sound";"action";"all"];
 
 %% Descriptive Stats: Behavior
-B = stats.behavior;
 
+B = stats.behavior;
 
 % Collapsed across all Rules/Cell Types
 
 % Number of trials completed per session
 %stats.behavior.SST.trialsCompleted
-% S = addRow( S, 'trialsCompleted', cellType, ruleType, stats ); %eg, addRow( S, 'trials2crit', 'each', 'each', stats )
-% S = addRow( S, stats.behavior.SST.trialsCompleted);
 % A couple test cases:
 S = addRow( S, stats.behavior, {cellTypes,"trialsCompleted"});
 S = addRow( S, stats.behavior, {cellTypes,"trials2crit",ruleTypes});
-disp()
+struct2table(S)
 % Number of blocks completed per session
 
 % Licks/s in 2 s pre- vs post-cue
@@ -65,15 +63,7 @@ for i = 1:numel(var_spec)
     end
 end
 
-% Get variable name, cell-type, and rule-type
-%varName = repmat(var_spec(end),size(fields,1),1);
-%cellType = mat2cell(fields(:,1),ones(size(fields,1),1));
-
-
-% %Initialize data structure
-% data_struct = struct('varName',varName,'cellType',cellType);
-
-% Extract specified data
+% Extract specified data from 'stats'
 len = length(data_struct);
 for i = 1:size(fields,1)
     %Evaluate terminal field if present
@@ -89,12 +79,14 @@ for i = 1:size(fields,1)
         s.cellType = fields(i,1);
         s.ruleType = "all";
         %Get ruletype from terminal field, if present
-        if length(var_spec(end))>1 
+        if length(var_spec{end})>1
             s.ruleType = fields(i,end);
             s.varName = fields(i,end-1);
         end
-        data_struct = [data_struct s];
-%         data_struct = [data_struct s];
+        %         data_struct = [data_struct s];
+        data_struct(len+i) = s;
     end
 end
-
+%Restrict to populated rows 
+idx = ~cellfun(@isempty,{data_struct.varName}); %(data_struct(i).varName==[] if any fields are not found in 'stats' structure)
+data_struct = data_struct(idx);
