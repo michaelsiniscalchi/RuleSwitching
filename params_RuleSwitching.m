@@ -24,10 +24,10 @@ summarize.selectivity           = false;
 summarize.transitions           = false;
 
 summarize.stats                     = false; %Descriptive stats; needed for all summary plots
-summarize.comparisons               = false; %Formal comparisons
+summarize.comparisons               = true; %Formal comparisons
 summarize.table_experiments         = false;
 summarize.table_descriptive_stats   = false;
-summarize.table_comparative_stats   = false;
+summarize.table_comparative_stats   = true;
 
 %% PLOT RESULTS
 
@@ -43,11 +43,11 @@ figures.decode_single_units             = false;
 figures.heatmap_modulation_idx          = false;  %Heatmap of selectivity idxs for COR for each session
 figures.transitions                     = false; 
 % Summary
-figures.summary_behavior                = true; %Summary of descriptive stats, eg, nTrials and {trials2crit, pErr, oErr} for each rule
-figures.summary_lick_density            = true;
-figures.summary_periswitch_performance  = true;
-figures.summary_modulation_heatmap      = true; %Heatmap for each celltype, all sessions, one figure each for CO&R
-figures.summary_modulation				= true; %Bar/line plots of grouped selectivity results for comparison
+figures.summary_behavior                = false; %Summary of descriptive stats, eg, nTrials and {trials2crit, pErr, oErr} for each rule
+figures.summary_lick_density            = false;
+figures.summary_periswitch_performance  = false;
+figures.summary_modulation_heatmap      = false; %Heatmap for each celltype, all sessions, one figure each for CO&R
+figures.summary_modulation				= false; %Bar/line plots of grouped selectivity results for comparison
 figures.summary_transitions             = false;
 
 % Validation
@@ -159,18 +159,11 @@ params.figs.fovProj.blackLevel      = 20; %As percentile
 params.figs.fovProj.whiteLevel      = 99.7; %As percentile
 params.figs.fovProj.overlay_ROIs    = false; %Overlay outlines of ROIs
 params.figs.fovProj.overlay_npMasks = false; %Overlay outlines of neuropil masks
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 params.figs.fovProj.expIDs          = [];
 % params.figs.fovProj.expIDs = {...
 %     '180831 M55 RuleSwitching';...
 %     '181003 M52 RuleSwitching'};
-<<<<<<< Updated upstream
 
-=======
->>>>>>> Stashed changes
 % For plotting only selected cells
 params.figs.fovProj.cellIDs{numel(expData)} = []; %Initialize
 % params.figs.fovProj.cellIDs(restrictExpIdx({expData.sub_dir},params.figs.fovProj.expIDs)) = {... % One cell per session, containing cellIDs

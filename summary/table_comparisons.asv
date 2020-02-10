@@ -1,8 +1,8 @@
-function [ T, dataStruct ] = table_descriptiveStats( stats )
+function [ T, dataStruct ] = table_comparisons( stats )
 
 %% DEFINE AND INITIALIZE COMMON VARIABLES
 dataStruct = struct('varName',[],'cellType',[],'ruleType',[],...
-    'data',[],'mean',[],'sem',[],'median',[],'IQR',[],'sum',[],'N',[],'expID',[]);
+    'diff',[],'P',[],'N',[],'testName',[],'stats',[]);
 
 cellTypes = ["SST", "VIP", "PV", "PYR", "all"]'; %Column vectors
 ruleTypes = ["sound", "action", "all"]';
@@ -19,24 +19,10 @@ S = stats.selectivity;
 
 % *** Collapsed across all Rules/Cell Types ***
 
-% Number of trials & blocks completed per session
-dataStruct = addRow(dataStruct,B.all,{"trialsCompleted"}); %Report mean & sem
-dataStruct = addRow(dataStruct,B.all,{"blocksCompleted"}); %Report mean & sem
+% Licks/s pre- vs post-cue
+dataStruct = addComparison(dataStruct,B.all,{"lickRates",["preCue","postCue"],"completed"}); %Report mean & sem
+dataStruct = addComparison(dataStruct,B.all,{"blocksCompleted"}); %Report mean & sem
 
-% Licks/s pre- & post-cue ***TODO***
-
-% *** For each Block Type ***
-
-% Licks/s pre-cue (to compare action & sound) ***TODO***
-
-% Hit & pErr in two trials surrounding rule switch
-dataStruct = addRow( dataStruct, B.all, {"perfLastTrial",{"hit","pErr"},ruleTypes});
-dataStruct = addRow( dataStruct, B.all, {"perfNextTrial",{"hit","pErr"},ruleTypes});
-
-% Number trials to criterion, pErr, oErr, miss
-dataStruct = addRow( dataStruct, B.all, {"trials2crit",ruleTypes});
-dataStruct = addRow( dataStruct, B.all, {"pErr",ruleTypes});
-dataStruct = addRow( dataStruct, B.all, {"oErr",ruleTypes});
 
 %% RETURN DATA STRUCTURE AS TABLE
 
@@ -48,7 +34,7 @@ disp(T);
 
 %% ------- INTERNAL FUNCTIONS ----------------------------------------------------------------------
 
-function data_struct = addRow( data_struct, stats, var_spec )
+function data_struct = addComparison( data_struct, stats, var_spec )
 
 % INPUT ARGUMENTS
 %   'S',        The structure array to be modified, later to be output as table using 'struct2table.m'

@@ -7,7 +7,7 @@ for i = 1:numel(cellType)
     for j = 1:numel(pre_post)
         fields = fieldnames(lickRates.(pre_post{j}));
         for k = 1:numel(fields)
-             B.(cellType{i}).lickRates.(pre_post{j}).(fields{k})(idx) = ...
+             B.(cellType{i}).lickRates.(pre_post{j}).(fields{k})(idx,:) = ... %Enforce column vector
                  lickRates.(pre_post{j}).(fields{k}); %Lick rates pre- & post-cue, for comparing, eg, pre-cue lick rate in sound vs action.
         end
     end
