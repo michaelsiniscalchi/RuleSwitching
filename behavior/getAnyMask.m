@@ -1,5 +1,6 @@
 function combinedMask = getAnyMask( trials, fieldNames )
-% % geMask %
+%%% getAnyMask() 
+%
 %PURPOSE:   Get trial mask defined by OR operation of unlimited trial conditions
 %AUTHORS:   MJ Siniscalchi, 170113
 %

@@ -41,12 +41,19 @@ switch type
             end
             
             %Performance curve surrounding rule switch
-            rule = {'sound','action'};
+            rule = {'sound','action','all'};
             vbl = {'hit','pErr','oErr','miss'}; %Proportion hit, pErr, oErr, & miss, by session
-            for j = 1:numel(rule)
-                for k = 1:numel(vbl)
-                    S.(cellTypes{i}).perfCurve.(rule{j}).(vbl{k}) = ...
-                        calcStats(input.(cellTypes{i}).perfCurve.(rule{j}).(vbl{k}),expID);
+            
+            for j = 1:numel(vbl)
+                for k = 1:numel(rule)
+                    data = input.(cellTypes{i}).perfCurve.(vbl{j}).(rule{k});
+                    S.(cellTypes{i}).perfCurve.(vbl{j}).(rule{k}) = ...
+                        calcStats(data,expID);
+                    %Performance on last trial of block & next trial
+                    S.(cellTypes{i}).perfLastTrial.(vbl{j}).(rule{k}) = ...
+                        calcStats(data(:,20),expID); %perfCurve is switchtrial+[-20:19]; lastIdx = 20;
+                    S.(cellTypes{i}).perfNextTrial.(vbl{j}).(rule{k}) = ...
+                        calcStats(data(:,21),expID); %nextIdx = 21; *Perhaps, perfCurve.window could hold the indices... 
                 end
             end
   
@@ -55,14 +62,17 @@ switch type
     case 'imaging'
         cellTypes = fieldnames(input);
         for i = 1:numel(cellTypes)
-            %'totalCells',[],'inclCells',[],'exclCells',[],'exclBkgd',[],'nBlocks',[]);
-            % Number of blocks imaged & number of cells total/included/excluded
+            % Number of blocks imaged 
             expID = input.(cellTypes{i}).sessionID; 
             S.(cellTypes{i}).nBlocksImg = calcStats(input.(cellTypes{i}).nBlocksImg,expID);
+            % Number of cells total/included/excluded
             S.(cellTypes{i}).totalCells = calcStats(input.(cellTypes{i}).totalCells,expID);
             S.(cellTypes{i}).inclCells = calcStats(input.(cellTypes{i}).inclCells,expID);
             S.(cellTypes{i}).exclCells = calcStats(input.(cellTypes{i}).exclCells,expID);
-            S.(cellTypes{i}).exclMasks = calcStats(input.(cellTypes{i}).exclMasks,expID);  
+            S.(cellTypes{i}).exclMasks = calcStats(input.(cellTypes{i}).exclMasks,expID);
+            % Number of task-responsive cells (diff. pre-post cue ~=0)
+            S.(cellTypes{i}).nTaskCells = calcStats(input.(cellTypes{i}).nTaskCells,expID);
+            S.(cellTypes{i}).pTaskCells = calcStats(input.(cellTypes{i}).pTaskCells,expID);
         end
         
     case 'selectivity'

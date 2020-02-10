@@ -5,14 +5,14 @@ fig.Position = [200 400 1200 400];
 
 setup_figprops([]);
 transparency = 0.2;
-switchType = fieldnames(behavior.(cellType).perfCurve);
+switchType = {'sound','action','all'};
 X = -20:19;
 
 for i = 1:numel(switchType)
     ax(i) = subplot(1,3,i);  hold on
     for j=1:numel(params.outcomes)
         
-        data = behavior.(cellType).perfCurve.(switchType{i}).(params.outcomes{j});
+        data = behavior.(cellType).perfCurve.(params.outcomes{j}).(switchType{i});
         M = mean(data);
         sem = std(data)/sqrt(size(data,1));
         CI = M + [-sem; sem];

@@ -1,5 +1,8 @@
 function fig = fig_summary_periswitch_performance( behavior, cellType, params )
 
+%NOTE: output of summary_behavior was used; stats.behavior could also be
+%       used as input, eliminating the need to calculate mean, sem, etc... (200207mjs)
+
 % Setup Figure for Plotting
 fig = figure('Name',['Periswitch peformance curve - ' cellType]);
 fig.Position = [400 50 500 900]; %BLWH
@@ -8,7 +11,7 @@ tiledlayout(3,1,'TileSpacing','none','Padding','none');
 ax = gobjects(3,1);
 transparency = 0.2;
 
-switchType = fieldnames(behavior.(cellType).perfCurve);
+switchType = {'sound','action','all'};
 X = -20:19;
 
 for i = 1:numel(switchType)
@@ -17,7 +20,7 @@ ax(i) = nexttile;
 hold on;
     for j=1:numel(params.outcomes)
         
-        data = behavior.(cellType).perfCurve.(switchType{i}).(params.outcomes{j});
+        data = behavior.(cellType).perfCurve.(params.outcomes{j}).(switchType{i}); 
         M = mean(data);
         sem = std(data)/sqrt(size(data,1));
         CI = M + [-sem; sem];

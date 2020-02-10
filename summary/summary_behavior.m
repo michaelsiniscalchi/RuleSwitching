@@ -7,7 +7,7 @@ for i = 1:numel(type)
     B.(type{i}) = ...
         struct('sessionID',[],'nTrials',[],'trialsCompleted',[],'blocksCompleted',[],...
         'trials2crit',perfData,'oErr',perfData,'pErr',perfData,...
-        'lickDensity',struct(),'perfCurve',struct());
+        'lickDensity',struct(),'lickRates',struct(),'perfCurve',struct());
 end
 
 % Aggregate data from each session into pooled and cell-type-specific data structures
@@ -30,7 +30,12 @@ for sessionID = 1:numel(struct_beh)
     lickDensity = getLickDensity(S.trialData,S.trials,edges); %Organized heirarchically by choice, cue, then rule
     B = catLickDensity(B,lickDensity,S.cellType); %Concatenate current structure with group at terminal fields of heirarchy
     
-    % Block data: median pErr, oErr, & trials2crit
+    % Lick rates surrounding cue in varying trial conditions
+    binWidth = 1; %***FOR PARAMS: Duration from cue to consider in mean lick rate calculation.
+    lickRates = getLickRates(S.trialData, S.trials, binWidth); %For comparisons eg, pre-cue lick rate in action vs sound
+    B = catLickRates(B,lickRates,expIdx);
+    
+     % Block data: median pErr, oErr, & trials2crit
     B = catBlockStats(B,S.blocks,expIdx);
     
     % Density of each outcome surrounding rule switch

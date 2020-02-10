@@ -27,7 +27,16 @@ for sessionID = 1:numel(struct_img)
         IMG.(type{j}).inclCells(expIdx.(type{j}),:) = numel(S.cellID); %Number of cells analyzed
         IMG.(type{j}).exclCells(expIdx.(type{j}),:) = nExcl;
         IMG.(type{j}).exclMasks(expIdx.(type{j}),:) = size(S.exclude.cells,1)-nExcl; %If exclCells>exclBkgd, 'F==NaN'; if so, CHECK!
-        %***FUTURE: 'exclude.cells' should be cell, not char...
+        %***FUTURE: 'exclude.cells' should be string, not char...
+        
+        %Number & Proportion of Task-Responsive Cells per Session for each Cell-Type
+        [N,P,isTaskCell] = getTaskCells(S.trialDFF, ~S.trials.miss, params.window, 0.05); %Neurons whose activity differs pre/post cue @ alpha=0.5
+        IMG.(type{j}).nTaskCells(expIdx.(type{j}),:) = N;
+        IMG.(type{j}).pTaskCells(expIdx.(type{j}),:) = P;
+        IMG.(type{j}).isTaskCell{expIdx.(type{j})} = isTaskCell;
+        
+        %Mean traces from all task responsive cells by cell-type?
+        
     end
     
     clearvars expIdx

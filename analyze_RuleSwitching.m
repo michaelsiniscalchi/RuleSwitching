@@ -180,9 +180,9 @@ end
 
 % Imaging
 if summarize.imaging
-    fieldNames = {'sessionID','cellID','exclude','blocks'};
+    fieldNames = {'sessionID','cellID','exclude','blocks','trials','trialDFF'};
     S = initSummaryStruct(mat_file.img_beh,[],fieldNames,expData); %Initialize data structure
-    imaging = summary_imaging(S, params.fluo); %Aggregate results
+    imaging = summary_imaging(S, params.bootAvg); %Aggregate results
     save(mat_file.summary.imaging,'-struct','imaging');
 end
 
@@ -239,27 +239,27 @@ end
 diary off;
 
 %% SUMMARY TABLES
-if figures.table_experiments
+if summarize.table_experiments
     % SessionID, CellType, #Cells, #Trials, #Blocks
     stats = load(mat_file.stats,'behavior','imaging','tables');
     tables.summary = table_expData(expData,stats);
     save(mat_file.stats,'tables','-append');
 end
 
-if figures.table_descriptive_stats
+if summarize.table_descriptive_stats
     stats = load(mat_file.stats,'behavior','imaging','selectivity');
-    tables.stats = table_descriptiveStats(stats);
+    [tables.descriptiveStats, tabular.descriptiveStats] = table_descriptiveStats(stats); %Might not need tabular...
     save(mat_file.stats,'tables','-append');
 end
 
-if figures.table_comparative_stats    
+if summarize.table_comparative_stats    
     stats = load(mat_file.stats);
-    tables.comparisons = table_comparisons(stats);
+    tables.comparisons = table_comparisons(stats); %[p,tbl,stats] = kruskalwallis(x,{'SST','VIP','PV','PYR'},displayopt);
     save(mat_file.stats,'tabular','-append');
 end
+
 %% FIGURES - BEHAVIOR
 % Visualize raw behavioral data
-%***Condense this section with current system
 if figures.raw_behavior
     save_dir = fullfile(dirs.figures,'Raw behavior');
     create_dirs(save_dir); %Create dir for these figures
@@ -267,7 +267,7 @@ if figures.raw_behavior
         B = load(fullfile(mat_file.behavior(i))); %Load saved behavioral data
         fig = plot_flexBehByTrial(...
             B.trialData, B.trials, expData(i).sub_dir, params.figs.behavior); %Generate plot
-        save_multiplePlots(fig,save_dir); %save as FIG and PNG
+        save_multiplePlots(fig,save_dir,'svg'); %save as FIG and PNG
         clearvars figs;
     end
 end
@@ -278,7 +278,7 @@ if figures.lick_density
     for i = 1:numel(expData)
         load(fullfile(mat_file.behavior(i))); %Load saved behavioral data
         fig = fig_lickDensity(trialData,trials,expData(i).sub_dir,params.figs.lickDensity); %Generate plot
-        save_multiplePlots(fig,save_dir); %save as FIG and PNG
+        save_multiplePlots(fig,save_dir,'svg'); %save as FIG and PNG
         clearvars figs;
     end
 end

@@ -1,10 +1,10 @@
 function [ calculate, summarize, figures, mat_file, params ] = params_RuleSwitching(dirs,expData)
 
 %% CALCULATE OR RE-CALCULATE RESULTS
-calculate.behavior              = false;
+calculate.behavior              = true;
 calculate.stack_info            = false;
-calculate.combined_data         = false; %Combine relevant behavioral and imaging data in one MAT file ; truncate if necessary
-calculate.cellF                 = false;  %Extract cellf and neuropilf from ROIs, excluding overlapping regions and extremes of the FOV
+calculate.combined_data         = true;  %Combine relevant behavioral and imaging data in one MAT file ; truncate if necessary
+calculate.cellF                 = false; %Extract cellf and neuropilf from ROIs, excluding overlapping regions and extremes of the FOV
 calculate.dFF                   = false; %Calculate dF/F, with optional neuropil subtraction
 calculate.align_signals         = false; %Interpolate dF/F and align to behavioral events
 calculate.trial_average_dFF     = false; %dF/F averaged over specified subsets of trials
@@ -20,10 +20,14 @@ end
 %% SUMMARIZE RESULTS
 summarize.behavior              = true;
 summarize.imaging               = true; 
-summarize.selectivity           = false;
+summarize.selectivity           = true;
 summarize.transitions           = false;
-summarize.stats                 = true; %Descriptive stats; needed for all summary plots
-summarize.comparisons           = true; %Formal comparisons
+
+summarize.stats                     = true; %Descriptive stats; needed for all summary plots
+summarize.comparisons               = true; %Formal comparisons
+summarize.table_experiments         = true;
+summarize.table_descriptive_stats   = false;
+summarize.table_comparative_stats   = false;
 
 %% PLOT RESULTS
 
@@ -31,23 +35,20 @@ summarize.comparisons           = true; %Formal comparisons
 figures.raw_behavior                    = false;
 figures.lick_density                    = false;
 % Imaging %***REDO Overnight***
-figures.FOV_mean_projection             = false;
-figures.timeseries                      = false; %Plot all timeseries for each session
+figures.FOV_mean_projection             = true;
+figures.timeseries                      = true; %Plot all timeseries for each session
 % Combined
-figures.trial_average_dFF               = false;  %Overlay traces for distinct choices, outcomes, and rules (CO&R)
-figures.decode_single_units             = false;
+figures.trial_average_dFF               = true;  %Overlay traces for distinct choices, outcomes, and rules (CO&R)
+figures.decode_single_units             = true;
 figures.heatmap_modulation_idx          = false;  %Heatmap of selectivity idxs for COR for each session
 figures.transitions                     = false; 
 % Summary
-figures.summary_behavior                = false; %Summary of descriptive stats, eg, nTrials and {trials2crit, pErr, oErr} for each rule
-figures.summary_lick_density            = false;
-figures.summary_periswitch_performance  = false;
-figures.summary_modulation_heatmap      = false; %Heatmap for each celltype, all sessions, one figure each for CO&R
-figures.summary_modulation				= false; %Bar/line plots of grouped selectivity results for comparison
+figures.summary_behavior                = true; %Summary of descriptive stats, eg, nTrials and {trials2crit, pErr, oErr} for each rule
+figures.summary_lick_density            = true;
+figures.summary_periswitch_performance  = true;
+figures.summary_modulation_heatmap      = true; %Heatmap for each celltype, all sessions, one figure each for CO&R
+figures.summary_modulation				= true; %Bar/line plots of grouped selectivity results for comparison
 figures.summary_transitions             = false;
-figures.table_experiments               = false;
-figures.table_descriptive_stats         = true;
-figures.table_comparative_stats         = true;
 
 % Validation
 figures.validation_ITIs                 = false;
@@ -78,7 +79,7 @@ params.behavior.timeWindow = [-2 5];
 params.behavior.binWidth = 0.1; %In seconds; for lick density plots
 
 % Cellular fluorescence calculations
-params.fluo.exclBorderWidth      = 5; %For calc_cellF: n-pixel border of FOV to be excluded from analysis
+params.fluo.exclBorderWidth     = 5; %For calc_cellF: n-pixel border of FOV to be excluded from analysis
 
 % Interpolation and alignment
 params.align.trigTimes  = 'cueTimes';
@@ -122,7 +123,7 @@ params.decode.sig_method      = 'shuffle';  %Method for determining chance-level
 params.decode.sig_duration    = 1;  %Number of consecutive seconds exceeding chance-level
 
 % Transition analyses
-params.transitions.window           = [-2 5]; %Time to be considered within trial
+params.transitions.window           = params.behavior.timeWindow; %Time to be considered within trial
 params.transitions.nTrialsPreSwitch = 10; %Number of trials from origin and destination rules to average for comparison with transition trial(i)
 params.transitions.cell_subset      = 'all'; %'significant' or 'all'; denotes whether only significantly rule-modulated cells are used
 params.transitions.CI               = params.bootAvg.CI; %Threshold for significant modulation; include only significantly modulated cells
