@@ -35,11 +35,11 @@ summarize.table_comparative_stats   = false;
 figures.raw_behavior                    = false;
 figures.lick_density                    = false;
 % Imaging %***REDO Overnight***
-figures.FOV_mean_projection             = true;
-figures.timeseries                      = true; %Plot all timeseries for each session
+figures.FOV_mean_projection             = false;
+figures.timeseries                      = false; %Plot all timeseries for each session
 % Combined
-figures.trial_average_dFF               = true;  %Overlay traces for distinct choices, outcomes, and rules (CO&R)
-figures.decode_single_units             = true;
+figures.trial_average_dFF               = false;  %Overlay traces for distinct choices, outcomes, and rules (CO&R)
+figures.decode_single_units             = false;
 figures.heatmap_modulation_idx          = false;  %Heatmap of selectivity idxs for COR for each session
 figures.transitions                     = false; 
 % Summary
@@ -159,12 +159,18 @@ params.figs.fovProj.blackLevel      = 20; %As percentile
 params.figs.fovProj.whiteLevel      = 99.7; %As percentile
 params.figs.fovProj.overlay_ROIs    = false; %Overlay outlines of ROIs
 params.figs.fovProj.overlay_npMasks = false; %Overlay outlines of neuropil masks
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 params.figs.fovProj.expIDs          = [];
 % params.figs.fovProj.expIDs = {...
 %     '180831 M55 RuleSwitching';...
 %     '181003 M52 RuleSwitching'};
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 % For plotting only selected cells
 params.figs.fovProj.cellIDs{numel(expData)} = []; %Initialize
 % params.figs.fovProj.cellIDs(restrictExpIdx({expData.sub_dir},params.figs.fovProj.expIDs)) = {... % One cell per session, containing cellIDs
