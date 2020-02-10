@@ -6,7 +6,7 @@
 %
 %---------------------------------------------------------------------------------------------------
 
-function expData = get_imgPaths( expData, calculate )
+function expData = get_imgPaths( dirs, expData, calculate )
 
 % Get ROI directories and define paths to imaging data
 C = calculate;

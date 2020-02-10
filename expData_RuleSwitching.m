@@ -336,7 +336,7 @@ expData(i).npCorrFactor = 0.3;
 
 i = i+1;
 expData(i).sub_dir = '180830 M56 RuleSwitching'; 
-expData(i).logfile = 'M55_RULESWITCHING_1808311318.log';
+expData(i).logfile = 'M56_RULESWITCHING_1808301314.log';
 expData(i).cellType = 'PYR'; %Cell-type label 
 expData(i).npCorrFactor = 0.3;
 i = i+1;

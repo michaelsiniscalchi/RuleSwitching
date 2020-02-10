@@ -24,7 +24,7 @@ clearvars;
 
 % Set parameters for analysis
 [calculate, summarize, figures, mat_file, params] = params_RuleSwitching(dirs,expData);
-expData = get_imgPaths(expData,calculate); %Append additional paths for imaging data if required by 'calculate'
+expData = get_imgPaths(dirs, expData, calculate); %Append additional paths for imaging data if required by 'calculate'
 
 % Generate directory structure
 create_dirs(dirs.results,dirs.summary,dirs.figures);
