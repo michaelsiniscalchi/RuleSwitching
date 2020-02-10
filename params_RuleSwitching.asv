@@ -159,12 +159,9 @@ params.figs.fovProj.blackLevel      = 20; %As percentile
 params.figs.fovProj.whiteLevel      = 99.7; %As percentile
 params.figs.fovProj.overlay_ROIs    = false; %Overlay outlines of ROIs
 params.figs.fovProj.overlay_npMasks = false; %Overlay outlines of neuropil masks
-
-params.figs.fovProj.expIDs          = [];
-% params.figs.fovProj.expIDs = {...
-%     '180831 M55 RuleSwitching';...
-%     '181003 M52 RuleSwitching'};
-
+params.figs.fovProj.expIDs = {...
+    '180831 M55 RuleSwitching';...
+    '181003 M52 RuleSwitching'};
 % For plotting only selected cells
 params.figs.fovProj.cellIDs{numel(expData)} = []; %Initialize
 % params.figs.fovProj.cellIDs(restrictExpIdx({expData.sub_dir},params.figs.fovProj.expIDs)) = {... % One cell per session, containing cellIDs

@@ -6,11 +6,11 @@
 %
 %---------------------------------------------------------------------------------------------------
 
-function expData = get_imgPaths( dirs, expData, calculate )
+function expData = get_imgPaths( dirs, expData, calculate, params )
 
 % Get ROI directories and define paths to imaging data
 C = calculate;
-if any([C.stack_info, C.combined_data, C.cellF])
+if any([C.stack_info, C.combined_data, C.cellF, params.figs.fovProj.calcProj])
     for i = 1:numel(expData)
         dir_list = dir(fullfile(dirs.data,expData(i).sub_dir,'ROI*'));
         expData(i).roi_dir = dir_list.name; %Full path to ROI directory
