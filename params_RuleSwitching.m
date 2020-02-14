@@ -27,7 +27,7 @@ summarize.stats                     = false; %Descriptive stats; needed for all 
 summarize.comparisons               = false; %Formal comparisons ***PROBABLY NIX***
 summarize.table_experiments         = false;
 summarize.table_descriptive_stats   = false;
-summarize.table_comparative_stats   = true;
+summarize.table_comparative_stats   = false;
 
 %% PLOT RESULTS
 
@@ -35,7 +35,7 @@ summarize.table_comparative_stats   = true;
 figures.raw_behavior                    = false;
 figures.lick_density                    = false;
 % Imaging %***REDO Overnight***
-figures.FOV_mean_projection             = false;
+figures.FOV_mean_projection             = true;
 figures.timeseries                      = false; %Plot all timeseries for each session
 % Combined
 figures.trial_average_dFF               = false;  %Overlay traces for distinct choices, outcomes, and rules (CO&R)
@@ -185,14 +185,14 @@ params.figs.perfCurve.colors = {cbrew.green,cbrew.pink,cbrew.pink,cbrew.gray}; %
 params.figs.perfCurve.LineStyle = {'-','-',':','-'};
 
 %% FIGURE: CELLULAR FLUORESCENCE TIMESERIES FOR ALL NEURONS
-% params.figs.timeseries.expIDs           = [];
-% params.figs.timeseries.cellIDs          = [];
-params.figs.timeseries.expIDs           = {...
-    '180831 M55 RuleSwitching';...
-    '181003 M52 RuleSwitching'};
-params.figs.timeseries.cellIDs          = {...
-    {'140','141','142','143','144'};
-    {'001','002','003','004','005','006','007','008','009','010'}};
+params.figs.timeseries.expIDs           = [];
+params.figs.timeseries.cellIDs          = [];
+% params.figs.timeseries.expIDs           = {...
+%     '180831 M55 RuleSwitching';...
+%     '181003 M52 RuleSwitching'};
+% params.figs.timeseries.cellIDs          = {...
+%     {'140','141','142','143','144'};
+%     {'001','002','003','004','005','006','007','008','009','010'}};
 
 params.figs.timeseries.trialMarkers     = false;
 params.figs.timeseries.trigTimes        = 'cueTimes'; %'cueTimes' or 'responseTimes'
