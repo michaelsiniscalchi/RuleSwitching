@@ -12,7 +12,7 @@
 %---------------------------------------------------------------------------------------------------
 function lickRates = getLickRates( trialData, trials, binWidth )
 
-%% LICK RATES IN THE 1-SEC PRE- & POST-CUE (***WRITE SEPARATE FUNCTION***)
+%% LICK RATES PRE- & POST-CUE
 
 lickTimesAll = [trialData.lickTimesLeft, trialData.lickTimesRight]; %Concatentate cell arrays for left and right lick times 
 
@@ -20,35 +20,36 @@ lickTimesAll = [trialData.lickTimesLeft, trialData.lickTimesRight]; %Concatentat
 [lickRates.preCue.completed, lickRates.postCue.completed] = ...
     getPeriCueLickRates(lickTimesAll, ~trials.miss, binWidth);
 
-% Pre-Cue Lick Rates for Comparison of Sound & Action trials
+% Pre- and Post-Cue Lick Rates for Comparison of Sound & Action trials
 rule = {'sound','action'};
 for i = 1:numel(rule)
-    lickRates.preCue.(rule{i}) = ...
+    [lickRates.preCue.(rule{i}), lickRates.postCue.(rule{i})] = ...
         getPeriCueLickRates(lickTimesAll, getMask(trials,{rule{i},'last20'}), binWidth);
 end
 
-% Pre-Cue Lick Rates at Left and Right Ports in Completed Trials
-port = {'left','right'};
+% Pre- and Post-Cue Lick Rates at Left and Right Ports in Completed Trials
+port = {'lickL','lickR'};
 for i = 1:numel(port)
-    lickRates.preCue.(port{i}) = ...
+    [lickRates.preCue.(port{i}), lickRates.postCue.(port{i})] = ...
         getPeriCueLickRates(lickTimesAll(:,i), ~trials.miss, binWidth); %Consider data from left & right ports independently
 end
 
-% Post-cue lickrates for comparison of hit & error trials
+% Post-cue lickrates for comparison of hit vs error trials
 outcome = {'hit','err'};
 for i = 1:numel(outcome)
-    [~, lickRates.postCue.(outcome{i})] = ...
+    [lickRates.preCue.(outcome{i}), lickRates.postCue.(outcome{i})] = ...
         getPeriCueLickRates(lickTimesAll, trials.(outcome{i}), binWidth);
 end
 
 % Post-cue difference in right-left lick rate for comparison of Sound & Action trials
 rule = {'sound','actionL','actionR'};
 for i = 1:numel(rule)
-    [~, leftRate] = getPeriCueLickRates(...
+    [leftRate_pre, leftRate_post] = getPeriCueLickRates(...
         lickTimesAll(:,1), getMask(trials,{rule{i},'last20'}), binWidth); % lickTimesAll(:,1) contains the left lick-times
-    [~, rightRate] = getPeriCueLickRates(...
+    [rightRate_pre, rightRate_post] = getPeriCueLickRates(...
         lickTimesAll(:,2), getMask(trials,{rule{i},'last20'}), binWidth); % lickTimesAll(:,2) contains the right lick-times
-    lickRates.postCue.(['diff_' (rule{i})]) = rightRate - leftRate; %Right minus left rate
+    lickRates.preCue.(['diff_' (rule{i})]) = rightRate_pre - leftRate_pre; %Right minus left rate
+    lickRates.postCue.(['diff_' (rule{i})]) = rightRate_post - leftRate_post; %Right minus left rate
 end
 
 %%------- INTERNAL FUNCTIONS -----------------------------------------------------------------------

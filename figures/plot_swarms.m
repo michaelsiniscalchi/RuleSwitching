@@ -31,9 +31,11 @@ for i = 1:size(data,2)
     X = (i).*ones(size(Y,1),1);
     color = colors{i}(2,:); %Lighter shade
     if ~isempty(ax)
-        beeswarm(X,Y,'use_current_axes',true,'dot_size',1,'colormap',color,'sort_style','square');
+        beeswarm(X,Y,'use_current_axes',true,'dot_size',1,'colormap',color,'sort_style','hex',...
+        'corral_style','gutter'); 
     else
-        beeswarm(X,Y,'dot_size',1,'colormap',color,'sort_style','square');
+        beeswarm(X,Y,'dot_size',1,'colormap',color,'sort_style','hex',...
+        'corral_style','gutter'); 
     end
     hold on;
     

@@ -22,54 +22,56 @@ for i = 1:numel(vars)
 data = [D.(vars{i}).sound.data, D.(vars{i}).action.data];
 ax(i) = nexttile;
 ax(i).YLim = [0, 1.1*max(data(:))]; %Must be set ahead of beeswarm()
-ax(i).XLim = [0 3];
+ax(i).XLim = [0.5 2.5];
 ax(i).XTickLabel = {'Sound','Action'};
-
-swarmPlot(data, params.ruleColors(:), 0.5);
+%Equal YLims for two error types
+if i==3
+    ax(i).YLim = ax(2).YLim;
+end
+%Plot data with sample median and IQR
+plot_swarms(ax(i),data,params.ruleColors(:),0.5);
 title(titles{i}); %Title
 
-ylims(i,:) = ylim; %#ok<AGROW> %Store ylims for later standardization
 end
 
 %% Formatting
 
-% Set YLims for Error Plots
-ylims = ylims(2:3,:);
-ylim(ax(2:3),[min(ylims(:)) max(ylims(:))]);
-ax(3).YAxis.Visible = 'off';
 
 % YLabel & Box
 ylabel(ax(1),'Number of trials per block');
 set(ax,'Box','off','XTick',[1,2],'XTickLabel',{'Sound','Action'}); %Box off for all
+% Drop YAxis on second error plot
+ax(3).YAxis.Visible = 'off';
 
 %------- INTERNAL FUNCTIONS ------------------------------------------------------------------------
 % *Note: function below superceded by newer 'plot_swarms.m'
 
-function swarmPlot( data, colors, barWidth )
-
-CI(1,:) = prctile(data,25);
-CI(2,:) = prctile(data,75);
-
-for i = 1:size(data,2)
-
-    %Beeswarm for individual data points
-    X = (i).*ones(size(data,1),1); 
-    Y = data(:,i);
-    color = colors{i}(2,:); %Lighter shade
-    beeswarm(X,Y,'use_current_axes',true,'dot_size',1,'colormap',color,'sort_style','square'); 
-    hold on;
-    
-    % Horizontal bar for population median
-    X = i + [-barWidth/2 barWidth/2]; 
-    Y = [median(data(:,i)),median(data(:,i))];
-    color = colors{i}(1,:); %Darker shade
-    line(X,Y,'Color',color,'LineWidth',2); hold on; %Horz. bar for Median
-    
-    % Vertical bar for IQR
-    X = [i,i]; 
-    Y = [CI(1,i),CI(2,i)];
-    line(X,Y,'Color',color,'LineWidth',1);  %Vertical Bar for IQR
-
-end  
-
-
+% function swarmPlot( data, colors, barWidth )
+% 
+% CI(1,:) = prctile(data,25);
+% CI(2,:) = prctile(data,75);
+% 
+% for i = 1:size(data,2)
+% 
+%     %Beeswarm for individual data points
+%     X = (i).*ones(size(data,1),1); 
+%     Y = data(:,i);
+%     color = colors{i}(2,:); %Lighter shade
+%     beeswarm(X,Y,'use_current_axes',true,'dot_size',1,'colormap',color,'sort_style','hex',...
+%         'corral_style','gutter'); 
+%     hold on;
+%     
+%     % Horizontal bar for population median
+%     X = i + [-barWidth/2 barWidth/2]; 
+%     Y = [median(data(:,i)),median(data(:,i))];
+%     color = colors{i}(1,:); %Darker shade
+%     line(X,Y,'Color',color,'LineWidth',2); hold on; %Horz. bar for Median
+%     
+%     % Vertical bar for IQR
+%     X = [i,i]; 
+%     Y = [CI(1,i),CI(2,i)];
+%     line(X,Y,'Color',color,'LineWidth',1);  %Vertical Bar for IQR
+% 
+% end  
+% 
+% 

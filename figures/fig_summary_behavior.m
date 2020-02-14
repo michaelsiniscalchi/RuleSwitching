@@ -18,7 +18,6 @@ vars = {'trials2crit','pErr','oErr'};
 for i = 1:numel(vars)
     %Setup axes ahead of beeswarm()
     data = [B.all.(vars{i}).sound.data, B.all.(vars{i}).action.data]; %Pooled data from all cell-types
-    % ax(i) = nexttile([2,1]);
     ax(i) = nexttile;
     ax(i).YLim = [0, 1.1*max(data(:))];
     ax(i).XLim = [0 3];

@@ -17,7 +17,7 @@ tiledlayout(numel(cue),numel(rule));
 for row = 1:numel(cue)
     for col = 1:numel(rule)
         %Extract specified data
-        trialIdx = getMask(trials,{cue{row},rule{col},'hit'});
+        trialIdx = getMask(trials,{cue{row},rule{col},'last20'});
         lickL = histcounts([trialData.lickTimesLeft{trialIdx}],edges)/(sum(trialIdx)*params.binWidth); %Counts/trial/second
         lickR = histcounts([trialData.lickTimesRight{trialIdx}],edges)/(sum(trialIdx)*params.binWidth);
         

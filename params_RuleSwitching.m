@@ -24,7 +24,7 @@ summarize.selectivity           = false;
 summarize.transitions           = false;
 
 summarize.stats                     = false; %Descriptive stats; needed for all summary plots
-summarize.comparisons               = true; %Formal comparisons
+summarize.comparisons               = false; %Formal comparisons ***PROBABLY NIX***
 summarize.table_experiments         = false;
 summarize.table_descriptive_stats   = false;
 summarize.table_comparative_stats   = true;
@@ -44,7 +44,7 @@ figures.heatmap_modulation_idx          = false;  %Heatmap of selectivity idxs f
 figures.transitions                     = false; 
 % Summary
 figures.summary_behavior                = false; %Summary of descriptive stats, eg, nTrials and {trials2crit, pErr, oErr} for each rule
-figures.summary_lick_density            = false;
+figures.summary_lick_density            = true;
 figures.summary_periswitch_performance  = false;
 figures.summary_modulation_heatmap      = false; %Heatmap for each celltype, all sessions, one figure each for CO&R
 figures.summary_modulation				= false; %Bar/line plots of grouped selectivity results for comparison
