@@ -58,8 +58,8 @@ switch type
                 for k = 1:numel(cue)
                     for kk = 1:numel(rule)
                         data = input.(cellTypes{i}).lickDiffs.(pre_post{j}).(cue{k}).(rule{kk});
-                        S.(cellTypes{i}).lickDiffs.(pre_post{j}).(cue{k}).(rule{kk}) = ... %Enforce column vector
-                            calcStats(data,expID); %Differences between left & right lick rates pre- & post-cue by rule and cue
+                        B.(cellType{i}).lickDiffs.(pre_post{j}).(cue{k}).(rule{kk})(idx,:) = ... %Enforce column vector
+                            lickDiffs.(pre_post{j}).(cue{k}).(rule{kk});
                     end
                 end
             end
@@ -77,7 +77,7 @@ switch type
                     S.(cellTypes{i}).perfLastTrial.(vbl{j}).(rule{k}) = ...
                         calcStats(data(:,20),expID); %perfCurve is switchtrial+[-20:19]; lastIdx = 20;
                     S.(cellTypes{i}).perfNextTrial.(vbl{j}).(rule{k}) = ...
-                        calcStats(data(:,21),expID); %nextIdx = 21; 
+                        calcStats(data(:,21),expID); %nextIdx = 21; *Perhaps, perfCurve.window could hold the indices... 
                 end
             end
   

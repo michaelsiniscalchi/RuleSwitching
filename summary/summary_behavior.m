@@ -31,11 +31,11 @@ for sessionID = 1:numel(struct_beh)
     B = catLickDensity(B,lickDensity,S.cellType); %Concatenate current structure with group at terminal fields of heirarchy
     
     % Lick rates surrounding cue in varying trial conditions
-    binWidth = 1; %***FOR PARAMS: Duration from cue to consider in mean lick rate calculation.
-    lickRates = getLickRates(S.trialData, S.trials, binWidth); %For comparisons eg, pre-cue lick rate in action vs sound
-    B = catLickRates(B,lickRates,expIdx);
+    lickRates = getLickRates(S.trialData, S.trials, params.preCueBinWidth); %For comparisons eg, pre-cue lick rate in action vs sound
+    lickDiffs = getLickDiffs(S.trialData, S.trials, params.preCueBinWidth); 
+    B = catLickRates(B,lickRates,lickDiffs,expIdx);
     
-     % Block data: median pErr, oErr, & trials2crit
+    % Block data: median pErr, oErr, & trials2crit
     B = catBlockStats(B,S.blocks,expIdx);
     
     % Density of each outcome surrounding rule switch
