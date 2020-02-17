@@ -4,11 +4,11 @@ function [ calculate, summarize, figures, mat_file, params ] = params_RuleSwitch
 calculate.behavior              = false;
 calculate.stack_info            = false;
 calculate.combined_data         = false;  %Combine relevant behavioral and imaging data in one MAT file ; truncate if necessary
-calculate.cellF                 = true; %Extract cellf and neuropilf from ROIs, excluding overlapping regions and extremes of the FOV
-calculate.dFF                   = true; %Calculate dF/F, with optional neuropil subtraction
-calculate.align_signals         = true; %Interpolate dF/F and align to behavioral events
-calculate.trial_average_dFF     = true; %dF/F averaged over specified subsets of trials
-calculate.decode_single_units   = true; %ROC/Selectivity for choice, outcome and rule
+calculate.cellF                 = false; %Extract cellf and neuropilf from ROIs, excluding overlapping regions and extremes of the FOV
+calculate.dFF                   = false; %Calculate dF/F, with optional neuropil subtraction
+calculate.align_signals         = false; %Interpolate dF/F and align to behavioral events
+calculate.trial_average_dFF     = false; %dF/F averaged over specified subsets of trials
+calculate.decode_single_units   = false; %ROC/Selectivity for choice, outcome and rule
 calculate.transitions           = false; %Changes in dF/F over each block; 
 
 calculate.fluorescence = false;
@@ -18,7 +18,7 @@ if any([calculate.cellF, calculate.dFF, calculate.align_signals, calculate.trial
 end
 
 %% SUMMARIZE RESULTS
-summarize.behavior              = true;
+summarize.behavior              = false;
 summarize.imaging               = false; 
 summarize.selectivity           = false;
 summarize.transitions           = false;
@@ -27,25 +27,20 @@ summarize.stats                     = false; %Descriptive stats; needed for all 
 summarize.comparisons               = false; %Formal comparisons ***PROBABLY NIX***
 summarize.table_experiments         = false;
 summarize.table_descriptive_stats   = false;
-summarize.table_comparative_stats   = false;
+summarize.table_comparative_stats   = true;
 
 %% PLOT RESULTS
 
 % Behavior
-figures.raw_behavior                    = true;
-figures.lick_density                    = true;
+figures.raw_behavior                    = false;
+figures.lick_density                    = false;
 % Imaging %***REDO Overnight***
-<<<<<<< Updated upstream
 figures.FOV_mean_projection             = false;
 figures.timeseries                      = false; %Plot all timeseries for each session
-=======
-figures.FOV_mean_projection             = true;
-figures.timeseries                      = true; %Plot all timeseries for each session
->>>>>>> Stashed changes
 % Combined
-figures.trial_average_dFF               = true;  %Overlay traces for distinct choices, outcomes, and rules (CO&R)
-figures.decode_single_units             = true;
-figures.heatmap_modulation_idx          = true;  %Heatmap of selectivity idxs for COR for each session
+figures.trial_average_dFF               = false;  %Overlay traces for distinct choices, outcomes, and rules (CO&R)
+figures.decode_single_units             = false;
+figures.heatmap_modulation_idx          = false;  %Heatmap of selectivity idxs for COR for each session
 figures.transitions                     = false; 
 % Summary
 figures.summary_behavior                = false; %Summary of descriptive stats, eg, nTrials and {trials2crit, pErr, oErr} for each rule
@@ -56,7 +51,7 @@ figures.summary_modulation				= false; %Bar/line plots of grouped selectivity re
 figures.summary_transitions             = false;
 
 % Validation
-figures.validation_ITIs                 = true;
+figures.validation_ITIs                 = false;
 figures.validation_ROIs                 = false;
 figures.validation_alignment            = false;
 
@@ -139,7 +134,7 @@ params.transitions.stat             = 'Rho'; %Statistic to use as similarity mea
 params.transitions.nBins            = 10; %Number of bins for aggregating evolution of activity vectors
 
 %% SUMMARY STATISTICS
-params.stats.analysis_names = {'behavior','imaging','selectivity','transitions'};
+params.stats.analysis_names = {'behavior','imaging','selectivity'};
 
 %% FIGURES: COLOR PALETTE FROM CBREWER
 % Color palette from cbrewer()

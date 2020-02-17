@@ -2,7 +2,7 @@ function [ T, compStruct ] = table_comparisons( stats )
 
 %% DEFINE AND INITIALIZE COMMON VARIABLES
 compStruct = struct('varName',[],'comparison',[],'diff',[],'p',[],'N',[],'testName',[],'stats',[]); %String 'stats' for F(df), t(df), W, etc.
-mltCmpStruct = struct('varName',[],'comparison',[],'diff',[],'p',[]);
+mltCmpStruct = struct('varName',[],'comparison',[],'diff',[],'p',[],'N',[],'testName',[],'stats',[]);
 
 cellTypes = ["SST", "VIP", "PV", "PYR"]'; %Column vectors
 ruleTypes = ["sound", "action"]';
@@ -56,7 +56,6 @@ wsFactors = ["Cue","BlockType"];
     compStruct,S,{"choice_sound",cellTypes,"pSig"},'anova1'); %Report mean & sem
 % c = multcompare(stats);
 % idx = c(:,end)<0.05;
-stats.varName = compStruct(end).varName; %Build into addComparison()
 mltCmpStruct = addMultComparison(mltCmpStruct,stats);
 
 compStruct = addComparison(...

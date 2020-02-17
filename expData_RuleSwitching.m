@@ -94,7 +94,7 @@ expData(i).logfile = 'M51_RULESWITCHING_1711091542.log';
 expData(i).cellType = 'SST'; %Cell-type label 
 expData(i).npCorrFactor = 0.5;
 
-%% VIP+ Interneurons (N=20)
+%% VIP+ Interneurons (N=19)
 i = i+1;
 expData(i).sub_dir = '180927 M57 RuleSwitching'; 
 expData(i).logfile = 'M57_RULESWITCHING_1809271436.log';

@@ -1,0 +1,14 @@
+function mltCmpStruct = addMultComparison ( mltCmpStruct, stats, vars )
+
+% class(stats)
+dispOpts = 'off'; %'Display','off'
+if isstruct(stats)
+    
+[c,~,~,gnames] = multcompare(stats,'Display',dispOpts);
+for i=1:size(c,1)
+    S.comparison = [];
+    S.diff = 
+end
+elseif
+    
+end
