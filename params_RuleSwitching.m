@@ -18,7 +18,7 @@ if any([calculate.cellF, calculate.dFF, calculate.align_signals, calculate.trial
 end
 
 %% SUMMARIZE RESULTS
-summarize.behavior              = false;
+summarize.behavior              = true;
 summarize.imaging               = false; 
 summarize.selectivity           = false;
 summarize.transitions           = false;
@@ -35,7 +35,7 @@ summarize.table_comparative_stats   = true;
 figures.raw_behavior                    = false;
 figures.lick_density                    = false;
 % Imaging %***REDO Overnight***
-figures.FOV_mean_projection             = true;
+figures.FOV_mean_projection             = false;
 figures.timeseries                      = false; %Plot all timeseries for each session
 % Combined
 figures.trial_average_dFF               = false;  %Overlay traces for distinct choices, outcomes, and rules (CO&R)

@@ -42,13 +42,15 @@ wsFactors = ["Cue","BlockType"];
     {"lickDiffs","preCue",["upsweep","downsweep"],["sound","actionL","actionR"]},'ranova',wsFactors); %Report mean & sem
 [dataStruct, stats] = addComparison(dataStruct,B.all,...
     {"lickDiffs","postCue",["upsweep","downsweep"],["sound","actionL","actionR"]},'ranova',wsFactors); %Report mean & sem
-multComp.lickDiffs = multcompare(stats,'BlockType');
+% multCompTable = multcompare(stats,'Cue','By','BlockType'); %Significant interaction...only in Sound are upsweep vs downsweep significant
 
 
 
 %% FORMAL COMPARISONS: MODULATION
 
-% Choice selectivity: Proportion Selective & Mean Magnitude
+% Modulation by Choice: Proportion Selective & Mean Magnitude
+
+%Current trial, Sound Rule
 [dataStruct, stats] = addComparison(...
     dataStruct,S,{"choice_sound",cellTypes,"pSig"},'anova1'); %Report mean & sem
 % c = multcompare(stats);
@@ -56,6 +58,27 @@ multComp.lickDiffs = multcompare(stats,'BlockType');
 dataStruct = addComparison(...
     dataStruct,S,{"choice_sound",cellTypes,"selMag"},'anova1'); %Report mean & sem
 
+%Current trial, Action Rule
+[dataStruct, stats] = addComparison(...
+    dataStruct,S,{"choice_action",cellTypes,"pSig"},'anova1'); %Report mean & sem
+dataStruct = addComparison(...
+    dataStruct,S,{"choice_action",cellTypes,"selMag"},'anova1'); %Report mean & sem
+
+%Prior trial
+[dataStruct, stats] = addComparison(...
+    dataStruct,S,{"prior_choice",cellTypes,"pSig"},'anova1'); %Report mean & sem
+dataStruct = addComparison(...
+    dataStruct,S,{"prior_choice",cellTypes,"selMag"},'anova1'); %Report mean & sem
+
+% Modulation by Outcome: Proportion Selective & Mean Magnitude
+[dataStruct, stats] = addComparison(...
+    dataStruct,S,{"outcome",cellTypes,"pSig"},'anova1'); %Report mean & sem
+dataStruct = addComparison(...
+    dataStruct,S,{"outcome",cellTypes,"selMag"},'anova1'); %Report mean & sem
+for i = 1:numel(cellTypes)
+    dataStruct = addComparison(...
+        dataStruct,S,{"outcome",cellTypes(i),["pPrefPos","pPrefNeg"]},'ttest'); %Report mean & sem
+end
 
 
 
@@ -95,7 +118,7 @@ if numel(unique(N))==1
 end
 
 % Perform specified statistical test
-displayopt = 'on'; %***For DEVO
+displayopt = 'off'; %***For DEVO
 switch test_stat
     case 'signrank' %Across rule types or pre/post-cue 
         [p,~,stats] = signrank(data{1},data{2});
@@ -131,7 +154,7 @@ switch test_stat
         %Between Subject Factors
         between = table(string((1:N)')); %Between subject effect: session number
         for i = 1:size(group,1)
-                response(i) = strjoin(group(i,:),'_');
+                response(i) = strjoin(group(i,:),'_'); %#ok<AGROW>
                 between.(response(i)) = data{i}; %Response variables
         end
         modelSpec = strcat(response(1),'-',response(end),' ~ 1'); %*NOTE: completely within subject design tests intercept
@@ -144,11 +167,22 @@ switch test_stat
         %Fit Model and Perform Repeated Measures ANOVA
         stats = fitrm(between,modelSpec,'WithinDesign',within); %Here, 'stats' is a RepeatedMeasuresModel
         tbl = ranova(stats,'WithinModel',withinModel);
-        p = num2str(tbl.pValue(1,:));
-        df_grp = num2str(tbl.DF(1));
-        df_err = num2str(tbl.DF(2));
-        F = num2str(tbl.F(1,:));
-        stats_str = ['F(' df_grp ',' df_err ')=' F]; %Critical value
+        %F-statistics
+        rowNames = {...
+            ['(Intercept):' wsFactors{1}];...
+            ['(Intercept):' wsFactors{2}];...
+            ['(Intercept):' wsFactors{1} ':' wsFactors{2}] };
+        for i =1:numel(rowNames)
+            idx = find(strcmp(tbl.Properties.RowNames,rowNames{i}));
+            F(i) = string(num2str(tbl.F(idx),2));
+            DF(i) = strjoin(string(tbl.DF(idx:idx+1)),',');
+            p(i) = string(num2str(tbl.pValue(idx),2)); %p-values for factors 1, 2, & (1*2) 
+        end
+        p = strjoin(p,';');
+        stats_str = strcat(...
+            'F(',DF(1),')=',F(1),';',...
+            'F(',DF(2),')=',F(2),';',... %Critical value
+            'F(',DF(3),')=',F(3));
 end
 
 %Append additional fields from 'dataStruct'
