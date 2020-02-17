@@ -6,7 +6,9 @@
 clearvars;
 
 % Set MATLAB path and get experiment-specific parameters
-[dirs, expData] = expData_RuleSwitching(pathlist_RuleSwitching);
+% [dirs, expData] = expData_RuleSwitching(pathlist_RuleSwitching);
+[dirs, expData] = expData_RuleSwitching_DEVO(pathlist_RuleSwitching); %For processing/troubleshooting subsets
+
 [calculate, summarize, figures, mat_file, params] = params_RuleSwitching(dirs,expData);
 expData = get_imgPaths(dirs, expData, calculate, figures); %Append additional paths for imaging data if required by 'calculate'
 

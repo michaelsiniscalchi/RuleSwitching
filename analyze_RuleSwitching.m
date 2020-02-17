@@ -20,7 +20,7 @@ clearvars;
 
 % Set MATLAB path and get experiment-specific parameters
 [dirs, expData] = expData_RuleSwitching(pathlist_RuleSwitching);
-%[dirs, expData] = expData_RuleSwitching_DEVO(pathlist_RuleSwitching); %For processing/troubleshooting subsets
+% [dirs, expData] = expData_RuleSwitching_DEVO(pathlist_RuleSwitching); %For processing/troubleshooting subsets
 
 % Set parameters for analysis
 [calculate, summarize, figures, mat_file, params] = params_RuleSwitching(dirs,expData);
@@ -107,7 +107,7 @@ if calculate.fluorescence
         if calculate.cellF
             %Get cellular and neuropil fluorescence excluding overlapping regions and n-pixel frame
             roi_path = fullfile(dirs.data,expData(i).sub_dir,expData(i).roi_dir);
-            %[stack, cells] = get_fluoData(roi_path,expData(i).reg_path,expData(i).mat_path,stackInfo); %Second arg, reg_path set to [] to indicate matfiles already saved.
+%             [stack, cells] = get_fluoData(roi_path,expData(i).reg_path,expData(i).mat_path,stackInfo); %Second arg, reg_path set to [] to indicate matfiles already saved.
             [stack, cells] = get_fluoData(roi_path,[],expData(i).mat_path,stackInfo);
             [cells, masks] = calc_cellF(stack, cells, params.fluo.exclBorderWidth);
             save(mat_file.cell_fluo(i),'-struct','cells'); %Save to dff.mat
