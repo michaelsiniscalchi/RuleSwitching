@@ -195,7 +195,7 @@ expData(i).logfile = 'M61_RULESWITCHING_1810311203.log';
 expData(i).cellType = 'VIP'; %Cell-type label 
 expData(i).npCorrFactor = 0;
 
-%% PV+ Interneurons (N=12?)
+%% PV+ Interneurons (N=12)
 %Z-drift problematic, especially in sessions from M42 & M43. 
 %*Possibly, Add field: expData(i).excludeFrames used for specifying frames encompassing z-drift corrections. 
 %Modify calc_dFF to set as NaN, and then separately calculate dF/F for segments bounded by NaN...
@@ -263,7 +263,7 @@ expData(i).logfile = 'M62_RULESWITCHING_1906211523.log';
 expData(i).cellType = 'PV'; %Cell-type label 
 expData(i).npCorrFactor = 0.3;
 
-%% CamKIIa+ Neurons (N=16)
+%% CamKIIa+ Neurons (N=20)
 
 i = i+1;
 expData(i).sub_dir = '181003 M52 RuleSwitching'; 
@@ -278,6 +278,11 @@ expData(i).npCorrFactor = 0.3;
 i = i+1;
 expData(i).sub_dir = '181009 M52 RuleSwitching'; % Processed through transition results 200116; Need Figures!!
 expData(i).logfile = 'M52_RULESWITCHING_1810091211.log';
+expData(i).cellType = 'PYR'; %Cell-type label 
+expData(i).npCorrFactor = 0.3;
+i = i+1;
+expData(i).sub_dir = '181011 M52 RuleSwitching'; %Added 200117 "Final 4"
+expData(i).logfile = 'M52_RULESWITCHING_1810111445.log';
 expData(i).cellType = 'PYR'; %Cell-type label 
 expData(i).npCorrFactor = 0.3;
 
@@ -312,6 +317,16 @@ expData(i).sub_dir = '180912 M54 RuleSwitching'; % Processed through transition 
 expData(i).logfile = 'M54_RULESWITCHING_1809121331.log';
 expData(i).cellType = 'PYR'; %Cell-type label 
 expData(i).npCorrFactor = 0.3;
+i = i+1;
+expData(i).sub_dir = '180918 M54 RuleSwitching'; %Added 200117 "Final 4"
+expData(i).logfile = 'M54_RULESWITCHING_1809181228.log';
+expData(i).cellType = 'PYR'; %Cell-type label 
+expData(i).npCorrFactor = 0.3;
+i = i+1;
+expData(i).sub_dir = '180921 M54 RuleSwitching'; %Added 200117 "Final 4"
+expData(i).logfile = 'M54_RULESWITCHING_1809211136.log';
+expData(i).cellType = 'PYR'; %Cell-type label 
+expData(i).npCorrFactor = 0.3;
 
 i = i+1;
 expData(i).sub_dir = '180831 M55 RuleSwitching'; 
@@ -324,6 +339,11 @@ expData(i).logfile = 'M55_RULESWITCHING_1809051333.log';
 expData(i).cellType = 'PYR'; %Cell-type label 
 expData(i).npCorrFactor = 0.3;
 i = i+1;
+expData(i).sub_dir = '180907 M55 RuleSwitching';  %Added 200117 "Final 4"
+expData(i).logfile = 'M55_RULESWITCHING_1809071427.log';
+expData(i).cellType = 'PYR'; %Cell-type label 
+expData(i).npCorrFactor = 0.3;
+i = i+1;
 expData(i).sub_dir = '180918 M55 RuleSwitching'; 
 expData(i).logfile = 'M55_RULESWITCHING_1809181521.log';
 expData(i).cellType = 'PYR'; %Cell-type label 
@@ -333,6 +353,7 @@ expData(i).sub_dir = '180920 M55 RuleSwitching';
 expData(i).logfile = 'M55_RULESWITCHING_1809201612.log';
 expData(i).cellType = 'PYR'; %Cell-type label 
 expData(i).npCorrFactor = 0.3;
+
 
 i = i+1;
 expData(i).sub_dir = '180830 M56 RuleSwitching'; 

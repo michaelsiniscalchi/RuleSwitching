@@ -349,6 +349,27 @@ i=1;
 % expData(i).cellType = 'PYR'; %Cell-type label 
 % expData(i).npCorrFactor = 0.3;
 
+% i = i+1;
+expData(i).sub_dir = '180907 M55 RuleSwitching'; 
+expData(i).logfile = 'M55_RULESWITCHING_1809071427.log';
+expData(i).cellType = 'PYR'; %Cell-type label 
+expData(i).npCorrFactor = 0.3;
+i = i+1;
+expData(i).sub_dir = '180918 M54 RuleSwitching'; 
+expData(i).logfile = 'M54_RULESWITCHING_1809181228.log';
+expData(i).cellType = 'PYR'; %Cell-type label 
+expData(i).npCorrFactor = 0.3;
+i = i+1;
+expData(i).sub_dir = '180921 M54 RuleSwitching'; 
+expData(i).logfile = 'M54_RULESWITCHING_1809211136.log';
+expData(i).cellType = 'PYR'; %Cell-type label 
+expData(i).npCorrFactor = 0.3;
+i = i+1;
+expData(i).sub_dir = '181011 M52 RuleSwitching'; 
+expData(i).logfile = 'M52_RULESWITCHING_1810111445.log';
+expData(i).cellType = 'PYR'; %Cell-type label 
+expData(i).npCorrFactor = 0.3;
+
 
 
 
