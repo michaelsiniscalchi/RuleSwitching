@@ -2,7 +2,7 @@ function [ T, compStruct ] = table_comparisons( stats )
 
 %% DEFINE AND INITIALIZE COMMON VARIABLES
 compStruct = struct('varName',[],'comparison',[],'diff',[],'p',[],'N',[],'testName',[],'stats',[]); %String 'stats' for F(df), t(df), W, etc.
-mltCmpStruct = struct('varName',[],'comparison',[],'diff',[],'p',[],'N',[],'testName',[],'stats',[]);
+mltCmpStruct = struct('varName',[],'comparison',[],'diff',[],'p',[]);
 
 cellTypes = ["SST", "VIP", "PV", "PYR"]'; %Column vectors
 ruleTypes = ["sound", "action"]';
@@ -38,13 +38,13 @@ compStruct = addComparison(...
     compStruct, B.all, {"lickRates","postCue",["lickL","lickR"]}, 'ttest'); %Report mean & sem
 
 % Difference in Left vs Right Lick Rate across Block Types, Post-Cue (Clear differential response to cues across block types)
-wsFactors = ["Cue","BlockType"];
+wsFactors = ["Cue","BlockType"]; %Order corresponds to multcompare syntax, eg, multcompare(stats,wsFactors(1),'By',wsFactors(2))
 [compStruct, ~] = addComparison(compStruct,B.all,...
     {"lickDiffs","preCue",["upsweep","downsweep"],["sound","actionL","actionR"]},'ranova',wsFactors); %Report mean & sem
 [compStruct, stats] = addComparison(compStruct,B.all,...
     {"lickDiffs","postCue",["upsweep","downsweep"],["sound","actionL","actionR"]},'ranova',wsFactors); %Report mean & sem
-% multCompTable = multcompare(stats,'Cue','By','BlockType'); %Significant interaction...only in Sound are upsweep vs downsweep significant
-% mltCmpStruct = addMultComparison(stats,{'Cue','BlockType'});
+ %Significant interaction...only in Sound are upsweep vs downsweep significant
+ mltCmpStruct = addMultComparison(mltCmpStruct,stats,wsFactors); 
 
 
 %% FORMAL COMPARISONS: MODULATION
@@ -56,6 +56,7 @@ wsFactors = ["Cue","BlockType"];
     compStruct,S,{"choice_sound",cellTypes,"pSig"},'anova1'); %Report mean & sem
 % c = multcompare(stats);
 % idx = c(:,end)<0.05;
+stats.varName = compStruct(end).varName; %Build into addComparison()
 mltCmpStruct = addMultComparison(mltCmpStruct,stats);
 
 compStruct = addComparison(...
@@ -189,8 +190,7 @@ switch test_stat
 end
 
 %Append additional fields from 'dataStruct'
-varName = strjoin([comp_spec{cellfun(@length,comp_spec)==1}],'_'); 
-
+stats.varName = strjoin([comp_spec{cellfun(@length,comp_spec)==1}],'_'); 
 if any(strcmp(comparison,"SST"))
     comparison = "Cell types";
 elseif exist('wsFactors','var')
@@ -198,9 +198,10 @@ elseif exist('wsFactors','var')
 else, comparison = strjoin(comparison);
 end
 
-d = struct('varName',varName,'comparison',comparison,'diff',num2str(diff),'p',num2str(p),'N',num2str(N),'testName',test_stat,'stats',stats_str);
+data_struct(length(data_struct)+1,1) = struct(...
+    'varName',stats.varName,'comparison',comparison,'diff',num2str(diff),...
+    'p',num2str(p),'N',num2str(N),'testName',test_stat,'stats',stats_str);
 data_struct(length(data_struct)+1,1) = d;
-
 
 %Restrict to populated rows 
 idx = ~cellfun(@isempty,{data_struct.varName}); %(data_struct(i).varName==[] if any fields are not found in 'stats' structure)

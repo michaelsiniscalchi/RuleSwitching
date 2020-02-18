@@ -38,13 +38,13 @@ compStruct = addComparison(...
     compStruct, B.all, {"lickRates","postCue",["lickL","lickR"]}, 'ttest'); %Report mean & sem
 
 % Difference in Left vs Right Lick Rate across Block Types, Post-Cue (Clear differential response to cues across block types)
-wsFactors = ["Cue","BlockType"];
+wsFactors = ["Cue","BlockType"]; %Order corresponds to multcompare syntax, eg, multcompare(stats,wsFactors(1),'By',wsFactors(2))
 [compStruct, ~] = addComparison(compStruct,B.all,...
     {"lickDiffs","preCue",["upsweep","downsweep"],["sound","actionL","actionR"]},'ranova',wsFactors); %Report mean & sem
 [compStruct, stats] = addComparison(compStruct,B.all,...
     {"lickDiffs","postCue",["upsweep","downsweep"],["sound","actionL","actionR"]},'ranova',wsFactors); %Report mean & sem
-% multCompTable = multcompare(stats,'Cue','By','BlockType'); %Significant interaction...only in Sound are upsweep vs downsweep significant
-% mltCmpStruct = addMultComparison(stats,{'Cue','BlockType'});
+ %Significant interaction...only in Sound are upsweep vs downsweep significant
+ mltCmpStruct = addMultComparison(mltCmpStruct,stats,wsFactors); 
 
 
 %% FORMAL COMPARISONS: MODULATION
@@ -191,7 +191,6 @@ end
 
 %Append additional fields from 'dataStruct'
 varName = strjoin([comp_spec{cellfun(@length,comp_spec)==1}],'_'); 
-
 if any(strcmp(comparison,"SST"))
     comparison = "Cell types";
 elseif exist('wsFactors','var')
@@ -199,13 +198,16 @@ elseif exist('wsFactors','var')
 else, comparison = strjoin(comparison);
 end
 
-d = struct('varName',varName,'comparison',comparison,'diff',num2str(diff),'p',num2str(p),'N',num2str(N),'testName',test_stat,'stats',stats_str);
-data_struct(length(data_struct)+1,1) = d;
+idx = length(data_struct)+1;
+data_struct(idx,1) = struct(...
+    'varName',varName,'comparison',comparison,'diff',num2str(diff),...
+    'p',num2str(p),'N',num2str(N),'testName',test_stat,'stats',stats_str); %Enforce column vector
 
+% data_struct(length(data_struct)+1,1) = d;
 
 %Restrict to populated rows 
-idx = ~cellfun(@isempty,{data_struct.varName}); %(data_struct(i).varName==[] if any fields are not found in 'stats' structure)
-data_struct = data_struct(idx);
+% idx = ~cellfun(@isempty,{data_struct.varName}); %(data_struct(i).varName==[] if any fields are not found in 'stats' structure)
+% data_struct = data_struct(idx);
 
 %%
 % %Post-hoc Multiple comparisons
