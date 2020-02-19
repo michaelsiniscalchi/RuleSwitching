@@ -1,14 +1,8 @@
 function decode = calc_selectivity( trial_dFF, trials, params )
 
-% NOTE: Temporal correlation in dF/F means traces must be shuffled whole rather than as individual 
-%           time points, in order to determine H0: number of cells significant by chance. 
-
-%% ESTIMATE ROC-RELATED PARAMETERS FROM CELLULAR FLUORESCENCE AND BEHAVIORAL DATA 
-
-% Initialize parallel pool
+%Initialize parallel pool
 disp(gcp); %Query/initialize
 
-% Loop Through Each Decode Type
 for i = 1:numel(params.decode_type) %Decode type, eg 'choice' or 'outcome'
     
     % Unpack some variables for readability
@@ -55,16 +49,14 @@ for i = 1:numel(params.decode_type) %Decode type, eg 'choice' or 'outcome'
         TPR_SHUFFLE = NaN(nTrials,nTimepoints); %Mean TPR for shuffled class labels
         FPR_SHUFFLE = NaN(nTrials,nTimepoints); %Mean FPR for shuffled class labels
         
-        % AUROC with bootstrapped confidence intervals
-        % The third argument may be superfluous... could just 
+        % Decoding accuracy and CI for shuffle
         parfor t = 1:size(dff,2)
+            %AUROC with bootstrapped confidence intervals
             [TPR(:,t),FPR(:,t),AUC(t),AUC_BOOT(:,t)] = calc_ROC(dff(:,t),types,1,params); %[...] = calc_ROC(signal,class,positive_class,params)
+            %Shuffled trial types [5,50,95% percentile]
+            [TPR_SHUFFLE(:,t),FPR_SHUFFLE(:,t),AUC_SHUFFLE(:,t)] =...
+                shuffle_ROC(dff(:,t),types,1,params); %TPR and FPR are mean over all shuffles.
         end
-        
-        % AUROC for Shuffled Traces
-            [TPR_SHUFFLE,FPR_SHUFFLE,AUC_SHUFFLE] =...
-                shuffle_ROC(dff,types,1,params.nShuffle); %TPR and FPR are mean over all shuffles.
-                
         
         % Store results in structure
         decode.(params.decode_type{i}).selectivity{j} = 2*([AUC; AUC_BOOT(2:3,:)]-0.5); %Selectivity = 2*(AUC-0.5)
