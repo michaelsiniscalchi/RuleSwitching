@@ -20,14 +20,14 @@ end
 %% SUMMARIZE RESULTS
 summarize.behavior              = false;
 summarize.imaging               = false; 
-summarize.selectivity           = false;
+summarize.selectivity           = true;
 summarize.transitions           = false;
 
-summarize.stats                     = false; %Descriptive stats; needed for all summary plots
+summarize.stats                     = true; %Descriptive stats; needed for all summary plots
 summarize.comparisons               = false; %Formal comparisons ***PROBABLY NIX***
 summarize.table_experiments         = false;
 summarize.table_descriptive_stats   = false;
-summarize.table_comparative_stats   = true;
+summarize.table_comparative_stats   = false;
 
 %% PLOT RESULTS
 

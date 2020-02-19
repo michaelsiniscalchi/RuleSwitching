@@ -16,7 +16,10 @@
 %       bootstrap: Mean AUC with CI estimated with the bootstrap method.
 %           Elements are [mean, lower_bound, upper_bound].
 %
-%--------------------------------------------------------------------------
+% NOTES: 
+%       -Parallelizing the bootstrap, rather than running this function in a parfor loop with
+%           (t = 1:nTime) could improve processing speed. -mjs200219
+%---------------------------------------------------------------------------------------------------
 
 function [ TPR, FPR, AUC, bootstrap ] = calc_ROC( signal, class, positive_class, params )
 

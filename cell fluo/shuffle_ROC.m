@@ -20,22 +20,30 @@ function [ TPR, FPR, AUC ] = shuffle_ROC( signal, class, positive_class, nShuffl
 positive_class = 1;
 
 % Initialize
-AUC = NaN(nShuffle,size(signal,2));
+nTime = size(signal,2);
+nCrit = size(signal,1); %Each unique value is used as a threshold in roc()
+AUC = NaN(nShuffle,nTime); %Area under the ROC curve
+TPR = NaN(nShuffle,nCrit,nTime); %True positive rate; prior to output, results are averaged over all shuffles
+FPR = NaN(nShuffle,nCrit,nTime); %False positive rate
 
-parfor i = 1:nShuffle 
-%     nUnique = numel(unique(signal)); %Each unique value is used as a threshold in roc()
-%     tpr = NaN(nUnique,params.nShuffle);
-%     fpr = NaN(nUnique,params.nShuffle);
-% 
-% 
-
+% Estimate Receiver Operating Characteristic (ROC) for each shuffle of class labels
+parfor i = 1:nShuffle
+   
+%     tpr = NaN(nCrit,nShuffle);
+%     fpr = NaN(nCrit,nShuffle);
+    
+    
+    
     %Shuffle class labels
-    class = class(randperm(numel(class)));
-    for t = 1:size(signal,2)
-        
-    %Calculate empirical receiver operating characteristic
-    [tpr(:,i),fpr(:,i),AUC(i,t)] = roc(signal(:,t),class,positive_class);
+    shuffled_labels = class(randperm(numel(class)));
+    
+    %Calculate receiver operating characteristic for each timepoint 
+    for t = 1:nTime
+        [TPR(i,:,t),FPR(i,:,t),AUC(i,t)] = roc(signal(:,t),shuffled_labels,positive_class);
     end
+    %Aggregate 
+%     TPR
+%     FPR
 end
-TPR(t) = mean(tpr,2);
-FPR = mean(fpr,2);
+TPR = squeeze(mean(TPR,1));
+FPR = squeeze(mean(FPR,1));

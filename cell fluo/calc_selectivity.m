@@ -1,7 +1,7 @@
 function decode = calc_selectivity( trial_dFF, trials, params )
 
 % NOTE: Temporal correlation in dF/F means traces must be shuffled whole rather than as individual 
-%           time points, in order to determine H0: number of cells significant by chance. 
+%           time points, in order to determine H0: number of cells significant by chance, etc. 
 
 %% ESTIMATE ROC-RELATED PARAMETERS FROM CELLULAR FLUORESCENCE AND BEHAVIORAL DATA 
 
@@ -61,10 +61,9 @@ for i = 1:numel(params.decode_type) %Decode type, eg 'choice' or 'outcome'
             [TPR(:,t),FPR(:,t),AUC(t),AUC_BOOT(:,t)] = calc_ROC(dff(:,t),types,1,params); %[...] = calc_ROC(signal,class,positive_class,params)
         end
         
-        % AUROC for Shuffled Traces
-            [TPR_SHUFFLE,FPR_SHUFFLE,AUC_SHUFFLE] =...
-                shuffle_ROC(dff,types,1,params.nShuffle); %TPR and FPR are mean over all shuffles.
-                
+        % AUROC for Shuffled Traces *PARALLEL*
+        [TPR_SHUFFLE,FPR_SHUFFLE,AUC_SHUFFLE] =...
+            shuffle_ROC(dff,types,1,params.nShuffle); %TPR and FPR are mean over all shuffles.
         
         % Store results in structure
         decode.(params.decode_type{i}).selectivity{j} = 2*([AUC; AUC_BOOT(2:3,:)]-0.5); %Selectivity = 2*(AUC-0.5)
