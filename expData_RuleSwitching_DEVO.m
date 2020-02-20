@@ -18,8 +18,14 @@ dirs.figures = fullfile(data_dir,'Figures');
 %% SST+ Interneurons (n=15)
 i=1;
 
-expData(i).sub_dir = '170929 M48 RuleSwitching'; 
+expData(i).sub_dir = '170929 M48 RuleSwitching_DEVO'; 
 expData(i).logfile = 'M48_RULESWITCHING_1709291124.log';
+expData(i).cellType = 'SST'; %Cell-type label 
+expData(i).npCorrFactor = 0.5;
+
+i = i+1;
+expData(i).sub_dir = '171103 M47 RuleSwitching_DEVO'; 
+expData(i).logfile = 'M47_RULESWITCHING_1711031516.log';
 expData(i).cellType = 'SST'; %Cell-type label 
 expData(i).npCorrFactor = 0.5;
 

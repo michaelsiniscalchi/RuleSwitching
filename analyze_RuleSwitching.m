@@ -19,8 +19,8 @@
 clearvars;
 
 % Set MATLAB path and get experiment-specific parameters
-[dirs, expData] = expData_RuleSwitching(pathlist_RuleSwitching);
-% [dirs, expData] = expData_RuleSwitching_DEVO(pathlist_RuleSwitching); %For processing/troubleshooting subsets
+% [dirs, expData] = expData_RuleSwitching(pathlist_RuleSwitching);
+[dirs, expData] = expData_RuleSwitching_DEVO(pathlist_RuleSwitching); %For processing/troubleshooting subsets
 
 % Set parameters for analysis
 [calculate, summarize, figures, mat_file, params] = params_RuleSwitching(dirs,expData);
