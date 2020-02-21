@@ -8,7 +8,7 @@ calculate.cellF                 = false; %Extract cellf and neuropilf from ROIs,
 calculate.dFF                   = false; %Calculate dF/F, with optional neuropil subtraction
 calculate.align_signals         = false; %Interpolate dF/F and align to behavioral events
 calculate.trial_average_dFF     = false; %dF/F averaged over specified subsets of trials
-calculate.decode_single_units   = false; %ROC/Selectivity for choice, outcome and rule
+calculate.decode_single_units   = true; %ROC/Selectivity for choice, outcome and rule
 calculate.transitions           = false; %Changes in dF/F over each block; 
 
 calculate.fluorescence = false;
@@ -20,7 +20,7 @@ end
 %% SUMMARIZE RESULTS
 summarize.behavior              = false;
 summarize.imaging               = false; 
-summarize.selectivity           = false;
+summarize.selectivity           = true;
 summarize.transitions           = false;
 
 summarize.stats                     = true; %Descriptive stats; needed for all summary plots

@@ -1,8 +1,6 @@
 %%% ALL FIGURES FOR STUDY ON CELL TYPES RECORDED DURING FLEXIBLE SENSORIMOTOR BEHAVIOR
 %
-% AUTHOR: MJ Siniscalchi 190701; separated from 'analyze_RuleSwitching.m' 200213
-%
-% NOTE: Use header only if run independently of 'analyze_RuleSwitching.m'
+% AUTHOR: MJ Siniscalchi 190701; separated from analyze_RuleSwitching 200213
 %
 %---------------------------------------------------------------------------------------------------
 % clearvars;
