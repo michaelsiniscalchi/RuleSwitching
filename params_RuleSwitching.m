@@ -1,13 +1,13 @@
 function [ calculate, summarize, figures, mat_file, params ] = params_RuleSwitching(dirs,expData)
 
 %% CALCULATE OR RE-CALCULATE RESULTS
-calculate.behavior              = true;
+calculate.behavior              = false;
 calculate.stack_info            = false;
 calculate.combined_data         = false;  %Combine relevant behavioral and imaging data in one MAT file ; truncate if necessary
 calculate.cellF                 = false; %Extract cellf and neuropilf from ROIs, excluding overlapping regions and extremes of the FOV
 calculate.dFF                   = false; %Calculate dF/F, with optional neuropil subtraction
 calculate.align_signals         = false; %Interpolate dF/F and align to behavioral events
-calculate.trial_average_dFF     = true; %dF/F averaged over specified subsets of trials
+calculate.trial_average_dFF     = false; %dF/F averaged over specified subsets of trials
 calculate.decode_single_units   = false; %ROC/Selectivity for choice, outcome and rule
 calculate.transitions           = false; %Changes in dF/F over each block; 
 
@@ -23,7 +23,7 @@ summarize.imaging               = false;
 summarize.selectivity           = false;
 summarize.transitions           = false;
 
-summarize.stats                     = false; %Descriptive stats; needed for all summary plots
+summarize.stats                     = true; %Descriptive stats; needed for all summary plots
 summarize.comparisons               = false; %Formal comparisons ***PROBABLY NIX***
 summarize.table_experiments         = false;
 summarize.table_descriptive_stats   = false;
@@ -122,6 +122,7 @@ params.decode.nShuffle        = 1000; %Number of shuffled replicates
 params.decode.CI              = params.bootAvg.CI; %Confidence interval as percentage
 params.decode.sig_method      = 'shuffle';  %Method for determining chance-level: 'bootstrap' or 'shuffle'
 params.decode.sig_duration    = 1;  %Number of consecutive seconds exceeding chance-level
+params.decode.t0              = 0;  %Use eg params.behavior.timeWindow(1), or 0 for trigger time
 
 % Transition analyses
 params.transitions.window           = params.behavior.timeWindow; %Time to be considered within trial

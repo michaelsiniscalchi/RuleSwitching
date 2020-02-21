@@ -21,12 +21,15 @@
 %           (t = 1:nTime) could improve processing speed. -mjs200219
 %---------------------------------------------------------------------------------------------------
 
-function [ TPR, FPR, AUC, bootstrap ] = calc_ROC( signal, class, positive_class, params )
+function [ TPR, FPR, AUC, bootstrap ] = calc_ROC( signal, class, params )
 
-% Calculate empirical receiver operating characteristic
+%% Fixed Parameters
+positive_class = 1;
+
+%% Calculate empirical receiver operating characteristic
 [ TPR, FPR, AUC ] = roc(signal,class,positive_class); %Local function (see bottom)
 
-% Estimate mean and confidence intervals of AUROC using the bootstrap
+%% Estimate mean and confidence intervals of AUROC using the bootstrap
 if nargin>3 && params.nReps>0 %Number of bootstrap replicates    
     
     auc = NaN(params.nReps,1); % Initialize vector of bootstrap replicates
@@ -44,30 +47,34 @@ else
     bootstrap = nan(3,1);
 end
 
-function [ tpr, fpr, auc ] = roc( signal, class_label, positive_class)
-
-[signal,idx] = sort(signal,'descend'); 
-class_label = class_label(idx);
-
-nUnique = numel(unique(signal));
-checkUnique =  nUnique==numel(signal); %Check for duplicate values
-tpr = NaN(nUnique,1); %True positive rate: TP/P
-fpr = NaN(nUnique,1); %False positive rate: FP/N
-
-if checkUnique
-    %Vectorized method for speed (~5x faster)
-    tpr = cumsum(class_label==positive_class)./sum(class_label==positive_class) ; 
-    fpr = cumsum(class_label~=positive_class)./sum(class_label~=positive_class) ; 
-    auc = trapz(fpr,tpr); %trapz() should yield exact area, since empirical TPR(FPR) is a step-function
-else
-    %Loop: use each unique value as a threshold
-    threshold = flipud(unique(signal));
-    for i=1:numel(threshold)
-        tpr(i) = sum(class_label==positive_class & signal>=threshold(i))./sum(class_label==positive_class);
-        fpr(i) = sum(class_label~=positive_class & signal>=threshold(i))./sum(class_label~=positive_class);
-    end
-    auc = trapz(fpr,tpr);
-end
+%% INTERNAL FUNCTIONS
+%
+% NOTE: Code below moved to separate function file 'roc.m'
+%
+% function [ tpr, fpr, auc ] = roc( signal, class_label, positive_class)
+% 
+% [signal,idx] = sort(signal,'descend'); 
+% class_label = class_label(idx);
+% 
+% nUnique = numel(unique(signal));
+% checkUnique =  nUnique==numel(signal); %Check for duplicate values
+% tpr = NaN(nUnique,1); %True positive rate: TP/P
+% fpr = NaN(nUnique,1); %False positive rate: FP/N
+% 
+% if checkUnique
+%     %Vectorized method for speed (~5x faster)
+%     tpr = cumsum(class_label==positive_class)./sum(class_label==positive_class) ; 
+%     fpr = cumsum(class_label~=positive_class)./sum(class_label~=positive_class) ; 
+%     auc = trapz(fpr,tpr); %trapz() should yield exact area, since empirical TPR(FPR) is a step-function
+% else
+%     %Loop: use each unique value as a threshold
+%     threshold = flipud(unique(signal));
+%     for i=1:numel(threshold)
+%         tpr(i) = sum(class_label==positive_class & signal>=threshold(i))./sum(class_label==positive_class);
+%         fpr(i) = sum(class_label~=positive_class & signal>=threshold(i))./sum(class_label~=positive_class);
+%     end
+%     auc = trapz(fpr,tpr);
+% end
 
 % -------NOTES-------
 % This should also work:

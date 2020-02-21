@@ -1,48 +1,51 @@
-load('J:\Data & Analysis\Rule Switching\Results\170929 M48 RuleSwitching_DEVO\results.mat', 'decode')
-% load('J:\Data & Analysis\Rule Switching\Results\171103 M47 RuleSwitching_DEVO\results.mat', 'decode')
-
-setup_figprops('timeseries');
-nShuffle = size(decode.outcome.AUC_shuffle{1},1);
-
-% figure;
+% This code was used to develop the function 
+%   [selIdxNull_cells_t, pSigNull_cells_t, pNull] = get_nullSelectivity(decode, decodeType, params);
 %
-% X = repmat(decode.t,nShuffle,1);
-% for i=1:nShuffle
-%     line(X,max(decode.outcome.AUC_shuffle{1},[],i),'Color',[0.5 0.5 0.5]); hold on;
-% end
+% NOTE: t0 is now set in the params (here, we assume the entire trial was used...
+%
+%---------------------------------------------------------------------------------------------------
 
-i=3;
-shuffle_hi = prctile(decode.outcome.AUC_shuffle{i},95);
-shuffle_lo = prctile(decode.outcome.AUC_shuffle{i},5);
+% Load Data
+expIdx = 1;
+cellIdx=1;
+load(mat_file.results(expIdx), 'decode');
 
-figure;
+% Set Figure Properties
+setup_figprops('timeseries');
+fig = figure;
+fig.Position = [150 100 800 600];
+
+% Extract Specified Data
+auc = decode.outcome.AUC{cellIdx};
+shuffle = decode.outcome.AUC_shuffle{cellIdx};
+[sigBins, isNull] = testNullSelectivity(shuffle, decode.t, params.decode);
+
 errorshade(decode.t,shuffle_lo,shuffle_hi,'k',0.2); hold on;
-plot(decode.t,decode.outcome.AUC{i},'r');
-
-for j = 1:nShuffle
-    nullRep = decode.outcome.AUC_shuffle{i}(j,:);
-    shuffle_hi = prctile(decode.outcome.AUC_shuffle{i},95);
-    shuffle_lo = prctile(decode.outcome.AUC_shuffle{i},5);
-    for t=1:numel(decode.t)
-    
-    end
-    
+for j = find(isNull)'
+    plot(decode.t,shuffle(j,:),'k','LineWidth',1);
 end
+plot(decode.t,auc,'r');
 
-% Construct function to test each shuffle....
- sig_bins = false(size(sel_idx)); %Initialize logical array for significant time bins 
-    for i = 1:size(sel_idx,1) %For each cell
-        %Estimate CI for null distribution
-        shuffle = 2*(decode.(decodeType).AUC_shuffle{i}-0.5); %Obtain selectivity from shuffled AUC
-        CI_low = prctile(shuffle,50-params.CI/2,1);
-        CI_high = prctile(shuffle,50+params.CI/2,1);
-        %Compare selectivity idx to CI to find significant bins
-        sig_bins(i,:) = (sel_idx(i,:)<CI_low | sel_idx(i,:)>CI_high);
-    end
-    test_mat = sig_bins(:,post_t0); %Only include bins starting at t0
+disp(mean(isNull));
+
+
+%% Construct function to test each shuffle....
+function [sigBins, isNull] = testNullSelectivity( auc_shuffle, time, params )
+
+%Estimate CI for null distribution
+shuffle = 2*(auc_shuffle-0.5); %Obtain selectivity (range: -1,1) from shuffled AUC
+CI_low = prctile(shuffle,50-params.CI/2,1);
+CI_high = prctile(shuffle,50+params.CI/2,1);
+
+sigBins = false(size(shuffle)); %Initialize logical array for significant time bins
+for i = 1:size(shuffle,1) %For each shuffle
+    %Compare selectivity idx to CI to find significant bins
+    sigBins(i,:) = (shuffle(i,:)<CI_low | shuffle(i,:)>CI_high);
 end
+% test_mat = sig_bins(:,post_t0); %Only include bins starting at t0 
 
-nConsec = params.sig_duration/mean(diff(decode.t)); %Significance threshold: consecutive bins above chance
-for j = 1:size(sel_idx,1) %For each cell
-    isSelective(j,:) = testConsecTrue(test_mat(j,:),nConsec); %#ok<AGROW>
+nConsec = params.sig_duration/mean(diff(time)); %Significance threshold: consecutive bins above chance
+for j = 1:size(shuffle,1) %For each cell
+    isNull(j,:) = testConsecTrue(sigBins(j,:),nConsec); %#ok<AGROW>
+end
 end

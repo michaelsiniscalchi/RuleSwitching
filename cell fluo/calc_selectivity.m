@@ -51,43 +51,24 @@ for i = 1:numel(params.decode_type) %Decode type, eg 'choice' or 'outcome'
         TPR = NaN(nTrials,nTimepoints); %True positive rate (nTP/nP) at each criterion; size = [nCriteria, nTimepoints]
         FPR = NaN(nTrials,nTimepoints); %False positive rate (nFP/nN)
         AUC_BOOT = NaN(3,nTimepoints);      %Mean area under the ROC curve, with bootstrapped CI
-        AUC_SHUFFLE = NaN(params.nShuffle,nTimepoints); %AUC for each shuffled class label replicate
-        TPR_SHUFFLE = NaN(nTrials,nTimepoints); %Mean TPR for shuffled class labels
-        FPR_SHUFFLE = NaN(nTrials,nTimepoints); %Mean FPR for shuffled class labels
         
         % AUROC with bootstrapped confidence intervals
-        % The third argument may be superfluous... could just 
         parfor t = 1:size(dff,2)
-            [TPR(:,t),FPR(:,t),AUC(t),AUC_BOOT(:,t)] = calc_ROC(dff(:,t),types,1,params); %[...] = calc_ROC(signal,class,positive_class,params)
+            [TPR(:,t),FPR(:,t),AUC(t),AUC_BOOT(:,t)] = calc_ROC(dff(:,t),types,params); %[...] = calc_ROC(signal,class,positive_class,params)
         end
         
         % AUROC for Shuffled Traces *PARALLEL*
-        [TPR_SHUFFLE,FPR_SHUFFLE,AUC_SHUFFLE] =...
-            shuffle_ROC(dff,types,1,params.nShuffle); %TPR and FPR are mean over all shuffles.
+        [TPR_SHUFFLE,FPR_SHUFFLE,AUC_SHUFFLE] = shuffle_ROC(dff,types,params.nShuffle); %TPR and FPR are mean over all shuffles.
         
         % Store results in structure
         decode.(params.decode_type{i}).selectivity{j} = 2*([AUC; AUC_BOOT(2:3,:)]-0.5); %Selectivity = 2*(AUC-0.5)
         decode.(params.decode_type{i}).AUC{j} = AUC;
         decode.(params.decode_type{i}).TPR{j} = TPR;
         decode.(params.decode_type{i}).FPR{j} = FPR;
-        decode.(params.decode_type{i}).AUC_shuffle{j} = AUC_SHUFFLE;
-        decode.(params.decode_type{i}).TPR_shuffle{j} = TPR_SHUFFLE;
-        decode.(params.decode_type{i}).FPR_shuffle{j} = FPR_SHUFFLE;
+        decode.(params.decode_type{i}).AUC_shuffle{j} = AUC_SHUFFLE; %AUC for each shuffled class label replicate
+        decode.(params.decode_type{i}).TPR_shuffle{j} = TPR_SHUFFLE; %Mean TPR(nCriteria,nTime) for shuffled class labels
+        decode.(params.decode_type{i}).FPR_shuffle{j} = FPR_SHUFFLE; %Mean FPR for shuffled class labels
         decode.(params.decode_type{i}).nTrials = sum(trialMasks);
     end
     
 end
-
-%% Internal functions
-
-% function [ds_dff, ds_time] = downsampleTS(trial_dff,time,dsFactor)
-% 
-% dsIdx = 1:dsFactor:numel(time);
-% ds_time = time(dsIdx(1:end-1))+ diff(time(dsIdx))/2; %Midpoint between downsampled timepoints
-% ds_dff = cell(size(trial_dff));
-% for j = 1:numel(trial_dff)
-%     for k = 1:numel(ds_time)
-%         idx = dsIdx(k):dsIdx(k+1)-1;
-%         ds_dff{j}(:,k) = nanmean(trial_dff{j}(:,idx),2); %Assign mean across timepoints
-%     end
-% end

@@ -14,7 +14,7 @@
 %           shuffled replicate of the data.
 %--------------------------------------------------------------------------
 
-function [ TPR, FPR, AUC ] = shuffle_ROC( signal, class, positive_class, nShuffle )
+function [ TPR, FPR, AUC ] = shuffle_ROC( signal, class, nShuffle )
 
 % Fixed Parameters
 positive_class = 1;
@@ -22,28 +22,18 @@ positive_class = 1;
 % Initialize
 nTime = size(signal,2);
 nCrit = size(signal,1); %Each unique value is used as a threshold in roc()
-AUC = NaN(nShuffle,nTime); %Area under the ROC curve
+AUC = NaN(nShuffle,nTime); %Area under the ROC curve for each shuffled class label replicate
 TPR = NaN(nShuffle,nCrit,nTime); %True positive rate; prior to output, results are averaged over all shuffles
 FPR = NaN(nShuffle,nCrit,nTime); %False positive rate
 
-% Estimate Receiver Operating Characteristic (ROC) for each shuffle of class labels
+%% Estimate Receiver Operating Characteristic (ROC) for each shuffle of class labels
 parfor i = 1:nShuffle
-   
-%     tpr = NaN(nCrit,nShuffle);
-%     fpr = NaN(nCrit,nShuffle);
-    
-    
-    
     %Shuffle class labels
-    shuffled_labels = class(randperm(numel(class)));
-    
+    shuffled_labels = class(randperm(numel(class)));    
     %Calculate receiver operating characteristic for each timepoint 
     for t = 1:nTime
-        [TPR(i,:,t),FPR(i,:,t),AUC(i,t)] = roc(signal(:,t),shuffled_labels,positive_class);
+        [TPR(i,:,t),FPR(i,:,t),AUC(i,t)] = roc(signal(:,t),shuffled_labels,positive_class); %#ok<PFBNS>
     end
-    %Aggregate 
-%     TPR
-%     FPR
 end
 TPR = squeeze(mean(TPR,1));
 FPR = squeeze(mean(FPR,1));

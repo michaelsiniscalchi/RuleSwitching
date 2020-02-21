@@ -28,7 +28,6 @@ if checkUnique
     %Vectorized method for speed (~5x faster)
     tpr = cumsum(class_label==positive_class)./sum(class_label==positive_class) ; 
     fpr = cumsum(class_label~=positive_class)./sum(class_label~=positive_class) ; 
-    auc = trapz(fpr,tpr); %trapz() should yield exact area, since empirical TPR(FPR) is a step-function
 else
     %Loop: use each unique value as a threshold
     threshold = flipud(unique(signal));
@@ -38,8 +37,8 @@ else
         fpr(i) = sum(class_label~=positive_class & signal>=threshold(i))...
             ./sum(class_label~=positive_class);
     end
-    auc = trapz(fpr,tpr);
 end
+auc = trapz(fpr,tpr); %trapz() should yield exact area, since empirical TPR(FPR) is a step-function
 
 % -------NOTES-------
 % This should also work:
