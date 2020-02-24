@@ -15,27 +15,30 @@ S = stats.selectivity;
 % NOTES:    '{}' in first cell of var_spec reserved for 'cellTypes'.
 %           '{}' in last cell of var_spec reserved for 'ruleTypes'.
 
-%% FORMAL COMPARISONS: BEHAVIOR
+%% FORMAL COMPARISONS: TASK PERFORMANCE
 
-% *** Collapsed across all Rules/Cell Types ***
+%Trials-to-Criterion for Sound vs Action (***Need Overall as Descriptive Stat.***)
+% compStruct = addComparison(...
+%     compStruct, B.all, {"lickRates", ["preCue","postCue"],"completed"}, 'ttest'); %Report mean & sem
 
-% Mean Licks/s pre- vs post-cue
+
+%% FORMAL COMPARISONS: LICK DENSITY
+
+% *** Non-Lateralized ***
+
+%Mean Licks/s pre- vs post-cue
 compStruct = addComparison(...
     compStruct, B.all, {"lickRates", ["preCue","postCue"],"completed"}, 'ttest'); %Report mean & sem
 
-% Mean Licks/s post-cue for hit vs error trials
+%Mean Licks/s post-cue for hit vs error trials
 compStruct = addComparison(...
     compStruct, B.all, {"lickRates","postCue",["hit","err"]}, 'ttest'); %Report mean & sem; **also examined pre-cue - very small (~0.1 Hz sig diff)
 
-% Mean Licks/s pre-cue for sound vs action trials (Small overall (-) change in anticipatory licking)
+%Mean Licks/s pre-cue for sound vs action trials (Small overall (-) change in anticipatory licking)
 compStruct = addComparison(...
     compStruct, B.all, {"lickRates","preCue",["sound","action"]}, 'ttest'); %Report mean & sem
 
-% Mean Licks/s pre- & post-cue for left vs right ports (Very mild overall Right-bias)
-compStruct = addComparison(...
-    compStruct, B.all, {"lickRates","preCue",["lickL","lickR"]}, 'ttest'); %Report mean & sem
-compStruct = addComparison(...
-    compStruct, B.all, {"lickRates","postCue",["lickL","lickR"]}, 'ttest'); %Report mean & sem
+% *** Left vs Right and Difference Across Rules ***
 
 % Difference in Left vs Right Lick Rate across Block Types, Post-Cue (Clear differential response to cues across block types)
 wsFactors = ["Cue","BlockType"]; %Order corresponds to multcompare syntax, eg, multcompare(stats,wsFactors(1),'By',wsFactors(2))
@@ -43,9 +46,14 @@ wsFactors = ["Cue","BlockType"]; %Order corresponds to multcompare syntax, eg, m
     {"lickDiffs","preCue",["upsweep","downsweep"],["sound","actionL","actionR"]},'ranova',wsFactors); %Report mean & sem
 [compStruct, stats] = addComparison(compStruct,B.all,...
     {"lickDiffs","postCue",["upsweep","downsweep"],["sound","actionL","actionR"]},'ranova',wsFactors); %Report mean & sem
- %Significant interaction...only in Sound are upsweep vs downsweep significant
- mltCmpStruct = addMultComparison(mltCmpStruct,stats,compStruct(end).varName,wsFactors); 
+%Significant interaction...only in Sound are upsweep vs downsweep significant
+mltCmpStruct = addMultComparison(mltCmpStruct,stats,compStruct(end).varName,wsFactors);
 
+%Mean Licks/s pre- & post-cue for left vs right ports (Very mild overall Right-bias)
+compStruct = addComparison(...
+    compStruct, B.all, {"lickRates","preCue",["lickL","lickR"]}, 'ttest'); %Report mean & sem
+compStruct = addComparison(...
+    compStruct, B.all, {"lickRates","postCue",["lickL","lickR"]}, 'ttest'); %Report mean & sem
 
 %% FORMAL COMPARISONS: MODULATION
 

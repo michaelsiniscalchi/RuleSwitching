@@ -11,6 +11,8 @@ pNull               = NaN(nCells,1);
 
 for i = 1:nCells
 
+    disp(['Cell ' num2str(i)]);
+    
     %Calculate chance-level selectivity index for each cell as a function of time
     shuffle = 2*(decode.AUC_shuffle{i}-0.5); %Obtain selectivity (range: -1,1) from shuffled AUC
     selIdxNull_cells_t(i,:) = mean(shuffle);
@@ -34,7 +36,7 @@ CI_low = prctile(shuffle,50-params.CI/2,1);
 CI_high = prctile(shuffle,50+params.CI/2,1);
 
 sig_bins = false(size(shuffle)); %Initialize logical array for significant time bins
-for i = 1:size(shuffle,1) %For each shuffle
+parfor i = 1:size(shuffle,1) %For each shuffle
     %Compare selectivity idx to CI to find significant bins
     sig_bins(i,:) = (shuffle(i,:)<CI_low | shuffle(i,:)>CI_high);
 end

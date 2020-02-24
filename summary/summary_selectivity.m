@@ -1,4 +1,4 @@
-function summary = summary_selectivity( summary, decode, cell_type, expID, cellID, params )
+function summary = summary_selectivity( summary, decode, cell_type, exp_ID, cellID, params )
 
 
 %---------------------------------------------------------------------------------------------------
@@ -24,8 +24,10 @@ for i = 1:numel(decodeType)
     
     %% AGGREGATE AND REDUCE SELECTIVITY RESULTS
     
+    disp(['Estimating selectivity statistics (' decodeType{i} ') for session #' num2str(exp_ID) '...']);
+    
     % Extract Selectivity Idxs, Idx for Selective Neurons, and Number of Neurons prefering +/- classes 
-    [ selIdx_cells_t, isSig_cells_t, isSelective, prefPos, prefNeg ] =...
+        [ selIdx_cells_t, isSig_cells_t, isSelective, prefPos, prefNeg ] =...
         get_selectivityTraces(decode,decodeType{i},params);
     
     % Estimate Null Distributions for Selectivity Idx & Chance-Level Proportion of Cells Selective
@@ -56,7 +58,7 @@ for i = 1:numel(decodeType)
     %Additional variables
     pPrefPos = mean(prefPos);
     pPrefNeg = mean(prefNeg);
-    expID  = expID.*ones(size(selIdx_cells_t,1),1); %Corresponds to expData(expID)
+    expID  = exp_ID.*ones(size(selIdx_cells_t,1),1); %Corresponds to expData(expID)
     nCells = size(selIdx_cells_t,1); %Number of cells in FOV
 
     %% INCORPORATE INTO SUMMARY DATA STRUCTURE
