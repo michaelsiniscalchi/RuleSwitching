@@ -18,15 +18,15 @@ if any([calculate.cellF, calculate.dFF, calculate.align_signals, calculate.trial
 end
 
 %% SUMMARIZE RESULTS
-summarize.behavior              = false;
-summarize.imaging               = false;
-summarize.selectivity           = false;
+summarize.behavior              = true;
+summarize.imaging               = true;
+summarize.selectivity           = true;
 summarize.transitions           = false;
 
 summarize.stats                     = false; %Descriptive stats; needed for all summary plots
 summarize.table_experiments         = false;
 summarize.table_descriptive_stats   = false;
-summarize.table_comparative_stats   = true;
+summarize.table_comparative_stats   = false;
 
 %% PLOT RESULTS
 
