@@ -16,7 +16,7 @@ S = stats.selectivity;
 %           '{}' in last cell of var_spec reserved for 'ruleTypes'.
 
 %% Fixed parameters
-alpha = 0.05; %Alpha, threshold parameter for hypothesis testing
+alpha = 0.5; %Alpha, threshold parameter for hypothesis testing
 
 %% FORMAL COMPARISONS: TASK PERFORMANCE
 
