@@ -8,7 +8,7 @@ calculate.cellF                 = false; %Extract cellf and neuropilf from ROIs,
 calculate.dFF                   = false; %Calculate dF/F, with optional neuropil subtraction
 calculate.align_signals         = false; %Interpolate dF/F and align to behavioral events
 calculate.trial_average_dFF     = false; %dF/F averaged over specified subsets of trials
-calculate.decode_single_units   = false; %ROC/Selectivity for choice, outcome and rule
+calculate.decode_single_units   = true; %ROC/Selectivity for choice, outcome and rule
 calculate.transitions           = false; %Changes in dF/F over each block; 
 
 calculate.fluorescence = false;
@@ -37,8 +37,8 @@ figures.lick_density                    = false;
 figures.FOV_mean_projection             = false;
 figures.timeseries                      = false; %Plot all timeseries for each session
 % Combined
-figures.trial_average_dFF               = true;  %Overlay traces for distinct choices, outcomes, and rules (CO&R)
-figures.decode_single_units             = false;
+figures.trial_average_dFF               = false;  %Overlay traces for distinct choices, outcomes, and rules (CO&R)
+figures.decode_single_units             = true;
 figures.heatmap_modulation_idx          = false;  %Heatmap of selectivity idxs for COR for each session
 figures.transitions                     = false; 
 % Summary

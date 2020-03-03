@@ -113,8 +113,8 @@ if figures.decode_single_units
         save_dir = fullfile(dirs.figures,'Single-unit modulation',expData(i).sub_dir);
         create_dirs(save_dir); %Create dir for these figures
         %Figure with ROC analysis and selectivity traces
-        sessionID = [expData(i).sub_dir(1:end-14) ' ' expData(i).cellType];
-        figs = fig_singleUnit_ROC(decode,cells,params.figs.decode_single_units);
+        sessionID = [expData(i).sub_dir(1:end-14) '_' expData(i).cellType];
+        figs = fig_singleUnit_ROC(decode,cells,sessionID,params.figs.decode_single_units);
         save_multiplePlots(figs,save_dir,'svg'); %save as FIG and PNG
         clearvars figs
     end
