@@ -30,7 +30,7 @@ positive_class = 1;
 [ TPR, FPR, AUC ] = roc(signal,class,positive_class); %Local function (see bottom)
 
 %% Estimate mean and confidence intervals of AUROC using the bootstrap
-if nargin>3 && params.nReps>0 %Number of bootstrap replicates    
+if nargin>2 && params.nReps>0 %Number of bootstrap replicates    
     
     auc = NaN(params.nReps,1); % Initialize vector of bootstrap replicates
     for i = 1:params.nReps
