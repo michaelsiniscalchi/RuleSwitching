@@ -9,7 +9,7 @@
 %
 %--------------------------------------------------------------------------
 
-function figs = plot_trialAvgDFF( bootAvg, cells, params )
+function figs = plot_trialAvgDFF( bootAvg, cells, expID, params )
 
 % Set up figure properties and restrict number of cells, if desired
 setup_figprops('timeseries')  %set up default figure plotting parameters
@@ -59,7 +59,7 @@ for i = 1:numel(cellIdx)
     yLabel = params.yLabel;
     
     figs(i) = plot_trialAvgTimeseries(panels,ax_titles,xLabel,yLabel);
-    figs(i).Name = ['cell' cells.cellID{idx} '_bootavg']; %Figure name
+    figs(i).Name = [expID, '_cell' cells.cellID{idx} '_bootavg']; %Figure name
     figs(i).Position = [50,400,1800,500]; %LBWH
     figs(i).Visible = 'off';
     

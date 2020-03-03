@@ -26,7 +26,7 @@ summarize.transitions           = false;
 summarize.stats                     = false; %Descriptive stats; needed for all summary plots
 summarize.table_experiments         = false;
 summarize.table_descriptive_stats   = false;
-summarize.table_comparative_stats   = true;
+summarize.table_comparative_stats   = false;
 
 %% PLOT RESULTS
 
@@ -37,7 +37,7 @@ figures.lick_density                    = false;
 figures.FOV_mean_projection             = false;
 figures.timeseries                      = false; %Plot all timeseries for each session
 % Combined
-figures.trial_average_dFF               = false;  %Overlay traces for distinct choices, outcomes, and rules (CO&R)
+figures.trial_average_dFF               = true;  %Overlay traces for distinct choices, outcomes, and rules (CO&R)
 figures.decode_single_units             = false;
 figures.heatmap_modulation_idx          = false;  %Heatmap of selectivity idxs for COR for each session
 figures.transitions                     = false; 
