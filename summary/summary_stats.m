@@ -3,16 +3,16 @@ function stats = summary_stats( stats, input, type )
 %BE CAREFUL ABOUT TREATMENT OF NANS!
 
 switch type
-   
+    
     case 'behavior'
         cellTypes = fieldnames(input);
         for i = 1:numel(cellTypes)
-
-            %Total number of trials & trials performed 
+            
+            %Total number of trials & trials performed
             expID = input.(cellTypes{i}).sessionID;
             S.(cellTypes{i}).nTrials = calcStats(input.(cellTypes{i}).nTrials,expID);
             S.(cellTypes{i}).trialsCompleted = calcStats(input.(cellTypes{i}).trialsCompleted,expID);
-
+            
             %Total number of blocks completed
             S.(cellTypes{i}).blocksCompleted = calcStats(input.(cellTypes{i}).blocksCompleted,expID);
             
@@ -25,10 +25,10 @@ switch type
                         calcStats(input.(cellTypes{i}).(vbl{j}).(rule{k}),expID);
                 end
             end
-  
+            
             %Lick Density
             choice = {'left','right'};
-            cue = {'upsweep','downsweep'}; 
+            cue = {'upsweep','downsweep'};
             rule = {'sound','actionL','actionR'};
             for ii = 1:numel(choice)
                 for jj = 1:numel(cue)
@@ -77,17 +77,17 @@ switch type
                     S.(cellTypes{i}).perfLastTrial.(vbl{j}).(rule{k}) = ...
                         calcStats(data(:,20),expID); %perfCurve is switchtrial+[-20:19]; lastIdx = 20;
                     S.(cellTypes{i}).perfNextTrial.(vbl{j}).(rule{k}) = ...
-                        calcStats(data(:,21),expID); %nextIdx = 21; 
+                        calcStats(data(:,21),expID); %nextIdx = 21;
                 end
             end
-  
+            
         end
-  
+        
     case 'imaging'
         cellTypes = fieldnames(input);
         for i = 1:numel(cellTypes)
-            % Number of blocks imaged 
-            expID = input.(cellTypes{i}).sessionID; 
+            % Number of blocks imaged
+            expID = input.(cellTypes{i}).sessionID;
             S.(cellTypes{i}).nBlocksImg = calcStats(input.(cellTypes{i}).nBlocksImg,expID);
             % Number of cells total/included/excluded
             S.(cellTypes{i}).totalCells = calcStats(input.(cellTypes{i}).totalCells,expID);
@@ -112,14 +112,28 @@ switch type
                 varNames = varNames(~ismember(varNames,{'cellID','expID'}));
                 for k = 1:numel(varNames)
                     % Unpack & get session ID
-                    vbl = input.(decodeTypes{i}).(cellTypes{j}).(varNames{k}); 
+                    vbl = input.(decodeTypes{i}).(cellTypes{j}).(varNames{k});
                     expID = input.(decodeTypes{i}).(cellTypes{j}).expID; %For pooled cells from many sessions
-                    if numel(expID) > size(vbl,1) %For data aggregated by session 
-                        expID = unique(expID); 
+                    if numel(expID) > size(vbl,1) %For data aggregated by session
+                        expID = unique(expID);
                     end
                     % Estimate descriptive stats
-                    S.(decodeTypes{i}).(cellTypes{j}).(varNames{k}) = ...
-                        calcStats(input.(decodeTypes{i}).(cellTypes{j}).(varNames{k}),expID);
+                    S.(decodeTypes{i}).(cellTypes{j}).(varNames{k}) = calcStats(vbl,expID);
+                end
+                
+                % Calculate difference from null data for selected statistics
+                varNames = {["selIdx_t","nullIdx_t"];["selMag_t","nullMag_t"];["pSig_t","pNull_t"];...
+                    ["selIdx","nullIdx"];["selMag","nullMag"];["pSig","pNull"]};
+                for k = 1:numel(varNames)
+                    %Take difference from null
+                    vbl = input.(decodeTypes{i}).(cellTypes{j}).(varNames{k}(1))...
+                        - input.(decodeTypes{i}).(cellTypes{j}).(varNames{k}(2));
+                    expID = input.(decodeTypes{i}).(cellTypes{j}).expID; %For pooled cells from many sessions
+                    if numel(expID) > size(vbl,1) %For data aggregated by session
+                        expID = unique(expID);
+                    end
+                    % Estimate descriptive stats
+                    S.(decodeTypes{i}).(cellTypes{j}).diffNull.(varNames{k}(1)) = calcStats(vbl,expID);
                 end
             end
         end
@@ -132,19 +146,19 @@ switch type
             for j = 1:numel(transTypes)
                 % Label with corresponding session idx
                 expID = input.(cellTypes{i}).(transTypes{j}).sessionID;
-                                
+                
                 % Estimate descriptive stats for binned data
                 S.(cellTypes{i}).(transTypes{j}).binValues = calcStats(input.(cellTypes{i}).(transTypes{j}).binValues,expID);
                 S.(cellTypes{i}).(transTypes{j}).binIdx = input.(cellTypes{i}).(transTypes{j}).binIdx; %Copy bin indices
-
+                
                 % Change points
                 neuralChgPt = input.(cellTypes{i}).(transTypes{j}).changePt1; %Neural; MATLAB ipt = findchangepts(x)
                 behChgPt = input.(cellTypes{i}).(transTypes{j}).behChangePt2; %Behavioral; minimum cumulative deviation
-                                
+                
                 idx = ~isnan(neuralChgPt) & ~isnan(behChgPt); %Remove entries with NaN for either change-point
                 [neuralChgPt,behChgPt,expID] = ...
                     deal(neuralChgPt(idx),behChgPt(idx),expID(idx));
-
+                
                 S.(cellTypes{i}).(transTypes{j}).neuralChgPt = calcStats(neuralChgPt,expID); % Estimate descriptive stats
                 S.(cellTypes{i}).(transTypes{j}).behChgPt = calcStats(behChgPt,expID);
                 

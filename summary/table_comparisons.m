@@ -5,8 +5,15 @@ compStruct = struct('varName',[],'comparison',[],'diff',[],'p',[],'N',[],'testNa
 mltCmpStruct = struct('varName',[],'comparison',[],'diff',[],'p',[]);
 
 cellTypes = ["SST", "VIP", "PV", "PYR"]'; %Column vectors
+decodeTypes = ["choice_sound", "choice_action", "prior_choice", "outcome", "rule_SL", "rule_SR"]';
 ruleTypes = ["sound", "action"]';
 outcomeTypes = ["hit","pErr","oErr","miss"]';
+
+test.behavior = 'ttest';
+test.cellTypes = 'kruskalwallis';
+% test.cellTypes = 'anova1';
+test.modulation = 'signrank';
+% test.modulation = 'ttest';
 
 B = stats.behavior;
 I = stats.imaging;
@@ -18,28 +25,21 @@ S = stats.selectivity;
 %% Fixed parameters
 alpha = 0.05; %Alpha, threshold parameter for hypothesis testing
 
-%% FORMAL COMPARISONS: TASK PERFORMANCE
-
-%Trials-to-Criterion for Sound vs Action (***Need Overall as Descriptive Stat.***)
-% compStruct = addComparison(...
-%     compStruct, B.all, {"lickRates", ["preCue","postCue"],"completed"}, 'ttest'); %Report mean & sem
-
-
 %% FORMAL COMPARISONS: LICK DENSITY
 
 % *** Non-Lateralized ***
 
 %Mean Licks/s pre- vs post-cue
 compStruct = addComparison(...
-    compStruct, B.all, {"lickRates", ["preCue","postCue"],"completed"}, 'ttest'); %Report mean & sem
+    compStruct, B.all, {"lickRates", ["preCue","postCue"],"completed"}, test.behavior); %Report mean & sem
 
 %Mean Licks/s post-cue for hit vs error trials
 compStruct = addComparison(...
-    compStruct, B.all, {"lickRates","postCue",["hit","err"]}, 'ttest'); %Report mean & sem; **also examined pre-cue - very small (~0.1 Hz sig diff)
+    compStruct, B.all, {"lickRates","postCue",["hit","err"]}, test.behavior); %Report mean & sem; **also examined pre-cue - very small (~0.1 Hz sig diff)
 
 %Mean Licks/s pre-cue for sound vs action trials (Small overall (-) change in anticipatory licking)
 compStruct = addComparison(...
-    compStruct, B.all, {"lickRates","preCue",["sound","action"]}, 'ttest'); %Report mean & sem
+    compStruct, B.all, {"lickRates","preCue",ruleTypes}, test.behavior); %Report mean & sem
 
 % *** Left vs Right and Difference Across Rules ***
 
@@ -54,61 +54,100 @@ mltCmpStruct = addMultComparison(mltCmpStruct,stats,compStruct(end).varName,wsFa
 
 %Mean Licks/s pre- & post-cue for left vs right ports (Very mild overall Right-bias)
 compStruct = addComparison(...
-    compStruct, B.all, {"lickRates","preCue",["lickL","lickR"]}, 'ttest'); %Report mean & sem
+    compStruct, B.all, {"lickRates","preCue",["lickL","lickR"]}, test.behavior); %Report mean & sem
 compStruct = addComparison(...
-    compStruct, B.all, {"lickRates","postCue",["lickL","lickR"]}, 'ttest'); %Report mean & sem
+    compStruct, B.all, {"lickRates","postCue",["lickL","lickR"]}, test.behavior); %Report mean & sem
+
+%% FORMAL COMPARISONS: TASK PERFORMANCE
+
+%(***Need Overall trials2crit, pErr, oErr, miss as Descriptive Stat.***)
+%(***Need Overall perfLastTrial for hit, pErr, oErr, miss as Descriptive Stat.***)
+%(***Also, need to compare overall pErr vs oErr.***)
+
+% Hit, Perseverative, and Other Error Rates across the Two Trials Surrounding a Rule Switch
+for i=1:numel(ruleTypes)
+    for j = 1:numel(outcomeTypes)
+        compStruct = addComparison(compStruct, B.all,...
+            {["perfLastTrial","perfNextTrial"], outcomeTypes(j), ruleTypes(i)}, test.behavior); %Report mean & sem
+    end
+end
+
+% Perseverative vs Other Errors in each Rule Type
+for i=1:numel(ruleTypes)
+compStruct = addComparison(...
+    compStruct, B.all, {["pErr","oErr"], ruleTypes(i)}, test.behavior); %Report mean & sem
+end
+
+% Trials-to-Criterion for Sound vs Action 
+compStruct = addComparison(...
+    compStruct, B.all, {"trials2crit", ruleTypes}, test.behavior); %Report mean & sem
+
+% Perseverative Errors for Sound vs Action 
+compStruct = addComparison(...
+    compStruct, B.all, {"pErr", ruleTypes}, test.behavior); %Report mean & sem
+
+
+% Misses ()
+% compStruct = addComparison(...
+%     compStruct, B.all, {"miss", ruleTypes}, test.behavior); %Report mean & sem
 
 %% FORMAL COMPARISONS: MODULATION
 
-% *** Modulation by Choice: Proportion Selective & Mean Magnitude ***
+% *** Modulation by Variable X: Proportion Selective & Mean Magnitude ***
 
-% Current Trial, Sound Rule S.choice_sound.SST.pSig
-
-%Primary comparison: proportion significant & selectivity magnitude vs. the null distribution
 vars = {["pSig",'pNull'],["selMag","nullMag"]};
-for i = 1:numel(vars)
-    for j=1:numel(cellTypes)
+for i = 1:numel(decodeTypes)
+    for j = 1:numel(vars)
+        %Primary comparison:  vs. the null distribution
+        for k = 1:numel(cellTypes)
+            compStruct = addComparison(... %(eg S.choice_sound.SST.pSig)
+                compStruct,S,{decodeTypes(i),cellTypes(k),vars{j}},test.modulation); %Report mean & sem
+        end
+        %Secondary comparison: difference in *corrected* means between cell-types
+        %   *Corrected by subtracting null data from each variable
         [compStruct, stats] = addComparison(...
-            compStruct,S,{"choice_sound",cellTypes(j),vars{i}},'ttest'); %Report mean & sem
-    end
-    %Secondary comparison: difference in means between cell-types
-    [compStruct, stats] = addComparison(...
-        compStruct,S,{"choice_sound",cellTypes,vars{i}(1)},'anova1'); %Report mean & sem
-    %Post-hoc test if ANOVA yields significant difference
-    if str2double(compStruct(end).p)<alpha
-        mltCmpStruct = addMultComparison(mltCmpStruct,stats,compStruct(end).varName);
+            compStruct,S,{decodeTypes(i),cellTypes,"diffNull",vars{j}(1)},test.cellTypes); %Report mean & sem
+        %Post-hoc test if omnibus test (eg ANOVA) yields significant difference
+        if str2double(compStruct(end).p)<alpha
+            mltCmpStruct = addMultComparison(mltCmpStruct,stats,compStruct(end).varName);
+        end
     end
 end
 
+% *** Preference for Positive vs Negative Class, eg Reward vs No Reward ***
+vars = {["pPrefPos","pPrefNeg"],["selIdx","nullIdx"]};
+for i = 1:numel(decodeTypes)
+    for j = 1:numel(vars)
+        for k = 1:numel(cellTypes)
+            compStruct = addComparison(... %(eg S.choice_sound.SST.pSig)
+                compStruct,S,{decodeTypes(i),cellTypes(k),vars{j}},test.modulation); %Report mean & sem
+        end
+    end
+end
+
+
+% %Current trial, Action Rule
 % [compStruct, stats] = addComparison(...
-%     compStruct,S,{"choice_sound",cellTypes,"pSig"},'anova1'); %Report mean & sem
-% mltCmpStruct = addMultComparison(mltCmpStruct,stats,compStruct(end).varName);
-% 
+%     compStruct,S,{"choice_action",cellTypes,"pSig"},test.cellTypes); %Report mean & sem
 % compStruct = addComparison(...
-%     compStruct,S,{"choice_sound",cellTypes,"selMag"},'anova1'); %Report mean & sem
+%     compStruct,S,{"choice_action",cellTypes,"selMag"},test.cellTypes); %Report mean & sem
+% 
+% %Prior trial
+% [compStruct, stats] = addComparison(...
+%     compStruct,S,{"prior_choice",cellTypes,"pSig"},test.cellTypes); %Report mean & sem
+% compStruct = addComparison(...
+%     compStruct,S,{"prior_choice",cellTypes,"selMag"},test.cellTypes); %Report mean & sem
+% 
+% % Modulation by Outcome: Proportion Selective & Mean Magnitude
+% [compStruct, stats] = addComparison(...
+%     compStruct,S,{"outcome",cellTypes,"pSig"},test.cellTypes); %Report mean & sem
+% compStruct = addComparison(...
+%     compStruct,S,{"outcome",cellTypes,"selMag"},test.cellTypes); %Report mean & sem
 
-%Current trial, Action Rule
-[compStruct, stats] = addComparison(...
-    compStruct,S,{"choice_action",cellTypes,"pSig"},'anova1'); %Report mean & sem
-compStruct = addComparison(...
-    compStruct,S,{"choice_action",cellTypes,"selMag"},'anova1'); %Report mean & sem
 
-%Prior trial
-[compStruct, stats] = addComparison(...
-    compStruct,S,{"prior_choice",cellTypes,"pSig"},'anova1'); %Report mean & sem
-compStruct = addComparison(...
-    compStruct,S,{"prior_choice",cellTypes,"selMag"},'anova1'); %Report mean & sem
 
-% Modulation by Outcome: Proportion Selective & Mean Magnitude
-[compStruct, stats] = addComparison(...
-    compStruct,S,{"outcome",cellTypes,"pSig"},'anova1'); %Report mean & sem
-compStruct = addComparison(...
-    compStruct,S,{"outcome",cellTypes,"selMag"},'anova1'); %Report mean & sem
-for i = 1:numel(cellTypes)
-    compStruct = addComparison(...
-        compStruct,S,{"outcome",cellTypes(i),["pPrefPos","pPrefNeg"]},'ttest'); %Report mean & sem
-end
-
+% *NOTE: validated diffNull comparisons by verifying that results of paired signrank are consistent 
+%   with 1-sample signrank on diffNull (see 'notebook_compareGrps_modulation.m'). 
 
 %% RETURN DATA STRUCTURES AS TABLES
 

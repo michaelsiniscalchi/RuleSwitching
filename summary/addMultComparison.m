@@ -18,6 +18,10 @@ elseif strcmp(class(stats),'RepeatedMeasuresModel')
     if numel(comparison)>1
         tbl = multcompare(stats,comparison(1),'By',comparison(2));
         for i = 1:size(tbl,1)
+            %Ignore redundant rows from two-tailed comparisons            
+            if i<size(tbl,1) && all(ismember(tbl{i,1:3},tbl{max(i+1),1:3}))
+                continue;
+            end
             S(i).varName = strjoin([varName,tbl{i,1}],'_');
             S(i).comparison = strjoin([tbl{i,2},tbl{i,3}],'-');
             S(i).diff = tbl.Difference(i);

@@ -162,7 +162,7 @@ if calculate.fluorescence
     disp(['Total time needed for cellular fluorescence analyses: ' num2str(toc) 'sec.']); 
 %05 hrs for cellF
 %29 hrs for dF/F for all sessions
-%18 hrs for ROC analysis
+%06 hrs for new ROC analysis
 
 end
 
@@ -247,12 +247,16 @@ if summarize.table_descriptive_stats
     stats = load(mat_file.stats,'behavior','imaging','selectivity');
     [tables.descriptiveStats, tabular.descriptiveStats] = table_descriptiveStats(stats); %Might not need tabular...
     save(mat_file.stats,'tables','-append');
+    writetable(tables.descriptiveStats,...
+        fullfile(dirs.summary,'Table_Experiments.xls'),'WriteRowNames',true);
 end
 
 if summarize.table_comparative_stats    
     stats = load(mat_file.stats);
     [tables, tabular] = table_comparisons(stats); %[p,tbl,stats] = kruskalwallis(x,{'SST','VIP','PV','PYR'},displayopt);
     save(mat_file.stats,'tabular','-append');
+     writetable(tables.comparisons,...
+        fullfile(dirs.summary,'Table_Comparisons.xls'),'WriteRowNames',true);
 end
 
 %% FIGURES
