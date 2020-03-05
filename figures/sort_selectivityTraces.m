@@ -15,3 +15,7 @@ cell_idx = [cell_idx(pref_idx); cell_idx(~pref_idx)]; %Sorted idxs for all outpu
 sel_sorted = sel_idx(cell_idx,:);
 sig_sorted = isSelective(cell_idx);
 pref_idx = sort(pref_idx,'descend'); 
+
+%NOTE: in Cerebral Cortex paper, cells were divided by preference, then sorted by center-of-mass 
+%       ascending for right preference, and descending for left. Here, they are literally sorted 
+%       first by preference, then by center-of-mass (ascending).  

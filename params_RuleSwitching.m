@@ -8,7 +8,7 @@ calculate.cellF                 = false; %Extract cellf and neuropilf from ROIs,
 calculate.dFF                   = false; %Calculate dF/F, with optional neuropil subtraction
 calculate.align_signals         = false; %Interpolate dF/F and align to behavioral events
 calculate.trial_average_dFF     = false; %dF/F averaged over specified subsets of trials
-calculate.decode_single_units   = true; %ROC/Selectivity for choice, outcome and rule
+calculate.decode_single_units   = false; %ROC/Selectivity for choice, outcome and rule
 calculate.transitions           = false; %Changes in dF/F over each block; 
 
 calculate.fluorescence = false;
@@ -25,8 +25,8 @@ summarize.transitions           = false;
 
 summarize.stats                     = false; %Descriptive stats; needed for all summary plots
 summarize.table_experiments         = false;
-summarize.table_descriptive_stats   = false;
-summarize.table_comparative_stats   = false;
+summarize.table_descriptive_stats   = true;
+summarize.table_comparative_stats   = true;
 
 %% PLOT RESULTS
 
@@ -38,14 +38,14 @@ figures.FOV_mean_projection             = false;
 figures.timeseries                      = false; %Plot all timeseries for each session
 % Combined
 figures.trial_average_dFF               = false;  %Overlay traces for distinct choices, outcomes, and rules (CO&R)
-figures.decode_single_units             = true;
+figures.decode_single_units             = false;
 figures.heatmap_modulation_idx          = false;  %Heatmap of selectivity idxs for COR for each session
 figures.transitions                     = false; 
 % Summary
 figures.summary_behavior                = false; %Summary of descriptive stats, eg, nTrials and {trials2crit, pErr, oErr} for each rule
 figures.summary_lick_density            = false;
 figures.summary_periswitch_performance  = false;
-figures.summary_modulation_heatmap      = false; %Heatmap for each celltype, all sessions, one figure each for CO&R
+figures.summary_modulation_heatmap      = true; %Heatmap for each celltype, all sessions, one figure each for CO&R
 figures.summary_modulation				= false; %Bar/line plots of grouped selectivity results for comparison
 figures.summary_transitions             = false;
 

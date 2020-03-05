@@ -8,7 +8,8 @@ else
     fig = figure('Name',['summary_modulation_' decode_type '_sigCells']);
 end
 fig.Position = [100,100,1600,800]; %LBWH
-fig.Visible = 'off';
+% fig.Visible = 'off';
+fig.Visible = 'on';
 
 %% ---Plot 1: One modulation heatmap for each cell type --------------------------------------------
 

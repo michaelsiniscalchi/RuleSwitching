@@ -27,7 +27,7 @@ if figures.raw_behavior
     create_dirs(save_dir); %Create dir for these figures
     for i = 1:numel(expData)
         B = load(fullfile(mat_file.behavior(i))); %Load saved behavioral data
-        fig = plot_flexBehByTrial(...
+        fig = fig_rawBehavior(...
             B.trialData, B.trials, expData(i).sub_dir, params.figs.behavior); %Generate plot
         save_multiplePlots(fig,save_dir,'svg'); %save as FIG and PNG
         clearvars figs;

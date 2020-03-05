@@ -1,4 +1,4 @@
-function fig = plot_flexBehByTrial( trialData, trials, tlabel, params )
+function fig = fig_rawBehavior( trialData, trials, tlabel, params )
 %---------------------------------------------------------------------------------------------------
 % plot_behByTrial()
 %
@@ -14,12 +14,11 @@ function fig = plot_flexBehByTrial( trialData, trials, tlabel, params )
 %---------------------------------------------------------------------------------------------------
 
 %% SETUP PLOTTING PARAMETERS
-%     redShade = [1 0 0];
-%     blueShade = [0 0.3 1];
 setup_figprops('raster');
 red = params.colors{1}; %Defined for all figures using cbrewer() in params
 blue = params.colors{2};
-cyan = mean([params.colors{2}; params.colors{3}]); %LBWH
+% outcomeColor = mean([params.colors{2}; params.colors{3}]); %LBWH
+outcomeColor = 'w'; %Do not indicate outcome period
 blockColor = {'k',red,blue}; %sound, actionL, actionR
 time_range = params.window;
 
@@ -35,8 +34,10 @@ end
 %% GENERATE FIGURE
 fig = figure('Name',['Raw Behavior - ',tlabel]);
 title(tlabel);
-%     title({tlabel;'{\color{red}L Licks} {\color{blue}R Licks} {\color[rgb]{1 0.4 0.4}Upsweep} {\color[rgb]{0.4 0.4 1}Downsweep} {\color[rgb]{0.5 1 1}Reward} '});
 hold on;
+
+%Draw horizontal line for first trial in first (sound) block
+line(time_range,[0.5,0.5],'Color','k');
 
 for j = 1:numel(trialData.cue)
     
@@ -59,7 +60,7 @@ for j = 1:numel(trialData.cue)
     %Shaded area for outcome
     eventTime = trialData.outcomeTimes(j)-t0;
     if trials.hit(j)
-        eventShade(j,eventTime,0.5,cyan)
+        eventShade(j,eventTime,0.5,outcomeColor)
     end
     
     %Shaded area for grace period (cue-onset to 500 ms)
