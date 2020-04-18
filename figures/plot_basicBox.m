@@ -1,4 +1,17 @@
-function h = plot_basicBox( X, data, boxWidth, lineWidth, color )
+%%% plot_basicBox()
+%
+% PURPOSE: To generate a no-frills boxplot representing the five number summary for input data.
+% AUTHOR: MJ Siniscalchi, Yale University, 200315
+%
+%   
+%
+%---------------------------------------------------------------------------------------------------
+function h = plot_basicBox( X, data, boxWidth, lineWidth, color, transparency )
+
+% Arg Check
+if nargin<6
+    transparency = 0.5;
+end
 
 l = X-0.5*boxWidth;       %Box left
 r = X+0.5*boxWidth;       %Box right
@@ -14,5 +27,7 @@ ln(1) = plot([X X]',[wl b]','-','Color',color); %Low Whisker
 ln(2) = plot([X X]',[t wh]','-','Color',color); %High Whisker
 ln(3) = plot([l r]',[med med]','-','Color',color); %High Whisker
 
-p.FaceAlpha = 0.5;
+p.FaceAlpha = transparency;
 set(ln(:),'LineWidth',lineWidth);
+
+h = gca;

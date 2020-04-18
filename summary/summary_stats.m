@@ -8,7 +8,7 @@ switch type
         cellTypes = fieldnames(input);
         for i = 1:numel(cellTypes)
             
-            %Total number of trials & trials performed
+            %Total number of trials & trials completed
             expID = input.(cellTypes{i}).sessionID;
             S.(cellTypes{i}).nTrials = calcStats(input.(cellTypes{i}).nTrials,expID);
             S.(cellTypes{i}).trialsCompleted = calcStats(input.(cellTypes{i}).trialsCompleted,expID);
@@ -16,14 +16,39 @@ switch type
             %Total number of blocks completed
             S.(cellTypes{i}).blocksCompleted = calcStats(input.(cellTypes{i}).blocksCompleted,expID);
             
+            %Number of sessions completed per subject
+            subjects = categorical(input.(cellTypes{i}).subject);
+            [data, subjects] = histcounts(categorical(input.(cellTypes{i}).subject));
+            S.(cellTypes{i}).sessionsCompleted = calcStats(data(:),string(subjects(:)));
+            
             %Block performance
             vbl = {'trials2crit','pErr','oErr'};
-            rule = {'sound','action'};
-            for j = 1:numel(vbl)
-                for k = 1:numel(rule)
-                    S.(cellTypes{i}).(vbl{j}).(rule{k}) = ...
-                        calcStats(input.(cellTypes{i}).(vbl{j}).(rule{k}),expID);
+            rule = {'sound','action','all'};
+            for j = 1:numel(rule)
+                for k = 1:numel(vbl)
+                    S.(cellTypes{i}).(vbl{k}).(rule{j}) = ...
+                        calcStats(input.(cellTypes{i}).(vbl{k}).(rule{j}),expID);
                 end
+            end
+            
+            %Performance curve surrounding rule switch
+            rule = {'sound','action','all'}; %New rule following switch
+            lastRule = {'action','sound','all'}; %Previous rule
+            vbl = {'hit','pErr','oErr','miss'}; %Proportion hit, pErr, oErr, & miss, by session
+            for j = 1:numel(rule)
+                for k = 1:numel(vbl)
+                    data = input.(cellTypes{i}).perfCurve.(vbl{k}).(rule{j});
+                    S.(cellTypes{i}).perfCurve.(vbl{k}).(rule{j}) = ...
+                        calcStats(data,expID);
+                    %Performance on last trial of block & next trial
+                    S.(cellTypes{i}).perfLastTrial.(vbl{k}).(rule{j}) = ...
+                        calcStats(data(:,20),expID); %perfCurve is switchtrial+[-20:19]; lastIdx = 20;
+                    S.(cellTypes{i}).perfNextTrial.(vbl{k}).(rule{j}) = ...
+                        calcStats(data(:,21),expID); %nextIdx = 21;
+                end
+                %Proportion of hits in last 20 trials pre-switch
+                data = mean(input.(cellTypes{i}).perfCurve.hit.(rule{j})(:,1:20),2); %idx for last20 = 1:20;
+                S.(cellTypes{i}).critPerf.(lastRule{j}) = calcStats(data,expID); 
             end
             
             %Lick Density
@@ -64,22 +89,7 @@ switch type
                 end
             end
             
-            %Performance curve surrounding rule switch
-            rule = {'sound','action','all'};
-            vbl = {'hit','pErr','oErr','miss'}; %Proportion hit, pErr, oErr, & miss, by session
             
-            for j = 1:numel(vbl)
-                for k = 1:numel(rule)
-                    data = input.(cellTypes{i}).perfCurve.(vbl{j}).(rule{k});
-                    S.(cellTypes{i}).perfCurve.(vbl{j}).(rule{k}) = ...
-                        calcStats(data,expID);
-                    %Performance on last trial of block & next trial
-                    S.(cellTypes{i}).perfLastTrial.(vbl{j}).(rule{k}) = ...
-                        calcStats(data(:,20),expID); %perfCurve is switchtrial+[-20:19]; lastIdx = 20;
-                    S.(cellTypes{i}).perfNextTrial.(vbl{j}).(rule{k}) = ...
-                        calcStats(data(:,21),expID); %nextIdx = 21;
-                end
-            end
             
         end
         
@@ -122,8 +132,10 @@ switch type
                 end
                 
                 % Calculate difference from null data for selected statistics
-                varNames = {["selIdx_t","nullIdx_t"];["selMag_t","nullMag_t"];["pSig_t","pNull_t"];...
-                    ["selIdx","nullIdx"];["selMag","nullMag"];["pSig","pNull"]};
+                varNames = {["selIdx_t","nullIdx_t"];["sigIdx_t","nullSigIdx_t"];... 
+                    ["selMag_t","nullMag_t"];["pSig_t","pNull_t"];...
+                    ["selIdx","nullIdx"];["sigIdx","nullSigIdx"];...
+                    ["selMag","nullMag"];["pSig","pNull"]};
                 for k = 1:numel(varNames)
                     %Take difference from null
                     vbl = input.(decodeTypes{i}).(cellTypes{j}).(varNames{k}(1))...

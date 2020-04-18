@@ -2,11 +2,11 @@ function B = summary_behavior( struct_beh, params )
 
 % Initialize output structure
 type = {'SST','VIP','PV','PYR','all'};
-perfData = struct('sound',[],'action',[]);
+perfData = struct('sound',[],'action',[],'all',[]);
 for i = 1:numel(type)
     B.(type{i}) = ...
-        struct('sessionID',[],'nTrials',[],'trialsCompleted',[],'blocksCompleted',[],...
-        'trials2crit',perfData,'oErr',perfData,'pErr',perfData,...
+        struct('sessionID',[],'subject',"",'nTrials',[],'trialsCompleted',[],'blocksCompleted',[],...
+        'trials2crit',perfData,'hit',perfData,'oErr',perfData,'pErr',perfData,...
         'lickDensity',struct(),'lickRates',struct(),'perfCurve',struct());
 end
 
@@ -21,6 +21,7 @@ for sessionID = 1:numel(struct_beh)
     type = fieldnames(expIdx); %Eg, {'all','SST'}
     for j = 1:numel(type)
         B.(type{j}).sessionID(expIdx.(type{j}),:) = sessionID;
+        B.(type{j}).subject(expIdx.(type{j}),:) = string(S.sessionData.subject);
         B.(type{j}).nTrials(expIdx.(type{j}),:) = numel(S.trialData.cue);
         B.(type{j}).trialsCompleted(expIdx.(type{j}),:) = sum(~S.trials.miss);
     end
@@ -35,7 +36,7 @@ for sessionID = 1:numel(struct_beh)
     lickDiffs = getLickDiffs(S.trialData, S.trials, params.preCueBinWidth); 
     B = catLickRates(B,lickRates,lickDiffs,expIdx);
     
-    % Block data: median pErr, oErr, & trials2crit
+    % Block data: trials2crit and mean proportion hit, pErr, & oErr
     B = catBlockStats(B,S.blocks,expIdx);
     
     % Density of each outcome surrounding rule switch

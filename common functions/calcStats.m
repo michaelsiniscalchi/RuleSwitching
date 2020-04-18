@@ -6,7 +6,7 @@
 %
 % INPUT ARGS:   
 %               'data' (numeric), a 1D or 2D array with replicates assigned to different rows.
-%               '', a vector with number of elements corresponding to
+%               'expID', a column vector with number of elements corresponding to 'data'
 %---------------------------------------------------------------------------------------------------
 
 function stats = calcStats( data, expID )

@@ -19,11 +19,17 @@ B = stats.behavior;
 I = stats.imaging;
 S = stats.selectivity;
 
-% NOTES:    '{}' in first cell of var_spec reserved for 'cellTypes'.
-%           '{}' in last cell of var_spec reserved for 'ruleTypes'.
+% NOTES:    multiple entries in first cell of var_spec reserved for 'cellTypes'.
+%           multiple entries in last cell of var_spec reserved for 'ruleTypes'.
 
 %% Fixed parameters
 alpha = 0.05; %Alpha, threshold parameter for hypothesis testing
+
+%% OVERVIEW
+
+% Number of blocks per session for each cell-type
+compStruct = addComparison(...
+    compStruct, I, {cellTypes,"nBlocksImg"},'anova1'); %Report mean & sem
 
 %% FORMAL COMPARISONS: LICK DENSITY
 
@@ -33,24 +39,36 @@ alpha = 0.05; %Alpha, threshold parameter for hypothesis testing
 compStruct = addComparison(...
     compStruct, B.all, {"lickRates", ["preCue","postCue"],"completed"}, test.behavior); %Report mean & sem
 
-%Mean Licks/s post-cue for hit vs error trials
+%Mean Licks/s post-cue for hit vs error trials (significant diff of ~
 compStruct = addComparison(...
-    compStruct, B.all, {"lickRates","postCue",["hit","err"]}, test.behavior); %Report mean & sem; **also examined pre-cue - very small (~0.1 Hz sig diff)
+    compStruct, B.all, {"lickRates","postCue",["hit","err"]}, test.behavior); %Report mean & sem; 
+%*Note: also examined, but did not report pre-cue - very small (~0.1 Hz sig diff)
 
 %Mean Licks/s pre-cue for sound vs action trials (Small overall (-) change in anticipatory licking)
 compStruct = addComparison(...
-    compStruct, B.all, {"lickRates","preCue",ruleTypes}, test.behavior); %Report mean & sem
+    compStruct, B.all, {"lickRates","preCue",ruleTypes}, test.behavior); %Report mean & sem, diff and t-stats
+compStruct = addComparison(...
+    compStruct, B.all, {"lickRates", ["preCue","postCue"],"sound"}, test.behavior); %Report diff and t-stats
+compStruct = addComparison(...
+    compStruct, B.all, {"lickRates", ["preCue","postCue"],"action"}, test.behavior); %Report diff and t-stats
 
 % *** Left vs Right and Difference Across Rules ***
 
-% Difference in Left vs Right Lick Rate across Block Types, Post-Cue (Clear differential response to cues across block types)
 wsFactors = ["Cue","BlockType"]; %Order corresponds to multcompare syntax, eg, multcompare(stats,wsFactors(1),'By',wsFactors(2))
-[compStruct, ~] = addComparison(compStruct,B.all,...
+
+% Difference in Left vs Right Lick Rate across Block Types, Pre-Cue
+[compStruct, stats] = addComparison(compStruct,B.all,...
     {"lickDiffs","preCue",["upsweep","downsweep"],["sound","actionL","actionR"]},'ranova',wsFactors); %Report mean & sem
+mltCmpStruct = addMultComparison(mltCmpStruct,stats,compStruct(end).varName,"BlockType"); %eg, multcompare(stats,wsFactors(1),'By',wsFactors(2))
+
+% Difference in Left vs Right Lick Rate across Block Types, Post-Cue (Clear differential response to cues across block types)
 [compStruct, stats] = addComparison(compStruct,B.all,...
     {"lickDiffs","postCue",["upsweep","downsweep"],["sound","actionL","actionR"]},'ranova',wsFactors); %Report mean & sem
-%Significant interaction...only in Sound are upsweep vs downsweep significant
-mltCmpStruct = addMultComparison(mltCmpStruct,stats,compStruct(end).varName,wsFactors);
+%Significant interaction
+%Multiple comparisons: upsweep vs downsweep by rule
+mltCmpStruct = addMultComparison(mltCmpStruct,stats,compStruct(end).varName,wsFactors); %eg, multcompare(stats,wsFactors(1),'By',wsFactors(2))
+%Multiple comparisons: sound vs action-left vs action-right by cue
+mltCmpStruct = addMultComparison(mltCmpStruct,stats,compStruct(end).varName,fliplr(wsFactors));
 
 %Mean Licks/s pre- & post-cue for left vs right ports (Very mild overall Right-bias)
 compStruct = addComparison(...
@@ -65,11 +83,17 @@ compStruct = addComparison(...
 %(***Also, need to compare overall pErr vs oErr.***)
 
 % Hit, Perseverative, and Other Error Rates across the Two Trials Surrounding a Rule Switch
-for i=1:numel(ruleTypes)
+ruleSubsets = ["all"; ruleTypes];
+for i=1:numel(ruleSubsets)
     for j = 1:numel(outcomeTypes)
         compStruct = addComparison(compStruct, B.all,...
-            {["perfLastTrial","perfNextTrial"], outcomeTypes(j), ruleTypes(i)}, test.behavior); %Report mean & sem
+            {["perfLastTrial","perfNextTrial"], outcomeTypes(j), ruleSubsets(i)}, test.behavior); %Report mean & sem
     end
+end
+
+% One-Sample Test: Next-Trial Performance (vs. 50%)
+for i=1:numel(ruleTypes)
+        compStruct = addComparison(compStruct, B.all,{"perfNextTrial", "hit", ruleTypes(i)}, {'signrank',0.5}); %Report mean & sem
 end
 
 % Perseverative vs Other Errors in each Rule Type
@@ -86,12 +110,11 @@ compStruct = addComparison(...
 compStruct = addComparison(...
     compStruct, B.all, {"pErr", ruleTypes}, test.behavior); %Report mean & sem
 
-
-% Misses ()
-% compStruct = addComparison(...
-%     compStruct, B.all, {"miss", ruleTypes}, test.behavior); %Report mean & sem
-
 %% FORMAL COMPARISONS: MODULATION
+
+% General Task-Related Activity
+[compStruct, stats] = addComparison(compStruct,I,{cellTypes,"pTaskCells"},test.cellTypes); %Report med & IQR
+mltCmpStruct = addMultComparison(mltCmpStruct,stats,compStruct(end).varName);
 
 % *** Modulation by Variable X: Proportion Selective & Mean Magnitude ***
 
@@ -101,7 +124,7 @@ for i = 1:numel(decodeTypes)
         %Primary comparison:  vs. the null distribution
         for k = 1:numel(cellTypes)
             compStruct = addComparison(... %(eg S.choice_sound.SST.pSig)
-                compStruct,S,{decodeTypes(i),cellTypes(k),vars{j}},test.modulation); %Report mean & sem
+                compStruct,S,{decodeTypes(i),cellTypes(k),vars{j}},test.modulation); %Report med & IQR
         end
         %Secondary comparison: difference in *corrected* means between cell-types
         %   *Corrected by subtracting null data from each variable
@@ -125,27 +148,6 @@ for i = 1:numel(decodeTypes)
     end
 end
 
-
-% %Current trial, Action Rule
-% [compStruct, stats] = addComparison(...
-%     compStruct,S,{"choice_action",cellTypes,"pSig"},test.cellTypes); %Report mean & sem
-% compStruct = addComparison(...
-%     compStruct,S,{"choice_action",cellTypes,"selMag"},test.cellTypes); %Report mean & sem
-% 
-% %Prior trial
-% [compStruct, stats] = addComparison(...
-%     compStruct,S,{"prior_choice",cellTypes,"pSig"},test.cellTypes); %Report mean & sem
-% compStruct = addComparison(...
-%     compStruct,S,{"prior_choice",cellTypes,"selMag"},test.cellTypes); %Report mean & sem
-% 
-% % Modulation by Outcome: Proportion Selective & Mean Magnitude
-% [compStruct, stats] = addComparison(...
-%     compStruct,S,{"outcome",cellTypes,"pSig"},test.cellTypes); %Report mean & sem
-% compStruct = addComparison(...
-%     compStruct,S,{"outcome",cellTypes,"selMag"},test.cellTypes); %Report mean & sem
-
-
-
 % *NOTE: validated diffNull comparisons by verifying that results of paired signrank are consistent 
 %   with 1-sample signrank on diffNull (see 'notebook_compareGrps_modulation.m'). 
 
@@ -162,7 +164,7 @@ disp(tables.multiple_comparisons);
 
 %% ------- INTERNAL FUNCTIONS ----------------------------------------------------------------------
 
-function [data_struct, stats] = addComparison( data_struct, stats_struct, comp_spec, test_name, wsFactors )
+function [data_struct, stats] = addComparison( data_struct, stats_struct, comp_spec, test_spec, wsFactors )
 
 % INPUT ARGUMENTS
 %   'S',        The structure array to be modified, later to be output as table using 'struct2table.m'
@@ -182,15 +184,24 @@ end
 [ data, group ] = getStatsData( stats_struct, comp_spec);
 
 % Perform Statistical Comparisons
-[ stats, p, stats_str ] = compareGroups( test_name, data, group, wsFactors );
-
+if iscell(test_spec) %One-Sample Test
+    [ stats, p, stats_str ] = compareOneSample(test_spec{1},data,test_spec{2}); %test_spec{2} is mean/median under H0
+else %Between Groups
+    [stats, p, stats_str] = compareGroups(test_spec, data, group, wsFactors);
+end
 % Append Additional Fields from 'dataStruct'
 
 %Variable name
 varName = strjoin([comp_spec{cellfun(@length,comp_spec)==1}],'_');
 
 %Comparison
-comparison = comp_spec{cellfun(@length,comp_spec)>1}; %For 1-way comparisons, the unique cell containing multiple fields
+if numel(data)>1
+    comparison = comp_spec{cellfun(@length,comp_spec)>1}; %For 1-way comparisons, the unique cell containing multiple fields
+else
+    comparison = {'1-Sample vs. ',num2str(test_spec{2})};
+    test_spec = test_spec{1}; %Extract testName 
+end
+
 if any(strcmp(comparison,"SST"))
     comparison = "Cell types";
 elseif ~isempty(wsFactors)
@@ -214,7 +225,7 @@ end
 idx = length(data_struct)+1;
 data_struct(idx,1) = struct(...
     'varName',varName,'comparison',comparison,'diff',num2str(diff),...
-    'p',num2str(p),'N',num2str(N),'testName',test_name,'stats',stats_str); %Enforce column vector
+    'p',num2str(p),'N',num2str(N),'testName',test_spec,'stats',stats_str); %Enforce column vector
 
 % Remove empty rows 
 idx = ~cellfun(@isempty,{data_struct.varName}); %(data_struct(i).varName==[] if any fields are not found in 'stats' structure)

@@ -61,6 +61,7 @@ end
 % Standardize color scale across cell types
 for i = 1:numel(ax)
     caxis(ax(i),[-max(clims) max(clims)]); %Y = prctile(X,p,dim)
+    axis(ax(i),'square');
     pos(i,:) = ax(i).Position; %Get position to maintain after colorbar()
     if i==numel(cellType)
         colorbar;
@@ -79,10 +80,7 @@ for i = 1:numel(cellType)
     d = decode.(decode_type).(cellType{i}); %Unpack cell-type spec data from struct
     
     %Mean modulation magnitude +- SEM
-    if sig_flag
-        val = d.sigMag_t;
-    else,  val = d.selMag_t;
-    end
+    val = d.selMag_t;
     mag.mean = nanmean(val);
     SEM = nanstd(val,0)/sqrt(size(val,1));
     mag.CI = [mag.mean + SEM; mag.mean - SEM];

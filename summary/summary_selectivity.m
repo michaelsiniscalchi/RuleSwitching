@@ -11,10 +11,10 @@ for i=1:numel(decodeType)
         summary.(decodeType{i}).(cell_type) =...
             struct('selIdx_cells_t',[],'isSelective',logical([]),'pNull_cells',[],... %Aggregated data from individual cells
             'prefPos',[],'prefNeg',[],'expID',[],'cellID',[],...
-            'selIdx_t',[],'sigIdx_t',[],'nullIdx_t',[],'selMag_t',[],'nullMag_t',[],... %Collapsed across cells
-            'pSig_t',[],'pNull_t',[],...
-            'selIdx',[],'sigIdx',[],'nullIdx',[],'selMag',[],'nullMag',[],... %Collapsed across cells & time
-            'pSig',[],'pNull',[],...
+            'selIdx_t',[],'sigIdx_t',[],'nullIdx_t',[],'nullSigIdx_t',[],... %Collapsed across cells
+            'selMag_t',[],'nullMag_t',[],'pSig_t',[],'pNull_t',[],...
+            'selIdx',[],'sigIdx',[],'nullIdx',[],'nullSigIdx',[],... %Collapsed across cells & time
+            'selMag',[],'nullMag',[],'pSig',[],'pNull',[],...
             'pPrefPos',[],'pPrefNeg',[],'nCells',[]);
     end
 end 
@@ -31,7 +31,7 @@ for i = 1:numel(decodeType)
         get_selectivityTraces(decode,decodeType{i},params);
     
     % Estimate Null Distributions for Selectivity Idx & Chance-Level Proportion of Cells Selective
-    [ nullIdx_cells_t, pNull_cells_t, pNull_cells] = ...
+    [ nullIdx_cells_t, nullMag_cells_t, pNull_cells_t, pNull_cells] = ...
         get_nullSelectivity(decode.(decodeType{i}), decode.t, params);
     
     % Estimate Mean Selectivity, Magnitude, and P Significantly Selective as f(t) 
@@ -41,7 +41,8 @@ for i = 1:numel(decodeType)
     pSig_t      = mean(isSig_cells_t,1); %Proportion of neurons significantly selective as function of time   
     
     nullIdx_t    = mean(nullIdx_cells_t,1); %Mean selectivity idx from null distribution as a function of time
-    nullMag_t    = mean(abs(nullIdx_cells_t),1); %Mean selectivity magnitude from null distribution as a function of time
+    nullSigIdx_t = mean(nullIdx_cells_t(isSelective,:),1); %Same, restricted to significantly selective cells
+    nullMag_t    = mean(nullMag_cells_t,1); %Mean selectivity magnitude from null distribution as a function of time
     pNull_t      = mean(pNull_cells_t,1); %False discovery rate as function of time       
     
     %Collapsed over time post-trigger
@@ -51,9 +52,10 @@ for i = 1:numel(decodeType)
     sigIdx  = mean(sigIdx_t(timeIdx)); %Same, restricted to significantly selective cells
     pSig    = mean(isSelective); %Overall proportion of cells significantly selective
     
-    nullIdx  = mean(nullIdx_t(timeIdx)); %Grand mean selectivity index drawn from a null distribution
-    nullMag  = mean(nullMag_t(timeIdx)); %Grand mean selectivity magnitude drawn from a null distribution
-    pNull   = mean(pNull_cells); %Overall false discovery rate per cell
+    nullIdx     = mean(nullIdx_t(timeIdx)); %Grand mean selectivity index drawn from a null distribution
+    nullSigIdx  = mean(nullSigIdx_t(timeIdx)); %Same, restricted to significantly selective cells
+    nullMag     = mean(nullMag_t(timeIdx)); %Grand mean selectivity magnitude drawn from a null distribution
+    pNull       = mean(pNull_cells); %Overall false discovery rate per cell
         
     %Additional variables
     pPrefPos = mean(prefPos);
@@ -66,8 +68,8 @@ for i = 1:numel(decodeType)
     %struct_out = catStruct(struct_in,varargin)
     summary.(decodeType{i}).(cell_type) = catStruct(summary.(decodeType{i}).(cell_type),...
          selIdx_cells_t, isSelective, pNull_cells, prefPos, prefNeg, expID, cellID,... %Vars aggregated across all neurons
-         selIdx_t, nullIdx_t, selMag_t, nullMag_t, sigIdx_t, pSig_t, pNull_t,... %Vars averaged across neurons by experiment
-         selIdx, nullIdx, selMag, nullMag, sigIdx, pSig, pNull,... %Vars averaged across neurons & time, by experiment
+         selIdx_t, nullIdx_t, selMag_t, nullMag_t, sigIdx_t, nullSigIdx_t, pSig_t, pNull_t,... %Vars averaged across neurons by experiment
+         selIdx, nullIdx, selMag, nullMag, sigIdx, nullSigIdx, pSig, pNull,... %Vars averaged across neurons & time, by experiment
          pPrefPos, pPrefNeg, nCells); 
           
 end

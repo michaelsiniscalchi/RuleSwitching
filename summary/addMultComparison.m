@@ -18,10 +18,11 @@ elseif strcmp(class(stats),'RepeatedMeasuresModel')
     if numel(comparison)>1
         tbl = multcompare(stats,comparison(1),'By',comparison(2));
         for i = 1:size(tbl,1)
-            %Ignore redundant rows from two-tailed comparisons            
-            if i<size(tbl,1) && all(ismember(tbl{i,1:3},tbl{max(i+1),1:3}))
+            %Ignore redundant rows from two-tailed comparisons
+            if i>1 && any(all(ismember(tbl{1:i-1,1:3},tbl{i,1:3}),2)) 
                 continue;
             end
+            %Populate structure with table values
             S(i).varName = strjoin([varName,tbl{i,1}],'_');
             S(i).comparison = strjoin([tbl{i,2},tbl{i,3}],'-');
             S(i).diff = tbl.Difference(i);
@@ -30,8 +31,12 @@ elseif strcmp(class(stats),'RepeatedMeasuresModel')
     else
         tbl = multcompare(stats,comparison);
         for i = 1:size(tbl,1)
+            %Ignore redundant rows from two-tailed comparisons
+            if i>1 && any(all(ismember(tbl{1:i-1,1:2},tbl{i,1:3}),2)) 
+                continue;
+            end
             S(i).varName = varName;
-            S(i).comparison = [tbl{i,1} '-' tbl{i,2}];
+            S(i).comparison = strjoin([tbl{i,1},tbl{i,2}],'-');
             S(i).diff = tbl.Difference(i);
             S(i).p = tbl.pValue(i);
         end

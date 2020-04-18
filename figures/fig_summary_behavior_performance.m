@@ -1,4 +1,4 @@
-function fig = fig_summary_behavior( behavior, cellType, params )
+function fig = fig_summary_behavior_performance( behavior, cellType, params )
 
 B = behavior.(cellType); %Extract cell-type specific data
 

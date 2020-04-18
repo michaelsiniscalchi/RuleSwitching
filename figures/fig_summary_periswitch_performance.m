@@ -20,7 +20,7 @@ ax(i) = nexttile;
 hold on;
     for j=1:numel(params.outcomes)
         
-        data = behavior.(cellType).perfCurve.(params.outcomes{j}).(switchType{i}); 
+        data = behavior.(cellType).perfCurve.(params.outcomes{j}).(switchType{i}).data; 
         M = mean(data);
         sem = std(data)/sqrt(size(data,1));
         CI = M + [-sem; sem];

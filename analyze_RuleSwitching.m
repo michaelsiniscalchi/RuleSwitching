@@ -11,8 +11,7 @@
 %               (much faster than doing it through the GUI...).
 %
 % TODO:
-%       -Complete the experiment table: include #cells, #trials, #blocks
-%       -Include number of excluded cells in summary_stats: for each cell type, {total, %total, %bySession}
+%       *Re-run all summaries before finalizing figures
 %
 %---------------------------------------------------------------------------------------------------
 
@@ -240,21 +239,22 @@ if summarize.table_experiments
     stats = load(mat_file.stats,'behavior','imaging','tables');
     tables.summary = table_expData(expData,stats);
     save(mat_file.stats,'tables','-append');
-    writetable(tables.summary,fullfile(dirs.summary,'Table_Experiments.xls'),'WriteRowNames',true);
+    writetable(tables.summary,...
+        fullfile(dirs.summary,'Table_Experiments.xls'),'WriteRowNames',true);
 end
 
 if summarize.table_descriptive_stats
     stats = load(mat_file.stats,'behavior','imaging','selectivity');
     [tables.descriptiveStats, tabular.descriptiveStats] = table_descriptiveStats(stats); %Might not need tabular...
-    save(mat_file.stats,'tables','-append');
+    save(mat_file.stats,'tabular','tables','-append');
     writetable(tables.descriptiveStats,...
-        fullfile(dirs.summary,'Table_Experiments.xls'),'WriteRowNames',true);
+        fullfile(dirs.summary,'Table_Descriptive_Stats.xls'),'WriteRowNames',true);
 end
 
 if summarize.table_comparative_stats    
     stats = load(mat_file.stats);
     [tables, tabular] = table_comparisons(stats); %[p,tbl,stats] = kruskalwallis(x,{'SST','VIP','PV','PYR'},displayopt);
-    save(mat_file.stats,'tabular','-append');
+    save(mat_file.stats,'tabular','tables','-append');
      writetable(tables.comparisons,...
         fullfile(dirs.summary,'Table_Comparisons.xls'),'WriteRowNames',true);
      writetable(tables.multiple_comparisons,...

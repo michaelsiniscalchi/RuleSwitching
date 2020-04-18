@@ -4,6 +4,7 @@ function B = catBlockStats( B, blocks, expIdx )
 excl = [true; false(numel(blocks.type)-2,1); true]; %Exclude first and last block
 blkIdx.sound = strcmp(blocks.type,'sound') & ~excl;
 blkIdx.action = ismember(blocks.type,{'actionL','actionR'}) & ~excl;
+blkIdx.all = blkIdx.sound | blkIdx.action;
 
 cellType = fieldnames(expIdx);  %Eg, {'all','SST'}
 rule = fieldnames(blkIdx);

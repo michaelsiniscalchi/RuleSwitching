@@ -170,13 +170,18 @@ end
 
 % Behavior: Descriptive Statistics
 if figures.summary_behavior
-    stats = load(mat_file.stats); %Load data
+    stats = load(mat_file.stats,'behavior'); %Load data
     save_dir = fullfile(dirs.figures,'Summary - behavioral statistics'); %Figures directory
     create_dirs(save_dir); %Create dir for these figures
     
-    cellType = {'all','SST','VIP','PV','PYR'};
-    for i=1:numel(cellType)
-        figs(i) = fig_summary_behavior_swarms(stats.behavior,cellType{i},params.figs.summary_behavior);
+    B = stats.behavior;
+    cellType = {'all'}; %{'all','SST','VIP','PV','PYR'}
+    for i = 1:numel(cellType)
+        figs(i,1) = fig_summary_lick_density(B,cellType{i},params.figs.summary_behavior);
+        figs(i,2) = fig_summary_lickstats(B,cellType{i},params.figs.summary_behavior);
+        figs(i,3) = fig_summary_periswitch_performance(B,cellType{i},params.figs.summary_behavior);
+        figs(i,4) = fig_summary_behavior_periSwitch(B,cellType{i},params.figs.summary_behavior);
+        figs(i,5) = fig_summary_behavior_performance(B,cellType{i},params.figs.summary_behavior);
     end
 %      figs(numel(cellType)+1) =...
 %             fig_summary_behavior(stats.behavior,params.figs.summary_behavior); %With scatter by cell-type
@@ -184,33 +189,33 @@ if figures.summary_behavior
     clearvars figs;
 end
 
-% Lick Density Plots
-if figures.summary_lick_density
-    stats = load(mat_file.stats); %Load data
-    save_dir = fullfile(dirs.figures,'Summary - lick density'); %Figures directory
-    create_dirs(save_dir); %Create dir for these figures
- 
-    cellType = {'all','SST','VIP','PV','PYR'};
-    for i = 1:numel(cellType)
-        figs(i) = fig_summary_lick_density(stats.behavior,cellType{i},params.figs.lickDensity);
-    end
-    save_multiplePlots(figs,save_dir,'svg'); %save as FIG and PNG
-    clearvars figs;
-end
-
-% Periswitch performance curves
-if figures.summary_periswitch_performance
-    behavior = load(mat_file.summary.behavior); %Load data
-    save_dir = fullfile(dirs.figures,'Summary - periswitch performance curves'); %Figures directory
-    create_dirs(save_dir); %Create dir for these figures
-    
-    cellType = {'all','SST','VIP','PV','PYR'};
-    for i=1:numel(cellType)
-        figs(i) = fig_summary_periswitch_performance(behavior,cellType{i},params.figs.perfCurve);
-    end
-    save_multiplePlots(figs,save_dir,'svg'); %save as FIG and PNG
-    clearvars figs;
-end
+% % Lick Density Plots
+% if figures.summary_lick_density
+%     stats = load(mat_file.stats,'behavior'); %Load data
+%     save_dir = fullfile(dirs.figures,'Summary - lick density'); %Figures directory
+%     create_dirs(save_dir); %Create dir for these figures
+%  
+%     cellType = {'all'}; %{'all','SST','VIP','PV','PYR'}
+%     for i = 1:numel(cellType)
+%         figs(i) = fig_summary_lick_density(B,cellType{i},params.figs.summary_behavior);
+%     end
+%     save_multiplePlots(figs,save_dir,'svg'); %save as FIG and PNG
+%     clearvars figs;
+% end
+% 
+% % Differential licking by pre/post, outcome, and lateralization 
+% if figures.summary_lickstats
+%     stats = load(mat_file.stats,'behavior'); %Load data
+%     save_dir = fullfile(dirs.figures,'Summary - lick density'); %Figures directory
+%     create_dirs(save_dir); %Create dir for these figures
+%     
+%     cellType = {'all'}; %{'all','SST','VIP','PV','PYR'}
+%     for i=1:numel(cellType)
+%         figs(i) = fig_summary_lickstats(stats.behavior,cellType{i},params.figs.summary_behavior);
+%     end
+%     save_multiplePlots(figs,save_dir,'svg'); %save as FIG and PNG
+%     clearvars figs;
+% end
 
 % Heatmap of modulation indices for each cell type: one figure each for choice, outcome, and rule
 if figures.summary_modulation_heatmap
@@ -238,13 +243,14 @@ end
 % Summarize modulation by CO&R for all cell types
 if figures.summary_modulation
     %Load data
-    B = load(mat_file.stats,'selectivity');
+    S = load(mat_file.stats,'selectivity');
+    T = load(mat_file.stats);
     time = load(mat_file.summary.selectivity,'t'); time = time.t;
     save_dir = fullfile(dirs.figures,'Summary - modulation comparisons');   %Figures directory
     create_dirs(save_dir); %Create dir for these figures
     %Generate figures
-    mod_figs = fig_summary_modulation(B.selectivity,time,params.figs.summary_modulation);
-    pref_fig = fig_summary_preference(B.selectivity,time,params.figs.summary_preference);
+    mod_figs = fig_summary_modulation(S.selectivity,time,params.figs.summary_modulation);
+    pref_fig = fig_summary_preference(S.selectivity,params.figs.summary_preference);
     %Save
     figs = [mod_figs; pref_fig];
     save_multiplePlots(figs,save_dir,'svg'); %save as FIG and PNG

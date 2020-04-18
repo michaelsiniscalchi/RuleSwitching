@@ -13,10 +13,10 @@ titles = {'Sound','Action left','Action right'};
 
 setup_figprops([]);
 fig = figure('Name',['Lick density summary - ' cellType]);
-fig.Position = [400 400 870 600]; %BLWH  [400 396 872 600]
+fig.Position = [100 100 870 600]; %BLWH 
 tiledlayout(numel(cue),numel(rule),'TileSpacing','none','Padding','none');
 ax = gobjects(numel(cue)*numel(rule),1);
-ymax = 12; %Y-axis limit
+ymax = 9; %Y-axis limit
 
 %Plot lick density as f(t)
 for row = 1:numel(cue)
@@ -29,13 +29,13 @@ for row = 1:numel(cue)
             data = D.(direction{i}).(cue{row}).(rule{col}); %Counts/trial/second
             %Plot lick densities
             CI = data.mean + [-data.sem; data.sem];
-            errorshade(t,CI(1,:),CI(2,:),params.colors{i},0.2); % errorshade(X,CI_low,CI_high,color,transparency)
-            plot(t,data.mean,'Color',params.colors{i});  %Lick density, {left,right}
+            errorshade(t,CI(1,:),CI(2,:),params.colors.(direction{i}),0.2); % errorshade(X,CI_low,CI_high,color,transparency)
+            plot(t,data.mean,'Color',params.colors.(direction{i}));  %Lick density, {left,right}
         end
         plot([0,0],[0,ymax],':k','LineWidth',1); %Plot t0
         
         %Standardize plotting area
-        ylim([0,ymax]); %[0,12] Hz
+        ylim([0,ymax]); %[0,10] Hz
         xlim([edges(1),edges(end)]); %Trial window
         axis square;
         

@@ -33,7 +33,7 @@ summarize.table_comparative_stats   = true;
 % Behavior
 figures.raw_behavior                    = false;
 figures.lick_density                    = false;
-% Imaging %***REDO Overnight***
+% Imaging %***RERUN on desktop after quarantine***
 figures.FOV_mean_projection             = false;
 figures.timeseries                      = false; %Plot all timeseries for each session
 % Combined
@@ -42,11 +42,11 @@ figures.decode_single_units             = false;
 figures.heatmap_modulation_idx          = false;  %Heatmap of selectivity idxs for COR for each session
 figures.transitions                     = false; 
 % Summary
-figures.summary_behavior                = false; %Summary of descriptive stats, eg, nTrials and {trials2crit, pErr, oErr} for each rule
-figures.summary_lick_density            = false;
-figures.summary_periswitch_performance  = false;
-figures.summary_modulation_heatmap      = true; %Heatmap for each celltype, all sessions, one figure each for CO&R
-figures.summary_modulation				= false; %Bar/line plots of grouped selectivity results for comparison
+figures.summary_behavior                = true; %Summary of descriptive stats, eg, nTrials and {trials2crit, pErr, oErr} for each rule
+figures.summary_lick_density            = false; %Merge with lickstats as lick_stats
+figures.summary_lickstats               = false;
+figures.summary_modulation_heatmap      = false; %Heatmap for each celltype, all sessions, one figure each for CO&R
+figures.summary_modulation				= false; %Box/line plots of grouped selectivity results for comparison
 figures.summary_transitions             = false;
 
 % Validation
@@ -121,7 +121,7 @@ params.decode.nShuffle        = 1000; %Number of shuffled replicates
 params.decode.CI              = params.bootAvg.CI; %Confidence interval as percentage
 params.decode.sig_method      = 'shuffle';  %Method for determining chance-level: 'bootstrap' or 'shuffle'
 params.decode.sig_duration    = 1;  %Number of consecutive seconds exceeding chance-level
-params.decode.t0              = 0;  %Use eg params.behavior.timeWindow(1), or 0 for trigger time
+params.decode.t0              = params.behavior.timeWindow(1);  %Use eg params.behavior.timeWindow(1), or 0 for trigger time
 
 % Transition analyses
 params.transitions.window           = params.behavior.timeWindow; %Time to be considered within trial
@@ -141,18 +141,22 @@ params.stats.analysis_names = {'behavior','imaging','selectivity'};
 c = cbrewer('qual','Paired',10);
 colors = {'red',c(6,:),'red2',c(5,:),'blue',c(2,:),'blue2',c(1,:),'green',c(4,:),'green2',c(3,:),...
     'purple',c(10,:),'purple2',c(9,:),'orange',c(8,:),'orange2',c(7,:)};
-% Add additional colors from Set1 and RGB
+% Add additional colors from Set1 & Pastel1
 c = cbrewer('qual','Set1',9);
-colors = [colors {'pink',c(8,:),'black',[0,0,0],'gray',c(9,:)}];
+c2 = cbrewer('qual','Pastel1',9);
+colors = [colors {'pink',c(8,:),'pink2',c2(8,:),'gray',c(9,:),'gray2',[0.7,0.7,0.7],'black',[0,0,0]}];
 cbrew = struct(colors{:}); %Merge palettes
 clearvars colors
 
 %Define color codes for cell types, etc.
 cellColors = {'SST',cbrew.orange,'SST2',cbrew.orange2,'VIP',cbrew.green,'VIP2',cbrew.green2,...
     'PV',cbrew.purple,'PV2',cbrew.purple2,'PYR',cbrew.blue,'PYR2',cbrew.blue2}; 
+choiceColors = {'left',cbrew.red,'left2',cbrew.red2,'right',cbrew.blue,'right2',cbrew.blue2}; %{Sound,Action}
 ruleColors = {'sound',cbrew.black,'sound2',cbrew.gray,'action',cbrew.red,'action2',cbrew.red2}; %{Sound,Action}
-dataColors = {'data',cbrew.gray};
-colors = struct(cellColors{:},ruleColors{:},dataColors{:});
+outcomeColors = {'hit',cbrew.green,'hit2',cbrew.green2,'pErr',cbrew.pink,'pErr2',cbrew.pink2,...
+    'oErr',cbrew.pink,'oErr2',cbrew.pink2,'miss',cbrew.gray,'miss2',cbrew.gray2};
+dataColors = {'data',cbrew.black,'data2',cbrew.gray};
+colors = struct(cellColors{:}, choiceColors{:}, ruleColors{:}, outcomeColors{:}, dataColors{:});
 
 %% FIGURE: MEAN PROJECTION FROM EACH FIELD-OF-VIEW
 params.figs.fovProj.calcProj        = true; %Calculate or re-calculate projection from substacks for each trial (time consuming).
@@ -179,11 +183,6 @@ params.figs.behavior.colors = {cbrew.red, cbrew.blue, cbrew.green};
 params.figs.lickDensity.timeWindow = params.behavior.timeWindow; %For lick density plots
 params.figs.lickDensity.binWidth = params.behavior.binWidth; 
 params.figs.lickDensity.colors = {cbrew.red, cbrew.blue};
-
-%% FIGURE: PERFORMANCE CURVES SURROUNDING RULE SWITCH
-params.figs.perfCurve.outcomes = {'hit','pErr','oErr','miss'};
-params.figs.perfCurve.colors = {cbrew.green,cbrew.pink,cbrew.pink,cbrew.gray}; %Hit,pErr,oErr,Miss
-params.figs.perfCurve.LineStyle = {'-','-',':','-'};
 
 %% FIGURE: CELLULAR FLUORESCENCE TIMESERIES FOR ALL NEURONS
 params.figs.timeseries.expIDs           = [];
@@ -289,11 +288,15 @@ params.figs.mod_heatmap.rule_SR.color   = c(2,:);
 
 params.figs.transitions.Color = {cbrew.black, cbrew.red, cbrew.gray};
 
-%% SUMMARY FIGURE: BEHAVIORAL STATISTICS
-
-%***TODO: RECODE COLOR SPECS based on color scheme in struct 'colors'***
-params.figs.summary_behavior.ruleColors = {[colors.sound;colors.sound2],[colors.action;colors.action2]}; %{Sound,Action}
-params.figs.summary_behavior.cellColors = {colors.SST,colors.VIP,colors.PV,colors.PYR}; %{SST,VIP,PV,PYR}
+%% SUMMARY FIGURE: BEHAVIORAL STATISTICS, LICK DENSITY AND DIFFERENTIAL LICK RATES
+params.figs.summary_behavior.outcomes = {'hit','pErr','oErr','miss'};
+params.figs.summary_behavior.timeWindow = params.behavior.timeWindow; %For lick density plots
+params.figs.summary_behavior.binWidth = params.behavior.binWidth; 
+params.figs.summary_behavior.colors = colors;
+params.figs.summary_behavior.dotSize = 1;
+params.figs.summary_behavior.boxWidth = 0.5; 
+params.figs.summary_behavior.lineWidth = 2;
+params.figs.summary_behavior.lineStyle = {'-','-',':','-'}; %LineStyle for each outcome
 
 %% SUMMARY FIGURE: MODULATION INDEX-----------------------------------------------
 
@@ -302,42 +305,52 @@ params.figs.summary_behavior.cellColors = {colors.SST,colors.VIP,colors.PV,color
 %Specify array 'f' containing variables and plotting params for each figure:
 f(1).fig_name   = 'Mean_Selectivity_all';
 f(1).var_name   = {'selIdx','selIdx_t'};
+f(1).null_name  = {'nullIdx','nullIdx_t'};
 
 f(2).fig_name   = 'Mean_Selectivity_sig';
 f(2).var_name   = {'sigIdx','sigIdx_t'};
+f(2).null_name  = {'nullIdx','nullIdx_t'};
 
 f(3).fig_name   = 'Mean_Magnitude_all'; 
 f(3).var_name   = {'selMag','selMag_t'};
+f(3).null_name  = {'nullMag','nullMag_t'};
 
-f(4).fig_name   = 'Mean_Magnitude_sig'; 
-f(4).var_name   = {'sigMag','sigMag_t'};
-
-f(5).fig_name   = 'Proportion_Selective';
-f(5).var_name   = {'pSig', 'pSig_t'};
+f(4).fig_name   = 'Proportion_Selective';
+f(4).var_name   = {'pSig', 'pSig_t'};
+f(4).null_name  = {'pNull', 'pNull_t'};
 
 params.figs.summary_modulation.figs = f;
 
+params.figs.summary_modulation.decodeTypes =...
+    {'choice_sound','prior_choice','choice_action','outcome','rule_SL','rule_SR'}; %MUST have same number of elements as rows in trialSpec. Eg, = {'choice','outcome','rule_SL','rule_SR'}
 params.figs.summary_modulation.titles =...
-    {'Choice (sound rule)','Choice (action rule)','Prior choice',...
+    {'Choice (sound rule)','Prior choice (sound rule)','Choice (action rule)',...
     'Outcome','Rule (left choice)','Rule (right choice)'};
 
 %Appearance
-params.figs.summary_modulation.barWidth = 0.5;
+params.figs.summary_modulation.dotSize  = 0.5;
+params.figs.summary_modulation.lineWidth = 2;
+params.figs.summary_modulation.boxWidth = 0.5; %Width of boxplot
 params.figs.summary_modulation.colors = colors; %Struct contains, eg, colors.SST, colors.SST2, etc.
+params.figs.summary_modulation.nullBound = 50; %Percent of distribution from eg, 9th-91st
+params.figs.summary_modulation.hypothesisTest = "signrank"; %***Link to table_comparisons via params
+params.figs.summary_modulation.alpha = 0.05; %***Link to table_comparisons via params
 
 % ---Preference plot------------------------------------------------------------------------------
+params.figs.summary_preference.decodeTypes  = params.figs.summary_modulation.decodeTypes;
+params.figs.summary_preference.titles       = params.figs.summary_modulation.titles; %Titles (cell array)
 
-params.figs.summary_preference.titles = params.figs.summary_modulation.titles; %Titles (cell array)
 %params.figs.summary_preference.dispersion = 'SEM'; %Bars with error bars
 params.figs.summary_preference.dispersion = 'IQR'; %Boxes with whiskers
 
 %Appearance
 params.figs.summary_preference.lineWidth = 2;
-params.figs.summary_preference.boxWidth = 0.2;
+params.figs.summary_preference.boxWidth = 0.25;
 params.figs.summary_preference.boxColors = colors;
 c = cbrewer('qual','Paired',10);
 params.figs.summary_preference.colors = {c([8,4,10,2],:),c([7,3,9,1],:)}; %Swap order
-
+params.figs.summary_preference.hypothesisTest = "signrank"; %***Link to table_comparisons via params
+params.figs.summary_preference.alpha = 0.05; %***Link to table_comparisons via params
 
 %% SUMMARY FIGURE: NEURAL TRANSITION ANALYSIS 
 

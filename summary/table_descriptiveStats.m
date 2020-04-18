@@ -4,39 +4,72 @@ function [ T, dataStruct ] = table_descriptiveStats( stats )
 dataStruct = struct('varName',[],'cellType',[],'ruleType',[],...
     'data',[],'mean',[],'sem',[],'median',[],'IQR',[],'sum',[],'N',[],'expID',[]);
 
-cellTypes = ["SST", "VIP", "PV", "PYR", "all"]'; %Column vectors
-ruleTypes = ["sound", "action", "all"]';
+cellTypes = ["SST", "VIP", "PV", "PYR"]'; %Column vectors
+ruleTypes = ["sound", "action"]';
 outcomeTypes = ["hit","pErr","oErr","miss"]';
 
 B = stats.behavior;
 I = stats.imaging;
-S = stats.selectivity;
+%S = stats.selectivity;
 
 % NOTES:    '{}' in first cell of var_spec reserved for 'cellTypes'.
 %           '{}' in last cell of var_spec reserved for 'ruleTypes'.
 
-%% DESCRIPTIVE STATS: BEHAVIOR
+%% OVERVIEW OF BEHAVIOR & IMAGING
+
+% Number of trials & blocks completed per session
+dataStruct = addRow(dataStruct,B.all,{"trialsCompleted"}); %#ok<STRSCALR> %Report mean & sem
+dataStruct = addRow(dataStruct,B.all,{"blocksCompleted"}); %#ok<STRSCALR> %Report mean & sem
+dataStruct = addRow(dataStruct,B.all,{"sessionsCompleted"}); %#ok<STRSCALR> %Report mean & sem
+
+% Number of identified cells, completed blocks w imaging, etc.
+dataStruct = addRow(dataStruct,I,{"all","totalCells"}); %#ok<CLARRSTR> %Report mean & sem
+dataStruct = addRow(dataStruct,I,{"all","exclCells"}); %#ok<CLARRSTR> %Report mean & sem
+dataStruct = addRow(dataStruct,I,{cellTypes,"inclCells"}); %Report mean & sem
+dataStruct = addRow(dataStruct,I,{cellTypes,"nBlocksImg"}); %Report mean & sem
+
+
+%% LICK RATES & RELATIVE LICK DENSITY
 
 % *** Collapsed across all Rules/Cell Types ***
 
-% Number of trials & blocks completed per session
-dataStruct = addRow(dataStruct,B.all,{"trialsCompleted"}); %Report mean & sem
-dataStruct = addRow(dataStruct,B.all,{"blocksCompleted"}); %Report mean & sem
+% Licks/s pre- & post-cue in completed trials
+dataStruct = addRow(dataStruct,B.all,{"lickRates",["preCue", "postCue"],"completed"});
 
-% Licks/s pre- & post-cue ***TODO***
+% Licks/s post-cue in hit, and error trials
+dataStruct = addRow(dataStruct,B.all,{"lickRates","postCue",["hit","err"]});
+
+% Licks/s pre-cue (to compare action & sound)
+dataStruct = addRow(dataStruct,B.all,{"lickRates","preCue",["sound","action"]});
 
 % *** For each Block Type ***
 
-% Licks/s pre-cue (to compare action & sound) ***TODO***
+% Difference in relative lick density 
+dataStruct = addRow(dataStruct,B.all,{"lickDiffs","preCue","all",["sound","actionL","actionR"]});
+dataStruct = addRow(dataStruct,B.all,{"lickDiffs","postCue",["upsweep","downsweep"],["sound","actionL","actionR"]});
 
-% Hit & pErr in two trials surrounding rule switch
-dataStruct = addRow( dataStruct, B.all, {"perfLastTrial",{"hit","pErr"},ruleTypes});
-dataStruct = addRow( dataStruct, B.all, {"perfNextTrial",{"hit","pErr"},ruleTypes});
 
-% Number trials to criterion, pErr, oErr, miss
+%% PERFORMANCE MEASURES
+
+% Hit, pErr, oErr, and miss rate in two trials surrounding rule switch
+dataStruct = addRow( dataStruct, B.all, {["perfLastTrial","perfNextTrial"],outcomeTypes,"all"});
+dataStruct = addRow( dataStruct, B.all, {["perfLastTrial","perfNextTrial"],outcomeTypes,ruleTypes});
+
+% Trials to criterion and frequency of each outcome
+dataStruct = addRow(dataStruct,B.all,{"trials2crit","all"}); %#ok<CLARRSTR> %Report mean & sem
+dataStruct = addRow(dataStruct,B.all,{"critPerf","all"}); %#ok<CLARRSTR> % %Report mean & sem
+dataStruct = addRow(dataStruct,B.all,{outcomeTypes,"all"}); %#ok<CLARRSTR> % %Report mean & sem
+
+% Number trials to criterion, pErr, & oErr, by rule-type
 dataStruct = addRow( dataStruct, B.all, {"trials2crit",ruleTypes});
 dataStruct = addRow( dataStruct, B.all, {"pErr",ruleTypes});
 dataStruct = addRow( dataStruct, B.all, {"oErr",ruleTypes});
+
+%% SUMMARY OF IMAGING EXPERIMENTS
+% Proportion of cells with task-related activity
+% Presented with example traces from each cell-type
+dataStruct = addRow(dataStruct,I,{cellTypes,"pTaskCells"}); %Report mean & sem
+
 
 %% RETURN DATA STRUCTURE AS TABLE
 
@@ -82,16 +115,17 @@ for i = 1:size(fields,1)
     end
     %Append additional fields from 'S'
     if isfield(s,'data')
-        %Variable name
-        s.varName = fields(i,end);
+        
         %Get cell-type from initial field, if present
-        s.cellType = [];
-        if length(var_spec{1})>1
+        s.cellType = string([]);
+        s.varName = strcat(fields{i,1:end}); %Initialize variable name
+        if ismember(var_spec{1},["SST","VIP","PV","PYR"])
             s.cellType = fields(i,1);
+            s.varName = fields(i,end); %Variable name
         end
         %Get rule-type from terminal field, if present
         s.ruleType = [];
-        if length(var_spec{end})>1
+        if ismember(var_spec{end},["sound","action"])
             s.ruleType = fields(i,end);
             s.varName = strcat(fields{i,1:end-1});
         end

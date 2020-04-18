@@ -8,72 +8,89 @@ setup_figprops([]);
 fig = figure('Name','Summary behavioral statistics');
 fig.Position = [400 50 866 900]; %BLWH for keeping axes same size as periswitch perf
 tiledlayout(2,3,'TileSpacing','none','Padding','none');
-ax = gobjects(6,1);
+c = params.colors;
+colors = {[c.sound;c.sound2];[c.action;c.action2]};
 
 %% PLOT TOTAL TRIALS, TRIALS TO CRITERION, & PERSEVERATIVE OR OTHER ERRORS
 
-% Bee Swarm: Trials to Criterion, Perseverative Errors, & Other Errors
+% Trials to Criterion, Perseverative Errors, & Other Errors
 
 vars = {'trials2crit','pErr','oErr'};
 for i = 1:numel(vars)
-    %Setup axes ahead of beeswarm()
-    data = [B.all.(vars{i}).sound.data, B.all.(vars{i}).action.data]; %Pooled data from all cell-types
-    ax(i) = nexttile;
-    ax(i).YLim = [0, 1.1*max(data(:))];
-    ax(i).XLim = [0 3];
-    ax(i).XTickLabel = {'Sound','Action'};
-    %Equal YLims for two error types
-    if i==3
-        ax(i).YLim = ax(2).YLim;
-    end
-    %Plot data with sample median and IQR
-    plot_swarms(ax(i),data,params.ruleColors(:),0.5);
-    title(titles{i}); %Title
-    
-    ylims(i,:) = ylim; %#ok<AGROW> %Store ylims for later standardization
+%Plot data with sample median and IQR
+data = [B.all.(vars{i}).sound.data, B.all.(vars{i}).action.data];
+ax(i) = nexttile;
+
+%Setup axes must ahead of beeswarm()
+ax(i) = setupAxes(ax(i),0,max(data(:)),params.boxWidth,{'Sound','Action'}); %setupAxes(axes_handle,yMin,yMax,boxWidth,xLabels)
+ax(i).PlotBoxAspectRatio = [1,2,1];
+%Equal YLims for two error types
+if i==3
+    ax(i).YLim = ax(2).YLim;
+end
+%Plot data with sample median and IQR
+plot_swarms(ax(i),data,colors,params.dotSize,params.lineWidth,params.boxWidth); %(ax,data,colors,dotSize,lineWidth,boxWidth,offset)
+% axis(ax(i),'square');
+title(titles{i}); %Title
+
 end
 
-% Formatting
+%% Additional Formatting
 
-%Set YLims for Error Plots
-ylims = ylims(2:3,:);
-ylim(ax(2:3),[min(ylims(:)) max(ylims(:))]);
+% YLabel & Box
+ylabel(ax(1),'Number of trials per block');
+set(ax,'Box','off'); %Box off for all
+% Drop YAxis on second error plot
 ax(3).YAxis.Visible = 'off';
 
-%YLabel & Box
-ylabel(ax(1),'Number per block');
-% set(ax(1:3),'Box','off','XTick',[1,2],'XTickLabel',{'Sound','Action'},'PlotBoxAspectRatio',[2,4,1]); %Box off for all
-set(ax(1:3),'Box','off','XTick',[1,2],'XTickLabel',{'Sound','Action'}); %Box off for all
-
 %% SCATTER BY CELL TYPE
-
-% SETUP PANELS FOR PLOTTING
-
-MarkerSize = 20;
-MarkerWidth = 2;
-LineWidth = 1;
 
 % For Each Cell Type, Scatter Action Data Against Sound
 cellType = fieldnames(B);
 cellType = cellType(~ismember(cellType,'all'));
+MarkerSize = params.dotSize*20;
 for i = 1:numel(vars)
     
     ax(i+3) = nexttile;
-    
     for j=1:numel(cellType)
         X = B.(cellType{j}).(vars{i}).sound.data;
         Y = B.(cellType{j}).(vars{i}).action.data;
-        scatter(X,Y,MarkerSize,params.cellColors{j},'LineWidth',MarkerWidth); hold on;
+        scatter(X,Y,MarkerSize,params.colors.(cellType{j}),'LineWidth',params.lineWidth); hold on;
     end
     
     xlabel('Number per sound block');
-    axis square
     lim = max([xlim,ylim]);
-    line([0,lim],[0,lim],'LineStyle',':','LineWidth',LineWidth,'Color','k');
-    
+    line([0,lim],[0,lim],'LineStyle',':','LineWidth',1,'Color',params.colors.data2);
+    axis square;
 end
 
 % Formatting
 
 % YLable for first of three block averaged variables
 ylabel(ax(4),'Number per action block');
+
+%% ---INTERNAL FUNCTIONS----------------------------------------------------------------------------
+
+%% Setup Axes
+function axes_handle = setupAxes( axes_handle, yMin, yMax, boxWidth, xLabels )
+%Arg check
+if nargin<4
+    boxWidth = [];
+    xLabels = axes_handle.XLabel;
+end
+%Set YLims 
+yRng = yMax - yMin; %Range
+if yMin<0
+    axes_handle.YLim = [yMin-0.1*yRng, yMax+0.2*yRng];
+else
+    axes_handle.YLim = [0, yMax+0.2*yRng];
+end
+%Set XAxis Properties
+if ~isempty(boxWidth) %If box/swarm
+    axes_handle.XLim = [1-(boxWidth) numel(xLabels)+(boxWidth)];
+    axes_handle.XTick = 1:numel(xLabels); %Box/bar/swarm chart: titles and labels
+    axes_handle.XTickLabels = xLabels;
+else %If line
+    
+end
+axes_handle.Layer = 'top'; %Make sure patches, etc are behind axes

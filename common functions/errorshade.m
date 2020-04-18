@@ -1,4 +1,4 @@
-function errorshade( X, CI_low, CI_high, color, transparency )
+function h = errorshade( X, CI_low, CI_high, color, transparency )
 % % errorshade(x,h,l,c) %
 %PURPOSE:   Plot shaded area, e.g. for confidence intervals
 %AUTHORS:   AC Kwan 170515
@@ -22,5 +22,5 @@ CI_low = CI_low(:)';
 CI_high = CI_high(:)';
 
 % Fill the shaded area
-f = fill([X fliplr(X)],[CI_low fliplr(CI_high)],color,'LineStyle','none');
-set(f,'FaceAlpha',transparency);
+h = fill([X fliplr(X)],[CI_low fliplr(CI_high)],color,'LineStyle','none');
+set(h,'FaceAlpha',transparency);

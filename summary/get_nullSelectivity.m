@@ -1,9 +1,10 @@
 
-function [ selIdxNull_cells_t, pSigNull_cells_t, pNull] = get_nullSelectivity( decode, time, params )
+function [ nullIdx_cells_t, nullMag_cells_t, pSigNull_cells_t, pNull] = get_nullSelectivity( decode, time, params )
 
 %% INITIALIZE
 nCells = size(decode.AUC_shuffle,1);
-selIdxNull_cells_t  = NaN(nCells,numel(time));
+nullIdx_cells_t     = NaN(nCells,numel(time)); %Mean selectivity index across all shuffles
+nullMag_cells_t     = NaN(nCells,numel(time));
 pSigNull_cells_t    = NaN(nCells,numel(time));
 pNull               = NaN(nCells,1);
 
@@ -15,7 +16,8 @@ for i = 1:nCells
     
     %Calculate chance-level selectivity index for each cell as a function of time
     shuffle = 2*(decode.AUC_shuffle{i}-0.5); %Obtain selectivity (range: -1,1) from shuffled AUC
-    selIdxNull_cells_t(i,:) = mean(shuffle);
+    nullIdx_cells_t(i,:) = mean(shuffle); %Mean selectivity index across all shuffles
+    nullMag_cells_t(i,:) = mean(abs(shuffle)); %Mean selectivity magnitude across all shuffles
     
     %Calculate false discovery rates across all shuffled replicates of AUC
     [sigBins, isNull] = testNullSelectivity(shuffle, time, params); %Significant bins in each shuffle and idx of overall significant shuffles
