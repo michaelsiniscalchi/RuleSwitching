@@ -13,11 +13,10 @@ function fig = fig_rawBehavior( trialData, trials, tlabel, params )
 %
 %---------------------------------------------------------------------------------------------------
 
-%% SETUP PLOTTING PARAMETERS
+%% SET UP PLOTTING PARAMETERS
 setup_figprops('raster');
-red = params.colors{1}; %Defined for all figures using cbrewer() in params
-blue = params.colors{2};
-% outcomeColor = mean([params.colors{2}; params.colors{3}]); %LBWH
+red = params.colors.red; %Defined for all figures using cbrewer() in params
+blue = params.colors.blue;
 outcomeColor = 'w'; %Do not indicate outcome period
 blockColor = {'k',red,blue}; %sound, actionL, actionR
 time_range = params.window;
@@ -33,11 +32,12 @@ end
 
 %% GENERATE FIGURE
 fig = figure('Name',['Raw Behavior - ',tlabel]);
+fig.Position = [50 50 600 600];
 title(tlabel);
 hold on;
 
 %Draw horizontal line for first trial in first (sound) block
-line(time_range,[0.5,0.5],'Color','k');
+line(time_range,[0,0],'Color','k');
 
 for j = 1:numel(trialData.cue)
     
@@ -45,7 +45,7 @@ for j = 1:numel(trialData.cue)
     if swTrial.any(j)
         color = blockColor{...
             [swTrial.sound(j),swTrial.actionL(j),swTrial.actionR(j)]};
-        line(time_range,[j-0.5 j-0.5],'Color',color);
+        line(time_range,[j-1 j-1],'Color',color);
     end
     
     %Shaded area for cue
@@ -60,7 +60,7 @@ for j = 1:numel(trialData.cue)
     %Shaded area for outcome
     eventTime = trialData.outcomeTimes(j)-t0;
     if trials.hit(j)
-        eventShade(j,eventTime,0.5,outcomeColor)
+        eventShade(j,eventTime,0.1,outcomeColor)
     end
     
     %Shaded area for grace period (cue-onset to 500 ms)
@@ -68,11 +68,11 @@ for j = 1:numel(trialData.cue)
     
     %Plot tick marks for licks
     win = @(X) X(X>time_range(1) & X<time_range(2));
-    LL = win(trialData.lickTimesLeft{j});
-    RL = win(trialData.lickTimesRight{j});
+    L = win(trialData.lickTimesLeft{j});
+    R = win(trialData.lickTimesRight{j});
     
-    line([LL; LL],j+[-0.5*ones(size(LL)); 0.5*ones(size(LL))],'Color',red);
-    line([RL; RL],j+[-0.5*ones(size(RL)); 0.5*ones(size(RL))],'Color',blue);
+    line([L; L],j+[-1*ones(size(L)); 0*ones(size(L))],'Color',red);
+    line([R; R],j+[-1*ones(size(R)); 0*ones(size(R))],'Color',blue);
 end
 
 xlim([time_range(1),time_range(2)]);
@@ -84,8 +84,8 @@ end
 
 function eventShade(trial_idx,time,dur,color)
 p = fill([time,time+dur,time+dur,time],...
-    [trial_idx-0.5,trial_idx-0.5,trial_idx+0.5,trial_idx+0.5],...
+    [trial_idx-1,trial_idx-1,trial_idx,trial_idx],...
     color);
 p.EdgeColor = 'none';
-p.FaceAlpha = 0.3;
+p.FaceAlpha = 0.4;
 end

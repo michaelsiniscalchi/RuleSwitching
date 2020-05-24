@@ -25,11 +25,11 @@
 if figures.raw_behavior
     save_dir = fullfile(dirs.figures,'Raw behavior');
     create_dirs(save_dir); %Create dir for these figures
-    for i = 1:numel(expData)
+    for i = 1:numel(expData) %Example session i=45; i=9
         B = load(fullfile(mat_file.behavior(i))); %Load saved behavioral data
         fig = fig_rawBehavior(...
             B.trialData, B.trials, expData(i).sub_dir, params.figs.behavior); %Generate plot
-        save_multiplePlots(fig,save_dir,'svg'); %save as FIG and PNG
+        save_multiplePlots(fig,save_dir,'pdf'); %save as FIG, PNG, and optional vector (PDF, etc)
         clearvars figs;
     end
 end
@@ -185,7 +185,7 @@ if figures.summary_behavior
     end
 %      figs(numel(cellType)+1) =...
 %             fig_summary_behavior(stats.behavior,params.figs.summary_behavior); %With scatter by cell-type
-    save_multiplePlots(figs,save_dir,'svg'); %save as FIG and PNG
+    save_multiplePlots(figs,save_dir,'svg','pdf'); %save as FIG and PNG
     clearvars figs;
 end
 
@@ -229,14 +229,13 @@ if figures.summary_modulation_heatmap
     decodeType = fieldnames(decode);
     for j = 1:numel(decodeType)
         disp(['Generating summary figure: modulation heatmap for ' decodeType{j} '...']);
-        %***RENAME: fig_summary_modulation_heatmap()
         figs(j) = fig_summary_selectivity(...
             decode, decodeType{j}, t, params.figs.mod_heatmap);
         %Figure with heatmap only for significantly modulated cells
-        figs(numel(decodeType)+j) = fig_summary_selectivity(...
-            decode, decodeType{j}, t, params.figs.mod_heatmap, 'sig');
+%         figs(numel(decodeType)+j) = fig_summary_selectivity(...
+%             decode, decodeType{j}, t, params.figs.mod_heatmap, 'sig');
     end
-    save_multiplePlots(figs,save_dir,'svg'); %save as FIG and PNG
+    save_multiplePlots(figs,save_dir,'pdf'); %save as FIG and PNG
     clearvars figs;
 end
 
@@ -253,7 +252,7 @@ if figures.summary_modulation
     pref_fig = fig_summary_preference(S.selectivity,params.figs.summary_preference);
     %Save
     figs = [mod_figs; pref_fig];
-    save_multiplePlots(figs,save_dir,'svg'); %save as FIG and PNG
+    save_multiplePlots(figs,save_dir,'pdf'); %save as FIG and PNG
     clearvars figs;
 end
 

@@ -20,6 +20,13 @@ lickTimesAll = [trialData.lickTimesLeft, trialData.lickTimesRight]; %Concatentat
 [lickRates.preCue.completed, lickRates.postCue.completed] = ...
     getPeriCueLickRates(lickTimesAll, ~trials.miss, binWidth);
 
+% Post-cue lickrates for comparison of hit vs error trials
+outcome = {'hit','err'};
+for i = 1:numel(outcome)
+    [lickRates.preCue.(outcome{i}), lickRates.postCue.(outcome{i})] = ...
+        getPeriCueLickRates(lickTimesAll, trials.(outcome{i}), binWidth);
+end
+
 % Pre- and Post-Cue Lick Rates for Comparison of Sound & Action trials
 rule = {'sound','action'};
 for i = 1:numel(rule)
@@ -27,18 +34,22 @@ for i = 1:numel(rule)
         getPeriCueLickRates(lickTimesAll, getMask(trials,{rule{i},'last20'}), binWidth);
 end
 
+% Post-Cue Lick Rates for Comparison of Upsweep & Downsweep trials
+%   during Sound, Action-L, & Action-R blocks
+cue = {'upsweep','downsweep'};
+rule = {'sound','actionL','actionR'};
+for i = 1:numel(cue)
+    for j = 1:numel(rule)
+        [~, lickRates.postCue.(cue{i}).(rule{j})] = ...
+            getPeriCueLickRates(lickTimesAll, getMask(trials,{cue{i},rule{j},'last20'}), binWidth);
+    end
+end
+
 % Pre- and Post-Cue Lick Rates at Left and Right Ports in Completed Trials
 port = {'lickL','lickR'};
 for i = 1:numel(port)
     [lickRates.preCue.(port{i}), lickRates.postCue.(port{i})] = ...
         getPeriCueLickRates(lickTimesAll(:,i), ~trials.miss, binWidth); %Consider data from left & right ports independently
-end
-
-% Post-cue lickrates for comparison of hit vs error trials
-outcome = {'hit','err'};
-for i = 1:numel(outcome)
-    [lickRates.preCue.(outcome{i}), lickRates.postCue.(outcome{i})] = ...
-        getPeriCueLickRates(lickTimesAll, trials.(outcome{i}), binWidth);
 end
 
 %%------- INTERNAL FUNCTIONS -----------------------------------------------------------------------

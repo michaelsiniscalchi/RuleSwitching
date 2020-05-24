@@ -12,21 +12,21 @@ ax = gobjects(3,1);
 transparency = 0.2;
 
 switchType = {'sound','action','all'};
+outcomes = params.outcomes;
 X = -20:19;
 
 for i = 1:numel(switchType)
-%     ax(i) = subplot(3,1,i);  hold on
 ax(i) = nexttile;
 hold on;
-    for j=1:numel(params.outcomes)
+    for j=1:numel(outcomes)
         
-        data = behavior.(cellType).perfCurve.(params.outcomes{j}).(switchType{i}).data; 
+        data = behavior.(cellType).perfCurve.(outcomes{j}).(switchType{i}).data; 
         M = mean(data);
         sem = std(data)/sqrt(size(data,1));
         CI = M + [-sem; sem];
         
-        errorshade(X,CI(1,:),CI(2,:),params.colors{j},transparency);
-        p(j) = plot(X,M,'Color',params.colors{j},'LineStyle',params.LineStyle{j});
+        errorshade(X,CI(1,:),CI(2,:),params.colors.(outcomes{j}),transparency);
+        p(j) = plot(X,M,'Color',params.colors.(outcomes{j}),'LineStyle',params.lineStyle{j});
         
     end
     plot([0 0],[0 1],'k:','LineWidth',get(groot,'DefaultAxesLineWidth')); %First trial post-switch

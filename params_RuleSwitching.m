@@ -25,8 +25,8 @@ summarize.transitions           = false;
 
 summarize.stats                     = false; %Descriptive stats; needed for all summary plots
 summarize.table_experiments         = false;
-summarize.table_descriptive_stats   = true;
-summarize.table_comparative_stats   = true;
+summarize.table_descriptive_stats   = false;
+summarize.table_comparative_stats   = false;
 
 %% PLOT RESULTS
 
@@ -42,11 +42,11 @@ figures.decode_single_units             = false;
 figures.heatmap_modulation_idx          = false;  %Heatmap of selectivity idxs for COR for each session
 figures.transitions                     = false; 
 % Summary
-figures.summary_behavior                = true; %Summary of descriptive stats, eg, nTrials and {trials2crit, pErr, oErr} for each rule
+figures.summary_behavior                = false; %Summary of descriptive stats, eg, nTrials and {trials2crit, pErr, oErr} for each rule
 figures.summary_lick_density            = false; %Merge with lickstats as lick_stats
 figures.summary_lickstats               = false;
-figures.summary_modulation_heatmap      = false; %Heatmap for each celltype, all sessions, one figure each for CO&R
-figures.summary_modulation				= false; %Box/line plots of grouped selectivity results for comparison
+figures.summary_modulation_heatmap      = true; %Heatmap for each celltype, all sessions, one figure each for CO&R
+figures.summary_modulation				= true; %Box/line plots of grouped selectivity results for comparison
 figures.summary_transitions             = false;
 
 % Validation
@@ -152,9 +152,11 @@ clearvars colors
 cellColors = {'SST',cbrew.orange,'SST2',cbrew.orange2,'VIP',cbrew.green,'VIP2',cbrew.green2,...
     'PV',cbrew.purple,'PV2',cbrew.purple2,'PYR',cbrew.blue,'PYR2',cbrew.blue2}; 
 choiceColors = {'left',cbrew.red,'left2',cbrew.red2,'right',cbrew.blue,'right2',cbrew.blue2}; %{Sound,Action}
-ruleColors = {'sound',cbrew.black,'sound2',cbrew.gray,'action',cbrew.red,'action2',cbrew.red2}; %{Sound,Action}
-outcomeColors = {'hit',cbrew.green,'hit2',cbrew.green2,'pErr',cbrew.pink,'pErr2',cbrew.pink2,...
-    'oErr',cbrew.pink,'oErr2',cbrew.pink2,'miss',cbrew.gray,'miss2',cbrew.gray2};
+ruleColors = {'sound',cbrew.black,'sound2',cbrew.gray,'action',cbrew.purple,'action2',cbrew.purple2,...
+    'actionL',cbrew.red,'actionL2',cbrew.red2,'actionR',cbrew.blue,'actionR2',cbrew.blue2}; %{Sound,Action}
+outcomeColors = {'hit',cbrew.green,'hit2',cbrew.green2,'err',cbrew.pink,'err2',cbrew.pink2,...
+    'pErr',cbrew.pink,'pErr2',cbrew.pink2,'oErr',cbrew.pink,'oErr2',cbrew.pink2,...
+    'miss',cbrew.gray,'miss2',cbrew.gray2};
 dataColors = {'data',cbrew.black,'data2',cbrew.gray};
 colors = struct(cellColors{:}, choiceColors{:}, ruleColors{:}, outcomeColors{:}, dataColors{:});
 
@@ -177,7 +179,7 @@ params.figs.fovProj.cellIDs{numel(expData)} = []; %Initialize
 
 %% FIGURE: RAW BEHAVIOR
 params.figs.behavior.window = params.behavior.timeWindow; 
-params.figs.behavior.colors = {cbrew.red, cbrew.blue, cbrew.green};
+params.figs.behavior.colors = struct('red',cbrew.red,'blue',cbrew.blue,'green',cbrew.green);
 
 %% FIGURE: LICK DENSITY IN VARIED TRIAL CONDITIONS
 params.figs.lickDensity.timeWindow = params.behavior.timeWindow; %For lick density plots
@@ -294,7 +296,7 @@ params.figs.summary_behavior.timeWindow = params.behavior.timeWindow; %For lick 
 params.figs.summary_behavior.binWidth = params.behavior.binWidth; 
 params.figs.summary_behavior.colors = colors;
 params.figs.summary_behavior.dotSize = 1;
-params.figs.summary_behavior.boxWidth = 0.5; 
+params.figs.summary_behavior.boxWidth = [0.6, 0.3]; %For 1 & 2 boxes per group
 params.figs.summary_behavior.lineWidth = 2;
 params.figs.summary_behavior.lineStyle = {'-','-',':','-'}; %LineStyle for each outcome
 

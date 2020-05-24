@@ -16,7 +16,7 @@ fig = figure('Name',['Lick density summary - ' cellType]);
 fig.Position = [100 100 870 600]; %BLWH 
 tiledlayout(numel(cue),numel(rule),'TileSpacing','none','Padding','none');
 ax = gobjects(numel(cue)*numel(rule),1);
-ymax = 9; %Y-axis limit
+ymax = 10; %Y-axis limit
 
 %Plot lick density as f(t)
 for row = 1:numel(cue)

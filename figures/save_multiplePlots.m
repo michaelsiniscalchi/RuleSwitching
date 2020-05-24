@@ -5,6 +5,10 @@ options = parseOptions(opt_names);
 
 for j = 1:numel(figs)
     
+    if strcmp(class(figs(j)),'matlab.graphics.GraphicsPlaceholder')
+        continue %Skip empty graphics placeholders
+    end
+    
     % Set CreateFcn callback
     figs(j).CreateFcn = 'set(gcbo,''Visible'',''on'')';
     
@@ -14,7 +18,14 @@ for j = 1:numel(figs)
     
     % Save SVG
     if options.svg
-        print(figs(j),savename,'-dsvg');    %Save EPS for work in Illustrator
+        orient(figs(j),'landscape')
+        print(figs(j),savename,'-dsvg','-painters','-r0');    %Save vector for work in Illustrator
+    end
+    
+    % Save SVG
+    if options.pdf
+        orient(figs(j),'landscape')
+        print(figs(j),savename,'-dpdf','-painters','-r0');    %Save vector for work in Illustrator
     end
     
     %Save as MATLAB .FIG file
@@ -23,7 +34,7 @@ end
 close all;
 
 function options = parseOptions( opt_names )
-options = struct('svg',false);
+options = struct('svg',false,'pdf',false);
 for i = 1:numel(opt_names)
     options.(opt_names{i}) = true;
 end

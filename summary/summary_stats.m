@@ -70,9 +70,19 @@ switch type
             for j = 1:numel(pre_post)
                 fields = fieldnames(input.(cellTypes{i}).lickRates.(pre_post{j}));
                 for k = 1:numel(fields)
-                    data = input.(cellTypes{i}).lickRates.(pre_post{j}).(fields{k});
-                    S.(cellTypes{i}).lickRates.(pre_post{j}).(fields{k}) = ...
-                        calcStats(data,expID); %Lick rates pre- & post-cue, for comparing, eg, pre-cue lick rate in sound vs action.
+                    %Rewarded Upsweep & Downsweep Trials in each rule
+                    if ismember(fields{k},cue) %These fields are nested structures
+                        for kk = 1:numel(rule) 
+                            data = input.(cellTypes{i}).lickRates.(pre_post{j}).(fields{k}).(rule{kk}); %eg, input.all.lickRates.postCue.upsweep.sound
+                            S.(cellTypes{i}).lickRates.(pre_post{j}).(fields{k}).(rule{kk}) = ...
+                                calcStats(data,expID);
+                        end
+                    else
+                        %Remaining subsets of trials
+                        data = input.(cellTypes{i}).lickRates.(pre_post{j}).(fields{k});
+                        S.(cellTypes{i}).lickRates.(pre_post{j}).(fields{k}) = ...
+                            calcStats(data,expID); %Lick rates pre- & post-cue, for comparing, eg, pre-cue lick rate in sound vs action.
+                    end
                 end
             end
             
