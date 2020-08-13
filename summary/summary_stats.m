@@ -124,7 +124,7 @@ switch type
         %Get Mean, SEM, N, and Exp. ID for each terminal node in struct selectivity
         decodeTypes = fieldnames(input);
         decodeTypes = decodeTypes(~strcmp(decodeTypes,'t'));
-        time = input.t;
+        S.time = input.t;
         for i = 1:numel(decodeTypes)
             cellTypes = fieldnames(input.(decodeTypes{i}));
             for j = 1:numel(cellTypes)

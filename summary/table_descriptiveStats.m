@@ -7,10 +7,12 @@ dataStruct = struct('varName',[],'cellType',[],'ruleType',[],...
 cellTypes = ["SST", "VIP", "PV", "PYR"]'; %Column vectors
 ruleTypes = ["sound", "action"]';
 outcomeTypes = ["hit","pErr","oErr","miss"]';
+decodeTypes = ["choice_sound","choice_action","prior_choice","prior_choice_action",...
+    "outcome","prior_outcome","rule_SL","rule_SR"]';
 
 B = stats.behavior;
 I = stats.imaging;
-%S = stats.selectivity;
+S = stats.selectivity;
 
 % NOTES:    '{}' in first cell of var_spec reserved for 'cellTypes'.
 %           '{}' in last cell of var_spec reserved for 'ruleTypes'.
@@ -70,11 +72,33 @@ dataStruct = addRow( dataStruct, B.all, {"oErr",ruleTypes});
 % Presented with example traces from each cell-type
 dataStruct = addRow(dataStruct,I,{cellTypes,"pTaskCells"}); %Report mean & sem
 
+%% SUMMARY OF MODULATION RESULTS
+vars = ["pSig","selMag","selIdx"];
+for i = 1:numel(decodeTypes)
+    for j = 1:numel(vars)
+        dataStruct = addRow(dataStruct,S,{decodeTypes(i),cellTypes,vars(j)}); %Report mean & sem
+    end
+end
+
+vars = ["pPrefPos","pPrefNeg"];
+for i = 1:numel(decodeTypes)
+    for j = 1:numel(cellTypes)
+        for k = 1:numel(vars)
+            dataStruct = addRow(dataStruct,S,{decodeTypes(i),cellTypes(j),vars(k)}); %Report mean & sem
+        end
+    end
+end
+
+%Mean modulation magnitude during pre-cue period
+S = posthoc_PreCueAvg(S,"prior_outcome",cellTypes,"selMag_t"); %Add derivative variable post-hoc
+for j = 1:numel(cellTypes)
+    dataStruct = addRow(dataStruct,S,{"prior_outcome",cellTypes(j),"preCueAvg_selMag_t"}); %Report mean & sem
+end
 
 %% RETURN DATA STRUCTURE AS TABLE
 
 T = dataStruct;
-T = rmfield(T,["data","expID"]);
+T = rmfield(T,["data","expID","median","IQR"]); %Remove selected fields; can be added back as necessary for reporting
 T = struct2table(T);
 disp(T);
 
@@ -86,7 +110,7 @@ function data_struct = addRow( data_struct, stats, var_spec )
 % INPUT ARGUMENTS
 %   'S',        The structure array to be modified, later to be output as table using 'struct2table.m'
 %   'stats',    The scalar structure containing fields specified in var_spec.
-%   'var_spec', A cell array specifying hierarchy of fields containing varirable of interest.
+%   'var_spec', A cell array specifying hierarchy of fields containing variable of interest.
  
 fields = []; 
 for i = 1:numel(var_spec)

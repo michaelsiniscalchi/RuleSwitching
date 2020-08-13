@@ -7,9 +7,11 @@ figName = img_beh.sessionID;
 if isempty(params.cellIDs)
     fig = figure('Name',figName);
     fig.Position = [10 100 1900 800];
+    ds_factor = 1; %Downsample factor; set to 1 for no DS
 else
     fig = figure('Name',[figName ' -subset']);
     fig.Position = [10 100 1900 400];
+    ds_factor = 5; %Downsample factor
 end
 fig.Visible = 'on';
 color = params.Color; 
@@ -27,9 +29,12 @@ elseif ~isempty(params.cellIDs)
 end
 
 % Extract data for plot
-dFF = img_beh.dFF(cellIdx);
-nROIs = numel(dFF); %Number of cells to plot
-t = (img_beh.t ./ 60); %Unit: seconds->minutes
+nROIs = sum(cellIdx); %Number of cells to plot
+
+timeIdx = 1:ds_factor:numel(img_beh.t);%Downsample for publications, etc.
+t = (img_beh.t(timeIdx) ./ 60); %Unit: seconds->minutes
+dFF = cellfun(@(C) C(timeIdx),img_beh.dFF(cellIdx),'UniformOutput',false);
+
 cueTimes = (img_beh.trialData.cueTimes ./ 60); %Unit: seconds->minutes
 trigTimes = (img_beh.trialData.(params.trigTimes) ./ 60); %'cueTimes' or 'responseTimes'
 

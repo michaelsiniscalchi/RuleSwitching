@@ -161,7 +161,7 @@ if calculate.fluorescence
     disp(['Total time needed for cellular fluorescence analyses: ' num2str(toc) 'sec.']); 
 %05 hrs for cellF
 %29 hrs for dF/F for all sessions
-%06 hrs for new ROC analysis
+%XX hrs for new ROC analysis
 
 end
 

@@ -60,13 +60,16 @@ for i = 1:numel(taskVar)
                 STIM.right_DNSWEEP];
             trialData.rule = trialData.cue; %Rule info is multiplexed in presentation codes for cue
     end
-fields = fieldnames(codes);
-for j = 1:numel(fields)
-    trials.(fields{j}) = ismember(trialData.(taskVar{i}),codes.(fields{j})); %Generate trial mask for each field in 'codes'
-end
+    fields = fieldnames(codes);
+    for j = 1:numel(fields)
+        trials.(fields{j}) = ismember(trialData.(taskVar{i}),codes.(fields{j})); %Generate trial mask for each field in 'codes'
+    end
 end
 
-%% GET MASKS FOR PERSEVERATIVE AND OTHER ERRORS
+% Trials Performed: All trials in which a response was registered
+trials.performed = ~trials.miss;
+
+%% MASKS FOR PERSEVERATIVE AND OTHER ERRORS
 
 trials.pChoice = false(nTrials,1);   %perseverative choices (both hits and errors)
 trials.pErr = false(nTrials,1);    %perseverative errors

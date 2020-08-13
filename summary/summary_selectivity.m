@@ -58,7 +58,7 @@ for i = 1:numel(decodeType)
     pNull       = mean(pNull_cells); %Overall false discovery rate per cell
         
     %Additional variables
-    pPrefPos = mean(prefPos);
+    pPrefPos = mean(prefPos); %Proportion of total population
     pPrefNeg = mean(prefNeg);
     expID  = exp_ID.*ones(size(selIdx_cells_t,1),1); %Corresponds to expData(expID)
     nCells = size(selIdx_cells_t,1); %Number of cells in FOV

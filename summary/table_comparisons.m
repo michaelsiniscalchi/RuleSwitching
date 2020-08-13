@@ -5,7 +5,8 @@ compStruct = struct('varName',[],'comparison',[],'diff',[],'p',[],'N',[],'testNa
 mltCmpStruct = struct('varName',[],'comparison',[],'diff',[],'p',[]);
 
 cellTypes = ["SST", "VIP", "PV", "PYR"]'; %Column vectors
-decodeTypes = ["choice_sound", "choice_action", "prior_choice", "outcome", "rule_SL", "rule_SR"]';
+decodeTypes = ["choice_sound", "choice_action", "prior_choice","prior_choice_action",...
+    "outcome", "prior_outcome", "rule_SL", "rule_SR"]';
 ruleTypes = ["sound", "action"]';
 outcomeTypes = ["hit","pErr","oErr","miss"]';
 
@@ -41,7 +42,7 @@ compStruct = addComparison(...
 
 %Mean Licks/s post-cue for hit vs error trials (significant diff of ~
 compStruct = addComparison(...
-    compStruct, B.all, {"lickRates","postCue",["hit","err"]}, test.behavior); %Report mean & sem; 
+    compStruct, B.all, {"lickRates","postCue",["hit","err"]}, test.behavior); %Report mean & sem;
 %*Note: also examined, but did not report pre-cue - very small (~0.1 Hz sig diff)
 
 %Mean Licks/s pre-cue for sound vs action trials (Small overall (-) change in anticipatory licking)
@@ -93,20 +94,20 @@ end
 
 % One-Sample Test: Next-Trial Performance (vs. 50%)
 for i=1:numel(ruleTypes)
-        compStruct = addComparison(compStruct, B.all,{"perfNextTrial", "hit", ruleTypes(i)}, {'signrank',0.5}); %Report mean & sem
+    compStruct = addComparison(compStruct, B.all,{"perfNextTrial", "hit", ruleTypes(i)}, {test.behavior,0.5}); %Report mean & sem
 end
 
 % Perseverative vs Other Errors in each Rule Type
 for i=1:numel(ruleTypes)
-compStruct = addComparison(...
-    compStruct, B.all, {["pErr","oErr"], ruleTypes(i)}, test.behavior); %Report mean & sem
+    compStruct = addComparison(...
+        compStruct, B.all, {["pErr","oErr"], ruleTypes(i)}, test.behavior); %Report mean & sem
 end
 
-% Trials-to-Criterion for Sound vs Action 
+% Trials-to-Criterion for Sound vs Action
 compStruct = addComparison(...
     compStruct, B.all, {"trials2crit", ruleTypes}, test.behavior); %Report mean & sem
 
-% Perseverative Errors for Sound vs Action 
+% Perseverative Errors for Sound vs Action
 compStruct = addComparison(...
     compStruct, B.all, {"pErr", ruleTypes}, test.behavior); %Report mean & sem
 
@@ -146,10 +147,48 @@ for i = 1:numel(decodeTypes)
                 compStruct,S,{decodeTypes(i),cellTypes(k),vars{j}},test.modulation); %Report mean & sem
         end
     end
+    %Secondary comparison: difference in *corrected* means between cell-types
+    [compStruct, stats] = addComparison(...
+        compStruct,S,{decodeTypes(i),cellTypes,"diffNull","selIdx"},test.cellTypes); %Report mean & sem
+    %Post-hoc test
+    if str2double(compStruct(end).p)<alpha
+        mltCmpStruct = addMultComparison(mltCmpStruct,stats,compStruct(end).varName);
+    end
 end
 
-% *NOTE: validated diffNull comparisons by verifying that results of paired signrank are consistent 
-%   with 1-sample signrank on diffNull (see 'notebook_compareGrps_modulation.m'). 
+% *** Compare rule modulation between trial subsets for each cell type
+decodePairs = {["choice_sound","choice_action"],["rule_SL","rule_SR"]};
+vars = ["selMag","pSig","selIdx"];
+for i = 1:numel(decodePairs)
+    for j = 1:numel(vars)
+        for k = 1:numel(cellTypes) % ["rule_SL,"rule_SR"]
+            compStruct = addComparison(... %(eg S.choice_sound.SST.diffNull.pSig)
+                compStruct,S,{decodePairs{i},cellTypes(k),"diffNull",vars(j)},test.modulation);
+        end
+    end
+end
+
+% *** Post-hoc comparison of outcome modulation in SST to all other cell types ***
+vars = ["selMag_t","nullMag_t"];
+for i = 1:numel(vars)
+    S = posthoc_PreCueAvg(S,"prior_outcome",cellTypes,vars(i)); %Add derivative variable post-hoc
+end
+S = posthoc_PreCueAvg(S,"prior_outcome",cellTypes,"diffNull","selMag_t"); %Add derivative variable post-hoc
+
+for k = 1:numel(cellTypes)
+    compStruct = addComparison(... %(eg S.choice_sound.SST.pSig)
+        compStruct,S,{"prior_outcome",cellTypes(k),["preCueAvg_selMag_t","preCueAvg_nullMag_t"]},test.modulation); %Report mean & sem
+end
+%Secondary comparison: difference in *corrected* means between cell-types
+[compStruct, stats] = addComparison(...
+    compStruct,S,{"prior_outcome",cellTypes,"diffNull","preCueAvg_selMag_t"},test.cellTypes); %Report mean & sem
+if str2double(compStruct(end).p)<alpha
+    mltCmpStruct = addMultComparison(mltCmpStruct,stats,compStruct(end).varName);
+end
+
+% *NOTE: validated diffNull comparisons by verifying that results of paired signrank are consistent
+%   with 1-sample signrank on diffNull (see 'notebook_compareGrps_modulation.m').
+
 
 %% RETURN DATA STRUCTURES AS TABLES
 
@@ -199,7 +238,7 @@ if numel(data)>1
     comparison = comp_spec{cellfun(@length,comp_spec)>1}; %For 1-way comparisons, the unique cell containing multiple fields
 else
     comparison = {'1-Sample vs. ',num2str(test_spec{2})};
-    test_spec = test_spec{1}; %Extract testName 
+    test_spec = test_spec{1}; %Extract testName
 end
 
 if any(strcmp(comparison,"SST"))
@@ -227,6 +266,6 @@ data_struct(idx,1) = struct(...
     'varName',varName,'comparison',comparison,'diff',num2str(diff),...
     'p',num2str(p),'N',num2str(N),'testName',test_spec,'stats',stats_str); %Enforce column vector
 
-% Remove empty rows 
+% Remove empty rows
 idx = ~cellfun(@isempty,{data_struct.varName}); %(data_struct(i).varName==[] if any fields are not found in 'stats' structure)
 data_struct = data_struct(idx);

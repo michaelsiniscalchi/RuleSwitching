@@ -9,7 +9,7 @@ calculate.dFF                   = false; %Calculate dF/F, with optional neuropil
 calculate.align_signals         = false; %Interpolate dF/F and align to behavioral events
 calculate.trial_average_dFF     = false; %dF/F averaged over specified subsets of trials
 calculate.decode_single_units   = false; %ROC/Selectivity for choice, outcome and rule
-calculate.transitions           = false; %Changes in dF/F over each block; 
+calculate.transitions           = false; %Changes in dF/F over each block; %*NOT USED for paper
 
 calculate.fluorescence = false;
 if any([calculate.cellF, calculate.dFF, calculate.align_signals, calculate.trial_average_dFF,...
@@ -21,7 +21,7 @@ end
 summarize.behavior              = false;
 summarize.imaging               = false;
 summarize.selectivity           = false;
-summarize.transitions           = false;
+summarize.transitions           = false; %*NOT USED for paper
 
 summarize.stats                     = false; %Descriptive stats; needed for all summary plots
 summarize.table_experiments         = false;
@@ -33,20 +33,20 @@ summarize.table_comparative_stats   = false;
 % Behavior
 figures.raw_behavior                    = false;
 figures.lick_density                    = false;
-% Imaging %***RERUN on desktop after quarantine***
+% Imaging 
 figures.FOV_mean_projection             = false;
 figures.timeseries                      = false; %Plot all timeseries for each session
 % Combined
-figures.trial_average_dFF               = false;  %Overlay traces for distinct choices, outcomes, and rules (CO&R)
+figures.trial_average_dFF               = true;  %Overlay traces for distinct choices, outcomes, and rules (CO&R)
+figures.time_average_dFF                = false;  %Overlay traces for distinct choices, outcomes, and rules (CO&R)
 figures.decode_single_units             = false;
 figures.heatmap_modulation_idx          = false;  %Heatmap of selectivity idxs for COR for each session
 figures.transitions                     = false; 
 % Summary
-figures.summary_behavior                = false; %Summary of descriptive stats, eg, nTrials and {trials2crit, pErr, oErr} for each rule
-figures.summary_lick_density            = false; %Merge with lickstats as lick_stats
-figures.summary_lickstats               = false;
-figures.summary_modulation_heatmap      = true; %Heatmap for each celltype, all sessions, one figure each for CO&R
-figures.summary_modulation				= true; %Box/line plots of grouped selectivity results for comparison
+figures.summary_behavior                = false;  %Summary of descriptive stats, eg, nTrials and {trials2crit, pErr, oErr} for each rule
+figures.summary_task_related_activity   = false;
+figures.summary_modulation_heatmap      = false; %Heatmap for each celltype, all sessions, one figure each for CO&R
+figures.summary_modulation				= false; %Box/line plots of grouped selectivity results for comparison
 figures.summary_transitions             = false;
 
 % Validation
@@ -87,41 +87,28 @@ params.align.interdt    = 0.05; %Query intervals for interpolation in seconds (m
 params.align.window     = params.behavior.timeWindow; %Also used for bootavg, etc.
 
 % Trial averaging
-params.bootAvg.window       = params.behavior.timeWindow;
-params.bootAvg.dsFactor     = 5; %Downsample from interpolated rate of 1/params.interdt
-params.bootAvg.nReps        = 1000; %Number of bootstrap replicates
-params.bootAvg.CI           = 90; %Confidence interval as decimal
-params.bootAvg.trialSpec    =...
-	{...
-	{'left' 'hit' 'sound' 'last20'},...
-	{'right' 'hit' 'sound' 'last20'};... %Decode choice in Sound trials
+params.bootAvg.window           = params.behavior.timeWindow;
+params.bootAvg.dsFactor         = 5; %Downsample from interpolated rate of 1/params.interdt
+params.bootAvg.nReps            = 1000; %Number of bootstrap replicates
+params.bootAvg.CI               = 95; %Confidence interval as decimal
+[~ ,params.bootAvg.trialSpec]   = list_trialSpecs('bootAvg');
 	
-	{'left' 'hit' 'action' 'last20'},...
-	{'right' 'hit' 'action' 'last20'};... %Decode choice in Action trials
-    
-    {'priorLeft' 'priorHit' 'sound' 'last20'},...
-	{'priorRight' 'priorHit' 'sound' 'last20'};... %Decode prior choice in Sound trials
-	
-	{'hit','priorHit'},...
-	{'err','priorHit'};... %Decode outcome
-	
-	{'sound' 'left' 'priorLeft' 'hit' 'last20'},... %Decode rule with choice/outcome fixed
-	{'actionL' 'left' 'priorLeft' 'hit' 'last20'};... 
-	
-	{'sound' 'right' 'priorRight' 'hit' 'last20'},...
-	{'actionR' 'right' 'priorRight' 'hit' 'last20'};...
-	}; %Spec for each trial subset for comparison (conjunction of N fields from 'trials' structure.)
+% ------- Single-unit decoding -------
+% params.decode.decode_type     = ...
+%     {'choice_sound','choice_action','prior_choice','prior_choice_action',...
+%     'outcome','prior_outcome','rule_SL','rule_SR'}; %MUST have same number of elements as rows in trialSpec. Eg, = {'choice','outcome','rule_SL','rule_SR'}
+% params.decode.trialSpec       = params.bootAvg.trialSpec; %Spec for each trial subset for comparison (conjunction of N fields from 'trials' structure.)
 
-% Single-unit decoding
-params.decode.decode_type     = {'choice_sound','choice_action','prior_choice','outcome','rule_SL','rule_SR'}; %MUST have same number of elements as rows in trialSpec. Eg, = {'choice','outcome','rule_SL','rule_SR'}
-params.decode.trialSpec       = params.bootAvg.trialSpec; %Spec for each trial subset for comparison (conjunction of N fields from 'trials' structure.)
-params.decode.dsFactor        = params.bootAvg.dsFactor; %Downsample from interpolated rate of 1/params.interdt
-params.decode.nReps           = params.bootAvg.nReps; %Number of bootstrap replicates
-params.decode.nShuffle        = 1000; %Number of shuffled replicates
-params.decode.CI              = params.bootAvg.CI; %Confidence interval as percentage
-params.decode.sig_method      = 'shuffle';  %Method for determining chance-level: 'bootstrap' or 'shuffle'
-params.decode.sig_duration    = 1;  %Number of consecutive seconds exceeding chance-level
-params.decode.t0              = params.behavior.timeWindow(1);  %Use eg params.behavior.timeWindow(1), or 0 for trigger time
+[p.decodeType, p.trialSpec]    = list_trialSpecs('bootAvg'); %Spec for each trial subset for comparison (conjunction of N fields from 'trials' structure.)
+p.dsFactor        = params.bootAvg.dsFactor; %Downsample from interpolated rate of 1/params.interdt
+p.nReps           = params.bootAvg.nReps; %Number of bootstrap replicates
+p.nShuffle        = 1000; %Number of shuffled replicates
+p.CI              = 95; %params.bootAvg.CI; %Confidence interval as percentage
+p.sig_method      = 'shuffle';  %Method for determining chance-level: 'bootstrap' or 'shuffle'
+p.sig_duration    = 1;  %Number of consecutive seconds exceeding chance-level
+p.t0              = 0; %params.behavior.timeWindow(1);  %Use eg params.behavior.timeWindow(1), or 0 for trigger time
+params.decode = p;
+clearvars p;
 
 % Transition analyses
 params.transitions.window           = params.behavior.timeWindow; %Time to be considered within trial
@@ -160,22 +147,31 @@ outcomeColors = {'hit',cbrew.green,'hit2',cbrew.green2,'err',cbrew.pink,'err2',c
 dataColors = {'data',cbrew.black,'data2',cbrew.gray};
 colors = struct(cellColors{:}, choiceColors{:}, ruleColors{:}, outcomeColors{:}, dataColors{:});
 
+%% GLOBAL SETTINGS
+params.figs.all.colors = colors;
+
 %% FIGURE: MEAN PROJECTION FROM EACH FIELD-OF-VIEW
-params.figs.fovProj.calcProj        = true; %Calculate or re-calculate projection from substacks for each trial (time consuming).
-params.figs.fovProj.blackLevel      = 20; %As percentile
-params.figs.fovProj.whiteLevel      = 99.7; %As percentile
-params.figs.fovProj.overlay_ROIs    = false; %Overlay outlines of ROIs
+params.figs.fovProj.calcProj        = false; %Calculate or re-calculate projection from substacks for each trial (time consuming).
+params.figs.fovProj.blackLevel      = 30; %As percentile 20
+params.figs.fovProj.whiteLevel      = 99.7; %As percentile 99.7
+c = [zeros(256,1) linspace(0,1,256)' zeros(256,1)];
+params.figs.fovProj.colormap        = c;
+params.figs.fovProj.overlay_ROIs    = true; %Overlay outlines of ROIs
 params.figs.fovProj.overlay_npMasks = false; %Overlay outlines of neuropil masks
-params.figs.fovProj.expIDs          = [];
-% params.figs.fovProj.expIDs = {...
-%     '180831 M55 RuleSwitching';...
-%     '181003 M52 RuleSwitching'};
+% params.figs.fovProj.expIDs          = [];
+params.figs.fovProj.expIDs = {...
+    '171109 M51 RuleSwitching';...
+    '181010 M57 RuleSwitching';...
+    '171104 M42 RuleSwitching';...
+    '180831 M55 RuleSwitching'};
 
 % For plotting only selected cells
-params.figs.fovProj.cellIDs{numel(expData)} = []; %Initialize
-% params.figs.fovProj.cellIDs(restrictExpIdx({expData.sub_dir},params.figs.fovProj.expIDs)) = {... % One cell per session, containing cellIDs
-% {'140','141','142','143','144'};
-% {'001','002','003','004','005','006','007','008','009','010'}};
+% params.figs.fovProj.cellIDs{numel(expData)} = []; %Initialize
+params.figs.fovProj.cellIDs(restrictExpIdx({expData.sub_dir},params.figs.fovProj.expIDs)) = {... % One cell per session, containing cellIDs
+    {'007','014','018','021'};...
+    {'002','004','007','013'};
+    {'004','013','017','018'};
+    {'005','007','014','030'}};
 
 %% FIGURE: RAW BEHAVIOR
 params.figs.behavior.window = params.behavior.timeWindow; 
@@ -184,83 +180,66 @@ params.figs.behavior.colors = struct('red',cbrew.red,'blue',cbrew.blue,'green',c
 %% FIGURE: LICK DENSITY IN VARIED TRIAL CONDITIONS
 params.figs.lickDensity.timeWindow = params.behavior.timeWindow; %For lick density plots
 params.figs.lickDensity.binWidth = params.behavior.binWidth; 
-params.figs.lickDensity.colors = {cbrew.red, cbrew.blue};
+params.figs.lickDensity.colors = {cbrew.red, cbrew.blue}; %Revise with params.figs.all.colors
 
 %% FIGURE: CELLULAR FLUORESCENCE TIMESERIES FOR ALL NEURONS
-params.figs.timeseries.expIDs           = [];
-params.figs.timeseries.cellIDs          = [];
-% params.figs.timeseries.expIDs           = {...
-%     '180831 M55 RuleSwitching';...
-%     '181003 M52 RuleSwitching'};
-% params.figs.timeseries.cellIDs          = {...
-%     {'140','141','142','143','144'};
-%     {'001','002','003','004','005','006','007','008','009','010'}};
+p = params.figs.all; %Global figure settings: colors structure, etc.
+[p.expIDs, p.cellIDs] = list_exampleCells('timeseries');
+% p.expIDs           = [];
+% p.cellIDs          = [];
+p.trialMarkers     = false;
+p.trigTimes        = 'cueTimes'; %'cueTimes' or 'responseTimes'
+p.ylabel_cellIDs   = true;
+p.spacing          = 10; %Spacing between traces in SD 
+p.FaceAlpha        = 0.2; %Transparency for rule patches
+p.LineWidth        = 0.5; %LineWidth for dF/F
+p.Color            = struct('red',cbrew.red, 'blue', cbrew.blue); %Revise with params.figs.all.colors
 
-params.figs.timeseries.trialMarkers     = false;
-params.figs.timeseries.trigTimes        = 'cueTimes'; %'cueTimes' or 'responseTimes'
-params.figs.timeseries.ylabel_cellIDs   = true;
-params.figs.timeseries.spacing          = 10; %Spacing between traces in SD 
-params.figs.timeseries.FaceAlpha        = 0.2; %Transparency for rule patches
-params.figs.timeseries.LineWidth        = 0.5; %LineWidth for dF/F
-params.figs.timeseries.Color            = struct('red',cbrew.red, 'blue', cbrew.blue); 
-
+params.figs.timeseries = p;
+clearvars p;
 %% FIGURE: TRIAL-AVERAGED CELLULAR FLUORESCENCE
 
 % -------Trial Averaging: choice, outcome, and rule-------------------------------------------------
+[p.expIDs, p.cellIDs] = list_exampleCells('bootAvg');
+% params.figs.bootAvg.expIDs     = [];
+% params.figs.bootAvg.cellIDs    = [];
+[~, p.trialSpec]    = list_trialSpecs('bootAvg');
+p.panels = list_panelSpecs('bootAvg',params);
 
-params.figs.bootAvg.cellIDs              = [];
-params.figs.bootAvg.xLabel               = 'Time from sound cue (s)';  % XLabel
-params.figs.bootAvg.yLabel               = 'Cellular Fluorescence (dF/F)';
-params.figs.bootAvg.verboseLegend        = false;
+p.xLabel          = 'Time from sound cue (s)';  % XLabel
+p.yLabel          = 'Cellular Fluorescence (dF/F)';
+p.verboseLegend   = false;
 
-%Specify array 'p' containing variables and plotting params for each figure panel:
-trialSpec = params.bootAvg.trialSpec;
-for i=1:size(params.bootAvg.trialSpec,1)
-	p(i).trialSpec  = {trialSpec{i,1},trialSpec{i,2}}; %#ok<AGROW> %Refer to params.bootAvg.trialSpec
-end
-p(1).title      = 'Choice (sound rule)';
-p(1).color      = {cbrew.red,cbrew.blue}; %Choice: left/hit/sound vs right/hit/sound
-p(1).lineStyle  = {'-','-'};
-p(2).title      = 'Choice (action rule)';
-p(2).color      = {cbrew.red,cbrew.blue}; %Choice: left/hit/sound vs right/hit/sound
-p(2).lineStyle  = {'-','-'};
-p(3).title      = 'Prior choice';
-p(3).color      = {cbrew.red,cbrew.blue}; %Choice: left/hit/sound vs right/hit/sound
-p(3).lineStyle  = {'-','-'};
-p(4).title      = 'Outcome';
-p(4).color      = {cbrew.green,cbrew.pink}; %Outcome: hit/priorHit vs err/priorHit
-p(4).lineStyle  = {'-','-'};
-p(5).title      = 'Rule (left choice)';
-p(5).color      = {'k',cbrew.red}; %Rule: left/upsweep/sound vs left/upsweep/actionL
-p(5).lineStyle  = {'-','-'};
-p(6).title      = 'Rule (right choice)';
-p(6).color      = {'k',cbrew.blue}; %Rule: right/downsweep/sound vs right/downsweep/actionR
-p(6).lineStyle  = {'-','-'};
-
-params.figs.bootAvg.panels = p;
+params.figs.bootAvg = p;
 clearvars p
+
+%% FIGURE: TIME-AVERAGED CELLULAR FLUORESCENCE (CO-PLOT SPECIFIED CELLS)
+
+% -------Trial Averaging: All trials performed-------------------------------------------------
+params.figs.timeAvg = params.figs.timeseries;
+%params.figs.timeAvg.expIDs              = [];
+params.figs.timeAvg.cellIDs             = [];
+params.figs.timeAvg.colors              = colors; %Choice: left/hit/sound vs right/hit/sound
+params.figs.timeAvg.verboseLegend       = false;
+params.figs.timeAvg.panels              = [];
+params.figs.timeAvg.panels.title        = 'All Trials Performed';
+params.figs.timeAvg.panels.lineStyle    = {'-'};
 
 %% FIGURE: MODULATION INDEX: CHOICE, OUTCOME, AND RULE
 
 % Single-unit plots
-params.figs.decode_single_units.fig_type             = 'singleUnit';
-params.figs.decode_single_units.cellIDs              = [];
+p                       = params.figs.all; %Get global colors, etc.
+p.fig_type              = 'singleUnit';
+[p.decodeType, p.trialSpec]    = list_trialSpecs('bootAvg');
+p.panels = list_panelSpecs('decode_single_units',params); %Get variables and plotting params for each figure panel
+[p.expIDs,p.cellIDs]    = list_exampleCells('bootAvg'); %Same cells used for trial average and decode
+% p.expIDs = []
+% p.cellIDs = [];
+p.shading               = params.decode.sig_method; %'shuffle' or 'bootstrap'
+p.CI                    = params.decode.CI; 
 
-%Specify array 'p' containing variables and plotting params for each figure panel:
-p(1).title      = 'Choice (sound rule)';
-p(1).color      = 'k';
-p(2).title      = 'Choice (action rule)';
-p(2).color      = 'k';
-p(3).title      = 'Prior choice';
-p(3).color      = 'k';
-p(4).title      = 'Outcome';
-p(4).color      = cbrew.green;
-p(5).title      = 'Rule (left choice)';
-p(5).color      = cbrew.red;
-p(6).title      = 'Rule (right choice)';
-p(6).color      = cbrew.blue;
-params.figs.decode_single_units.panels = p;
-clearvars p;
+params.figs.decode_single_units = p;
+clearvars p ax;
 
 % Heatmaps
 params.figs.mod_heatmap.fig_type        = 'heatmap';
@@ -279,6 +258,9 @@ params.figs.mod_heatmap.prior_choice.color    = c(4,:);  %[colormap]=cbrewer(cty
 
 params.figs.mod_heatmap.outcome.cmap    = cbrewer('div', 'PiYG', 256);
 params.figs.mod_heatmap.outcome.color   = c(3,:);
+
+params.figs.mod_heatmap.prior_outcome.cmap    = cbrewer('div', 'PiYG', 256);
+params.figs.mod_heatmap.prior_outcome.color   = c(3,:);
 
 params.figs.mod_heatmap.rule_SL.cmap    = [flipud(cbrewer('seq','Reds',128));cbrewer('seq','Greys',128)];
 params.figs.mod_heatmap.rule_SL.color   = c(1,:);
@@ -308,26 +290,37 @@ params.figs.summary_behavior.lineStyle = {'-','-',':','-'}; %LineStyle for each 
 f(1).fig_name   = 'Mean_Selectivity_all';
 f(1).var_name   = {'selIdx','selIdx_t'};
 f(1).null_name  = {'nullIdx','nullIdx_t'};
+f(1).yLims.choice = {[-0.2,0.3],[-0.1,0.15]}; %For box and line, respectively
+f(1).yLims.outcome = {[-0.15,0.25],[-0.1,0.15]};
+f(1).yLims.rule = {[-0.5,0.5],[-0.15,0.2]};
 
-f(2).fig_name   = 'Mean_Selectivity_sig';
-f(2).var_name   = {'sigIdx','sigIdx_t'};
-f(2).null_name  = {'nullIdx','nullIdx_t'};
+% f(2).fig_name   = 'Mean_Selectivity_sig';
+% f(2).var_name   = {'sigIdx','sigIdx_t'};
+% f(2).null_name  = {'nullIdx','nullIdx_t'};
+% f(2).yLims.choice = {[],[]}; %For box and line, respectively
+% f(2).yLims.outcome = {[],[]};
+% f(2).yLims.rule = {[],[]};
 
-f(3).fig_name   = 'Mean_Magnitude_all'; 
-f(3).var_name   = {'selMag','selMag_t'};
-f(3).null_name  = {'nullMag','nullMag_t'};
+f(2).fig_name   = 'Mean_Magnitude_all'; 
+f(2).var_name   = {'selMag','selMag_t'};
+f(2).null_name  = {'nullMag','nullMag_t'};
+f(2).yLims.choice = {[0,0.3],[0,0.2]}; %For box and line, respectively
+f(2).yLims.outcome = {[0,0.25],[0,0.2]};
+f(2).yLims.rule = {[0,0.6],[0,0.2]};
 
-f(4).fig_name   = 'Proportion_Selective';
-f(4).var_name   = {'pSig', 'pSig_t'};
-f(4).null_name  = {'pNull', 'pNull_t'};
+f(3).fig_name   = 'Proportion_Selective';
+f(3).var_name   = {'pSig', 'pSig_t'};
+f(3).null_name  = {'pNull', 'pNull_t'};
+f(3).yLims.choice = {[0,1],[0,0.6]}; %For box and line, respectively
+f(3).yLims.outcome = {[0,1],[0,0.7]};
+f(3).yLims.rule = {[0,1],[0,0.5]};
 
 params.figs.summary_modulation.figs = f;
 
-params.figs.summary_modulation.decodeTypes =...
-    {'choice_sound','prior_choice','choice_action','outcome','rule_SL','rule_SR'}; %MUST have same number of elements as rows in trialSpec. Eg, = {'choice','outcome','rule_SL','rule_SR'}
+params.figs.summary_modulation.decodeTypes = params.decode.decodeType; %MUST have same number of elements as rows in trialSpec. Eg, = {'choice','outcome','rule_SL','rule_SR'}
 params.figs.summary_modulation.titles =...
-    {'Choice (sound rule)','Prior choice (sound rule)','Choice (action rule)',...
-    'Outcome','Rule (left choice)','Rule (right choice)'};
+    {'Choice (sound)','Choice (action)','Prior choice (sound)','Prior choice (action)'...
+    'Outcome','Prior outcome','Rule (left choice)','Rule (right choice)'};
 
 %Appearance
 params.figs.summary_modulation.dotSize  = 0.5;

@@ -9,7 +9,7 @@ function decode = calc_selectivity( trial_dFF, trials, params )
 disp(gcp); %Query/initialize
 
 % Loop Through Each Decode Type
-for i = 1:numel(params.decode_type) %Decode type, eg 'choice' or 'outcome'
+for i = 1:numel(params.decodeType) %Decode type, eg 'choice' or 'outcome'
     
     % Unpack some variables for readability
     trial_dff  = trial_dFF.cueTimes; %***FUTURE, could include arg 'trigger'
@@ -19,9 +19,9 @@ for i = 1:numel(params.decode_type) %Decode type, eg 'choice' or 'outcome'
     fields = {'selectivity','AUC','TPR','FPR','AUC_boot',...
         'AUC_shuffle','TPR_shuffle','FPR_shuffle'};
     for j = 1:numel(fields)
-        decode.(params.decode_type{i}).(fields{j}) = cell([numel(trial_dff), 1]);
+        decode.(params.decodeType{i}).(fields{j}) = cell([numel(trial_dff), 1]);
     end
-    decode.(params.decode_type{i}).trialSpec = trialSpec;
+    decode.(params.decodeType{i}).trialSpec = trialSpec;
     decode.t = trial_dFF.t;
     
     % Generate grouping vector
@@ -39,7 +39,7 @@ for i = 1:numel(params.decode_type) %Decode type, eg 'choice' or 'outcome'
     
     % Estimate receiver operating characteristic for aligned dF/F at each timepoint
     for j = 1:numel(trial_dff)
-        disp(['Calculating ROC for ' params.decode_type{i} ' from cell ' num2str(j) '/' num2str(numel(trial_dff)) '...']);
+        disp(['Calculating ROC for ' params.decodeType{i} ' from cell ' num2str(j) '/' num2str(numel(trial_dff)) '...']);
         
         %Get only trials specified in trialMasks
         dff = trial_dff{j}(subset,:);
@@ -61,14 +61,14 @@ for i = 1:numel(params.decode_type) %Decode type, eg 'choice' or 'outcome'
         [TPR_SHUFFLE,FPR_SHUFFLE,AUC_SHUFFLE] = shuffle_ROC(dff,types,params.nShuffle); %TPR and FPR are mean over all shuffles.
         
         % Store results in structure
-        decode.(params.decode_type{i}).selectivity{j} = 2*([AUC; AUC_BOOT(2:3,:)]-0.5); %Selectivity = 2*(AUC-0.5)
-        decode.(params.decode_type{i}).AUC{j} = AUC;
-        decode.(params.decode_type{i}).TPR{j} = TPR;
-        decode.(params.decode_type{i}).FPR{j} = FPR;
-        decode.(params.decode_type{i}).AUC_shuffle{j} = AUC_SHUFFLE; %AUC for each shuffled class label replicate
-        decode.(params.decode_type{i}).TPR_shuffle{j} = TPR_SHUFFLE; %Mean TPR(nCriteria,nTime) for shuffled class labels
-        decode.(params.decode_type{i}).FPR_shuffle{j} = FPR_SHUFFLE; %Mean FPR for shuffled class labels
-        decode.(params.decode_type{i}).nTrials = sum(trialMasks);
+        decode.(params.decodeType{i}).selectivity{j} = 2*([AUC; AUC_BOOT(2:3,:)]-0.5); %Selectivity = 2*(AUC-0.5)
+        decode.(params.decodeType{i}).AUC{j} = AUC;
+        decode.(params.decodeType{i}).TPR{j} = TPR;
+        decode.(params.decodeType{i}).FPR{j} = FPR;
+        decode.(params.decodeType{i}).AUC_shuffle{j} = AUC_SHUFFLE; %AUC for each shuffled class label replicate
+        decode.(params.decodeType{i}).TPR_shuffle{j} = TPR_SHUFFLE; %Mean TPR(nCriteria,nTime) for shuffled class labels
+        decode.(params.decodeType{i}).FPR_shuffle{j} = FPR_SHUFFLE; %Mean FPR for shuffled class labels
+        decode.(params.decodeType{i}).nTrials = sum(trialMasks);
     end
     
 end

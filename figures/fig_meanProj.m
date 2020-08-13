@@ -18,14 +18,13 @@ if params.overlay_ROIs
             flist = dir(fullfile(roi_dir,['*' cellIDs{i} '*']));
             roiPath{i,:} = fullfile(flist.folder,flist.name);
         end
+          
+        for i = 1:numel(roiPath)
+            S(i) = load(roiPath{i},'bw','subtractmask');
+            cellMasks(:,:,i) = S(i).bw;
+        end
+        roiObjs = plot_ROIs(ax,cellMasks,'r');
     end
-    
-    
-    for i = 1:numel(roiPath)
-        S(i) = load(roiPath{i},'bw','subtractmask');
-        cellMasks(:,:,i) = S(i).bw;
-    end
-    roiObjs = plot_ROIs(ax,cellMasks,'r');
     
     % ***WIP, good up to here...
     if params.overlay_npMasks
@@ -38,5 +37,5 @@ end
 
 %Square unenumerated axes 
 set(ax,'XTick',[],'YTick',[],'CLim',p); %Set properties
-colormap('pink');
-axis square;
+colormap(params.colormap);
+raxis square;

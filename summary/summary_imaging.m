@@ -26,7 +26,7 @@ for sessionID = 1:numel(struct_img)
         IMG.(type{j}).totalCells(expIdx.(type{j}),:) = numel(S.cellID) + nExcl; %Number of cells from 'cellROI.m' (not counting excl. masks)
         IMG.(type{j}).inclCells(expIdx.(type{j}),:) = numel(S.cellID); %Number of cells analyzed
         IMG.(type{j}).exclCells(expIdx.(type{j}),:) = nExcl;
-        IMG.(type{j}).exclMasks(expIdx.(type{j}),:) = size(S.exclude.cells,1)-nExcl; %If exclCells>exclBkgd, 'F==NaN'; if so, CHECK!
+        IMG.(type{j}).exclMasks(expIdx.(type{j}),:) = size(S.exclude.cells,1)-nExcl; %If exclCells>exclBkgd, 'F==NaN'; if so, CHECK! Did some exclusion masks sneak though?
         %***FUTURE: 'exclude.cells' should be string, not char...
         
         %Number & Proportion of Task-Responsive Cells per Session for each Cell-Type

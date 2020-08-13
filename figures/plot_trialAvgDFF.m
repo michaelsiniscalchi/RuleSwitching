@@ -9,17 +9,17 @@
 %
 %--------------------------------------------------------------------------
 
-function figs = plot_trialAvgDFF( bootAvg, cells, expID, params )
+function figs = plot_trialAvgDFF( bootAvg, cellIDs, cellIdx, expID, params )
 
 % Set up figure properties and restrict number of cells, if desired
 setup_figprops('timeseries')  %set up default figure plotting parameters
-if isfield(params,'cellIDs') && ~isempty(params.cellIDs)
-    cellIdx = get_cellIndex(cells,params.cellIDs);
-else
-    fields = fieldnames(bootAvg);
-    fields = fields(~strcmp(fields,'t'));
-    cellIdx = 1:numel(bootAvg.(fields{1}));
-end
+% if isfield(params,'cellIDs') && ~isempty(params.cellIDs) %Disabled; done externally script
+%     cellIdx = get_cellIndex(cells,params.cellIDs);
+% else
+%     fields = fieldnames(bootAvg);
+%     fields = fields(~strcmp(fields,'t'));
+%     cellIdx = 1:numel(bootAvg.(fields{1}));
+% end
 figs = gobjects(numel(cellIdx),1); %Initialize
 panels = params.panels; %Unpack for readability
 
@@ -59,7 +59,7 @@ for i = 1:numel(cellIdx)
     yLabel = params.yLabel;
     
     figs(i) = plot_trialAvgTimeseries(panels,ax_titles,xLabel,yLabel);
-    figs(i).Name = [expID, '_cell' cells.cellID{idx} '_bootavg']; %Figure name
+    figs(i).Name = [expID, '_cell' cellIDs{idx} '_bootavg']; %Figure name
     figs(i).Position = [50,400,1800,500]; %LBWH
     figs(i).Visible = 'off';
     

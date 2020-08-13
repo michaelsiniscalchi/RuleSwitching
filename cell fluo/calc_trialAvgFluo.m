@@ -14,7 +14,11 @@ end
 for i = 1:numel(trial_dff)
     disp(['Calculating trial-averaged dF/F for cell ' num2str(i) '/' num2str(numel(trial_dff))]);  
     for k = 1:numel(trialSpec)
-        subset_label = strjoin(trialSpec{k},'_');
+        if numel(trialSpec)>1
+            subset_label = strjoin(trialSpec{k},'_');
+        else
+            subset_label = char(trialSpec{k});
+        end
         trialMask = getMask(trials,trialSpec{k}); %Logical mask for specified combination of trials
         dff = trial_dff{i}(trialMask,:); %Get subset of trials specified by trialMask
         bootAvg.(subset_label)(i) = getTrialBoot(dff,subset_label,params);

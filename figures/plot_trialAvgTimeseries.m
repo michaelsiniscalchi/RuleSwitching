@@ -55,8 +55,8 @@ end
 % Standardize scale of axes
 [low,high] = bounds([ax(:).YLim]);
 for i=1:numel(panels)
-    ax(i).YLim = [nanmin(low) - 0.1*range([low;high]),...
-        nanmax(high)+ 0.1*range([low;high])];
+%     ax(i).YLim = [nanmin(low) - 0.1*range([low;high]),...
+%         nanmax(high)+ 0.1*range([low;high])]; %Disable
     plot(ax(i),[0 0],ax(i).YLim,'k:','LineWidth',get(groot,'DefaultAxesLineWidth'));
     xlabel(ax(i),xLabel);
 end

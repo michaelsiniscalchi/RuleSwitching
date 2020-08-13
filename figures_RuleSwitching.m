@@ -61,8 +61,11 @@ if figures.FOV_mean_projection
     for i = 1:numel(expIdx)
         figs(i) = fig_meanProj(figData, expIdx(i), params.figs.fovProj); %***WIP***
         figs(i).Name = expData(expIdx(i)).sub_dir;
+        if ~isempty(params.figs.fovProj.cellIDs)
+            figs(i).Name = [expData(expIdx(i)).sub_dir,'_ROIs'];
+        end
     end
-    save_multiplePlots(figs,save_dir,'svg'); %Save figure
+    save_multiplePlots(figs,save_dir,'pdf'); %Save figure
 end
 
 % Plot all timeseries from each experiment
@@ -78,7 +81,7 @@ if figures.timeseries
         figs(i) = fig_plotAllTimeseries(imgBeh,params.figs.timeseries);         %Generate fig
     end
     %Save batch as FIG, PNG, and SVG
-    save_multiplePlots(figs,save_dir,'svg');
+    save_multiplePlots(figs,save_dir,'pdf');
     clearvars figs;
 end
 
@@ -86,36 +89,60 @@ end
 
 % Plot trial-averaged dF/F: Sound(L/R), Action(L/R), Left(S/A), Right(S/A)
 if figures.trial_average_dFF
-    for i = 1:numel(expData)
+    expIdx = restrictExpIdx({expData.sub_dir},params.figs.bootAvg.expIDs); %Restrict to specific sessions, if desired 
+    cellIDs = restrictCellIDs(expIdx,params.figs.bootAvg.cellIDs); %Cell array of subsets 
+    for i = expIdx
         %Load data
         load(mat_file.results(i),'bootAvg');
-        cells = load(mat_file.img_beh(i),'cellID','blocks');
+        load(mat_file.img_beh(i),'cellID');
+        cellIdx = getCellSubset(mat_file.img_beh(i),cellIDs{expIdx==i});
         expID = expData(i).sub_dir;
-        save_dir = fullfile(dirs.figures,'Cellular fluorescence',expID);   %Figures directory: single units
+        %save_dir = fullfile(dirs.figures,'Cellular fluorescence',expID);   %Figures directory: single units
+        save_dir = fullfile(dirs.figures,'Example Cells'); %Example cells
         create_dirs(save_dir); %Create dir for these figures
         
         %Save figure for each cell plotting all combinations of choice x outcome
-        if figures.trial_average_dFF
-            figs = plot_trialAvgDFF(bootAvg,cells,expID,params.figs.bootAvg);
-            save_multiplePlots(figs,save_dir,'svg'); %save as FIG and PNG
-        end
+        figs = plot_trialAvgDFF(bootAvg,cellID,cellIdx,expID,params.figs.bootAvg);
+        save_multiplePlots(figs,save_dir);%,'pdf'); %save as FIG and PNG
         clearvars figs
+     end
+end
+
+if figures.time_average_dFF
+    expIdx = restrictExpIdx({expData.sub_dir},params.figs.timeAvg.expIDs); %Restrict to specific sessions, if desired 
+    cellIDs = restrictCellIDs(expIdx,params.figs.timeAvg.cellIDs); %Cell array of subsets 
+    for i = expIdx
+        %Load data
+        load(mat_file.results(i),'bootAvg');
+        %Get specified subset of cells
+        cellIdx = getCellSubset(mat_file.img_beh(i),cellIDs{expIdx==i});
+        save_dir = fullfile(dirs.figures,'Cellular fluorescence');   %Figures directory: single units
+        create_dirs(save_dir); %Create dir for these figures
+        
+        %Save figure for each cell plotting all combinations of choice x outcome
+        fig = plot_timeAvgDFF(bootAvg, cellIdx,...
+            expData(i).sub_dir, expData(i).cellType, params.figs.timeAvg);
+        save_multiplePlots(fig,save_dir,'pdf'); %save as FIG, PNG & PDF
+        clearvars fig
      end
 end
 
 % Plot ROC analyses: one figure each for choice, outcome, and rule
 if figures.decode_single_units
-    for i = 1:numel(expData)
+    expIdx = restrictExpIdx({expData.sub_dir},params.figs.decode_single_units.expIDs); %Restrict to specific sessions, if desired
+    cellIDs = restrictCellIDs(expIdx,params.figs.decode_single_units.cellIDs); %Cell array of subsets
+    for i = expIdx
         %Load data
         load(mat_file.results(i),'decode');
-        cells = load(mat_file.img_beh(i),'cellID');
+        load(mat_file.img_beh(i),'cellID');
+        cellIdx = getCellSubset(mat_file.img_beh(i),cellIDs{expIdx==i});
         %Figures directory
-        save_dir = fullfile(dirs.figures,'Single-unit modulation',expData(i).sub_dir);
+        %save_dir = fullfile(dirs.figures,'Single-unit modulation',expData(i).sub_dir);
+        save_dir = fullfile(dirs.figures,'Example Cells'); %Example cells
         create_dirs(save_dir); %Create dir for these figures
         %Figure with ROC analysis and selectivity traces
-        sessionID = [expData(i).sub_dir(1:end-14) '_' expData(i).cellType];
-        figs = fig_singleUnit_ROC(decode,cells,sessionID,params.figs.decode_single_units);
-        save_multiplePlots(figs,save_dir,'svg'); %save as FIG and PNG
+        figs = fig_singleUnit_ROC(decode,cellIdx,expData(i).sub_dir,cellID,params.figs.decode_single_units);
+        save_multiplePlots(figs,save_dir);%,'pdf'); %save as FIG and PNG
         clearvars figs
     end
 end
@@ -189,33 +216,17 @@ if figures.summary_behavior
     clearvars figs;
 end
 
-% % Lick Density Plots
-% if figures.summary_lick_density
-%     stats = load(mat_file.stats,'behavior'); %Load data
-%     save_dir = fullfile(dirs.figures,'Summary - lick density'); %Figures directory
-%     create_dirs(save_dir); %Create dir for these figures
-%  
-%     cellType = {'all'}; %{'all','SST','VIP','PV','PYR'}
-%     for i = 1:numel(cellType)
-%         figs(i) = fig_summary_lick_density(B,cellType{i},params.figs.summary_behavior);
-%     end
-%     save_multiplePlots(figs,save_dir,'svg'); %save as FIG and PNG
-%     clearvars figs;
-% end
-% 
-% % Differential licking by pre/post, outcome, and lateralization 
-% if figures.summary_lickstats
-%     stats = load(mat_file.stats,'behavior'); %Load data
-%     save_dir = fullfile(dirs.figures,'Summary - lick density'); %Figures directory
-%     create_dirs(save_dir); %Create dir for these figures
-%     
-%     cellType = {'all'}; %{'all','SST','VIP','PV','PYR'}
-%     for i=1:numel(cellType)
-%         figs(i) = fig_summary_lickstats(stats.behavior,cellType{i},params.figs.summary_behavior);
-%     end
-%     save_multiplePlots(figs,save_dir,'svg'); %save as FIG and PNG
-%     clearvars figs;
-% end
+%Box plot of proportion with task-related activity for each cell type
+if figures.summary_task_related_activity
+    S = load(mat_file.stats,'imaging');
+    save_dir = fullfile(dirs.figures,'Summary - modulation comparisons');   %Save with spec modulation comparisons
+    create_dirs(save_dir); %Create dir for these figures
+    %Generate figures
+    fig = fig_summary_task_related_activity(S.imaging,params.figs.summary_modulation);
+    %Save
+    save_multiplePlots(fig,save_dir,'pdf'); %save as FIG and PNG
+    clearvars figs;
+end
 
 % Heatmap of modulation indices for each cell type: one figure each for choice, outcome, and rule
 if figures.summary_modulation_heatmap
@@ -243,7 +254,6 @@ end
 if figures.summary_modulation
     %Load data
     S = load(mat_file.stats,'selectivity');
-    T = load(mat_file.stats);
     time = load(mat_file.summary.selectivity,'t'); time = time.t;
     save_dir = fullfile(dirs.figures,'Summary - modulation comparisons');   %Figures directory
     create_dirs(save_dir); %Create dir for these figures

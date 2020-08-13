@@ -9,7 +9,7 @@ if isstruct(stats)
     for i = 1:size(c,1)
         S(i).varName = varName;
         S(i).comparison = [gnames{c(i,1)} '-' gnames{c(i,2)}];
-        S(i).diff = c(i,4);
+        S(i).diff = c(i,4); %If Kruskal-Wallis, difference in ranks
         S(i).p = c(i,end);
     end
     
